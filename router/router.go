@@ -1,7 +1,10 @@
 package router
 
 import (
-    "github.com/gin-gonic/gin"
+    _ "healing2020/docs"
+	swaggerFiles "github.com/swaggo/files"
+	"github.com/swaggo/gin-swagger"
+	"github.com/gin-gonic/gin"
 )
 
 func InitRouter() *gin.Engine {
@@ -15,6 +18,9 @@ func InitRouter() *gin.Engine {
     //here to add routers
 
     //here to control the middleware
+
+    //swagger
+    r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
     return r
 }
