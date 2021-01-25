@@ -23,7 +23,27 @@ var doc = `{
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
-    "paths": {}
+    "paths": {
+        "/": {
+            "get": {
+                "description": "nothing",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "onlytest"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "msg"
+                        }
+                    }
+                }
+            }
+        }
+    }
 }`
 
 type swaggerInfo struct {
@@ -37,12 +57,12 @@ type swaggerInfo struct {
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = swaggerInfo{
-	Version:     "",
+	Version:     "1.0",
 	Host:        "",
 	BasePath:    "",
 	Schemes:     []string{},
-	Title:       "",
-	Description: "",
+	Title:       "healing2020",
+	Description: "2020治愈系",
 }
 
 type s struct{}

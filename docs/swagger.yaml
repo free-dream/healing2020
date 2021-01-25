@@ -1,4 +1,19 @@
 info:
   contact: {}
-paths: {}
+  description: 2020治愈系
+  title: healing2020
+  version: "1.0"
+paths:
+  /:
+    get:
+      description: nothing
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: msg
+      tags:
+      - onlytest
 swagger: "2.0"

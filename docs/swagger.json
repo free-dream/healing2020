@@ -1,7 +1,30 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "description": "2020治愈系",
+        "title": "healing2020",
+        "contact": {},
+        "version": "1.0"
     },
-    "paths": {}
+    "paths": {
+        "/": {
+            "get": {
+                "description": "nothing",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "onlytest"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "msg"
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
