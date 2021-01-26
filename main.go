@@ -2,6 +2,7 @@ package main
 
 import (
     "healing2020/router"
+    "healing2020/pkg/setting"
 )
 
 // @Title healing2020
@@ -9,6 +10,8 @@ import (
 // @Description 2020治愈系
 
 func main() {
+    setting.MysqlConnTest()
+    
     routersInit := router.InitRouter()
 
     routersInit.Run(":8001")
