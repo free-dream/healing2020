@@ -24,20 +24,26 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/": {
+        "/qiniu/token": {
             "get": {
-                "description": "nothing",
+                "description": "获取七牛的upToken",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "onlytest"
+                    "qiniu"
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "{\"upToken\": \"xxxxx\"}",
                         "schema": {
-                            "type": "msg"
+                            "type": "string"
+                        }
+                    },
+                    "403": {
+                        "description": "{\"err\": \"false\"}",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 }

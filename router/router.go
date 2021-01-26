@@ -16,7 +16,8 @@ func InitRouter() *gin.Engine {
 
     //开发时按群组分类，并记得按swagger格式注释
     
-
+    //qiniuToken
+    r.GET("/qiniu/token", controller.qiniuToken)
 
     //swagger
     r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
