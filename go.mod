@@ -16,4 +16,5 @@ require (
 	github.com/urfave/cli v1.22.5 // indirect
 	golang.org/x/sys v0.0.0-20210123231150-1d476976d117 // indirect
 	golang.org/x/tools v0.1.0 // indirect
+	gopkg.in/ini.v1 v1.62.0
 )

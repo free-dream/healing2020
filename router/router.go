@@ -5,6 +5,7 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	"github.com/swaggo/gin-swagger"
 	"github.com/gin-gonic/gin"
+    "healing2020/controller"
 )
 
 func InitRouter() *gin.Engine {
@@ -19,6 +20,9 @@ func InitRouter() *gin.Engine {
 
     //swagger
     r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+    //test
+    r.GET("/initest",controller.Test)
 
     return r
 }
