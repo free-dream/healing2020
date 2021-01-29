@@ -2,6 +2,7 @@ package main
 
 import (
     "healing2020/router"
+    "healing2020/models"
     "healing2020/pkg/setting"
 )
 
@@ -11,6 +12,7 @@ import (
 
 func main() {
     setting.MysqlConnTest()
+    models.TableInit()
     
     routersInit := router.InitRouter()
 
