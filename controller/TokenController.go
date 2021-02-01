@@ -1,4 +1,4 @@
-package healing2020
+package controller
 
 import (
 	"fmt"
