@@ -9,7 +9,7 @@ import (
 
 type User struct {
     gorm.Model
-    Openid string
+    OpenId string
     NickName string
 }
 
