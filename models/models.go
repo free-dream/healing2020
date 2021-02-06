@@ -14,4 +14,15 @@ import (
 
 func TableInit() {
     statements.UserInit()
+    statements.RankInit()
+    statements.CommentInit()
+    statements.DeliverInit()
+    statements.LotteryInit()
+    statements.MailboxInit()
+    statements.MessageInit()
+    statements.PrizeInit()
+    statements.SongInit()
+    statements.SpecialInit()
+    statements.SubjectInit()
+    statements.VodInit()
 }
