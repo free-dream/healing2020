@@ -19,6 +19,9 @@ func InitRouter() *gin.Engine {
     //qiniuToken
     r.GET("/qiniu/token", controller.QiniuToken)
 
+    //注册
+    r.POST("/register", controller.Register)
+
     //swagger
     r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 

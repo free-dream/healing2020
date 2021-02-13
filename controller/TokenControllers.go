@@ -28,8 +28,8 @@ func QiniuToken(c *gin.Context) {
 	err := "false"
 	//返回toekn
 	if(upToken != "") {
-		c.JSON(200, upToken)
+		c.JSON(200, gin.H{"upToken": upToken})
 	}else{
-		c.JSON(403, err)
+		c.JSON(403, gin.H{"err": err})
 	}	
 }
