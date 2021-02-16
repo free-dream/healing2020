@@ -20,4 +20,20 @@ paths:
             type: string
       tags:
       - qiniu
+  /register:
+    post:
+      description: 爱好选择接口
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"message": "xxxxx"}'
+          schema:
+            type: string
+        "403":
+          description: '{"error": "false"}'
+          schema:
+            type: string
+      tags:
+      - hobby
 swagger: "2.0"

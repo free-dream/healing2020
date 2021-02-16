@@ -22,12 +22,14 @@ func InitRouter() *gin.Engine {
     //注册
     r.POST("/register", controller.Register)
 
+    //爱好
+    r.POST("/user/hobby", controller.Hobby)
+
     //swagger
     r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
     //test
     r.GET("/initest",controller.Test)
-
     return r
 }
 

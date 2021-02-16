@@ -48,6 +48,31 @@ var doc = `{
                     }
                 }
             }
+        },
+        "/register": {
+            "post": {
+                "description": "爱好选择接口",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "hobby"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{\"message\": \"xxxxx\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "403": {
+                        "description": "{\"error\": \"false\"}",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     }
 }`
