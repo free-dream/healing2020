@@ -22,8 +22,14 @@ func InitRouter() *gin.Engine {
     //注册
     r.POST("/register", controller.Register)
 
-    //爱好
-    r.POST("/user/hobby", controller.Hobby)
+    //添加爱好
+    r.POST("/user/hobby", controller.NewHobby)
+
+    //获取爱好
+    r.GET("/user/hobby", controller.GetHobby)
+
+    //修改个人信息
+    r.PUT("/user", controller.PutUser)
 
     //swagger
     r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

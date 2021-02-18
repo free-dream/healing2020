@@ -35,21 +35,69 @@ var doc = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"upToken\": \"xxxxx\"}",
+                        "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/controller.Token"
                         }
                     },
                     "403": {
-                        "description": "{\"err\": \"false\"}",
+                        "description": "Forbidden",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/e.ErrMsgResponse"
                         }
                     }
                 }
             }
         },
-        "/register": {
+        "/user": {
+            "put": {
+                "description": "更新用户信息",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "PutUserInf"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/hobby": {
+            "get": {
+                "description": "获取用户爱好",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "hobby"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.Tag"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "爱好选择接口",
                 "produces": [
@@ -60,17 +108,61 @@ var doc = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"message\": \"xxxxx\"}",
+                        "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/e.ErrMsgResponse"
                         }
                     },
                     "403": {
-                        "description": "{\"error\": \"false\"}",
+                        "description": "Forbidden",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/e.ErrMsgResponse"
                         }
                     }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "controller.Tag": {
+            "type": "object",
+            "properties": {
+                "tag1": {
+                    "type": "integer"
+                },
+                "tag2": {
+                    "type": "integer"
+                },
+                "tag3": {
+                    "type": "integer"
+                },
+                "tag4": {
+                    "type": "integer"
+                },
+                "tag5": {
+                    "type": "integer"
+                },
+                "tag6": {
+                    "type": "integer"
+                },
+                "tag7": {
+                    "type": "integer"
+                }
+            }
+        },
+        "controller.Token": {
+            "type": "object",
+            "properties": {
+                "uptoken": {
+                    "type": "string"
+                }
+            }
+        },
+        "e.ErrMsgResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
                 }
             }
         }

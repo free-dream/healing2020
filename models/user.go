@@ -7,8 +7,8 @@ import (
   _ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
-
-func RegisterUpdate(user statements.User,userID uint) error {
+//更新user表
+func UpdateUser(user statements.User, userID uint) error{
 	//连接mysql
 	db := setting.MysqlConn()
 	defer db.Close()

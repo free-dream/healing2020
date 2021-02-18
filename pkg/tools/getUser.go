@@ -10,6 +10,19 @@ import (
 
 type RedisUser struct {
     ID 	uint
+    OpenId string
+    NickName string
+    TrueName string
+    More string
+    Campus string
+    Avatar string
+    Phone string
+    Sex int
+    Hobby string
+    Money int
+    Setting1 int
+    Setting2 int
+    Setting3 int
 }	
 
 func GetUser() RedisUser{

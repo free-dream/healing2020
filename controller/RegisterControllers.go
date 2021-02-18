@@ -2,9 +2,9 @@ package controller
 
 import (
 	"healing2020/models/statements"
-
 	"healing2020/models"
 	"healing2020/pkg/tools"
+	"healing2020/pkg/e"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,8 +14,8 @@ import (
 //@Tags register
 //@Produce json
 //@Router /register [post]
-//@Success 200 {string} string "{"message": "xxxxx"}"
-//@Failure 403 {string} string "{"error": "false"}"
+//@Success 200 {object} e.ErrMsgResponse
+//@Failure 403 {object} e.ErrMsgResponse
 type UserRegister struct {
 	NickName string `json:"name"`
 	TrueName string `json:"realname"`
@@ -30,6 +30,7 @@ func Register(c *gin.Context) {
 	//获取json
 	json := UserRegister{}
 	c.BindJSON(&json)
+	//构建模型
 	user := statements.User{
 		NickName: json.NickName,
 		TrueName: json.TrueName,
@@ -37,10 +38,10 @@ func Register(c *gin.Context) {
 		Phone: json.Phone,
 		Campus: json.Campus,
 	}
-	err := models.RegisterUpdate(user, userInf.ID)
+	err := models.UpdateUser(user, userInf.ID)
 	if err != nil {
-		c.JSON(403, gin.H{"error": err})
+		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.ERROR_USER_CREATE_FAIL)})
 	}else{	
-		c.JSON(200, gin.H{"message": "注册成功"})
+		c.JSON(200, e.ErrMsgResponse{Message: e.GetMsg(e.SUCCESS)})
 	}
 }

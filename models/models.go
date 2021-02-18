@@ -25,4 +25,5 @@ func TableInit() {
     statements.SpecialInit()
     statements.SubjectInit()
     statements.VodInit()
+    statements.BackgroundInit()
 }
