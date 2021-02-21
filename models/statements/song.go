@@ -9,11 +9,11 @@ import (
 
 type Song struct {
     gorm.Model
-    UserId int
-    VodId int
+    UserId uint
+    VodId uint
     VodSend int
     Name string
-    Like int
+    Praise int
     Source string
     Style string
     Language string

@@ -8,6 +8,8 @@ import (
 
 type Background struct {
     ID uint `gorm:"primary_key"`
+    UserId uint
+    Now string
     B1 string
     B2 string
     B3 string

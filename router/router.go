@@ -31,6 +31,9 @@ func InitRouter() *gin.Engine {
     //修改个人信息
     r.PUT("/user", controller.PutUser)
 
+    //个人页
+    r.GET("/user", controller.ResponsePerponalPage)
+
     //swagger
     r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 

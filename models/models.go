@@ -26,4 +26,5 @@ func TableInit() {
     statements.SubjectInit()
     statements.VodInit()
     statements.BackgroundInit()
+    statements.PraiseInit()
 }

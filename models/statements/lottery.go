@@ -9,8 +9,8 @@ import (
 
 type Lottery struct {
     gorm.Model
-    PrizeId int
-    UserId int
+    PrizeId uint
+    UserId uint
     Weight int
 }
 

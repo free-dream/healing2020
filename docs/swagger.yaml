@@ -1,4 +1,35 @@
 definitions:
+  controller.PersonalPage:
+    properties:
+      Songs:
+        items:
+          $ref: '#/definitions/models.Songs'
+        type: array
+      admire:
+        items:
+          $ref: '#/definitions/models.Admire'
+        type: array
+      avatar:
+        type: string
+      background:
+        type: string
+      more:
+        type: string
+      name:
+        type: string
+      requestSongs:
+        items:
+          $ref: '#/definitions/models.RequestSongs'
+        type: array
+      school:
+        type: string
+      setting1:
+        type: integer
+      setting2:
+        type: integer
+      setting3:
+        type: integer
+    type: object
   controller.Tag:
     properties:
       tag1:
@@ -26,6 +57,33 @@ definitions:
       message:
         type: string
     type: object
+  models.Admire:
+    properties:
+      from:
+        type: string
+      number:
+        type: integer
+      song:
+        type: string
+      time:
+        type: string
+    type: object
+  models.RequestSongs:
+    properties:
+      song:
+        type: string
+      time:
+        type: string
+    type: object
+  models.Songs:
+    properties:
+      from:
+        type: string
+      song:
+        type: string
+      time:
+        type: string
+    type: object
 info:
   contact: {}
   description: 2020治愈系
@@ -49,6 +107,21 @@ paths:
       tags:
       - qiniu
   /user:
+    get:
+      description: 个人页接口
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.PersonalPage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - perponalpage
     put:
       description: 更新用户信息
       produces:

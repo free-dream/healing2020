@@ -50,6 +50,29 @@ var doc = `{
             }
         },
         "/user": {
+            "get": {
+                "description": "个人页接口",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "perponalpage"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.PersonalPage"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            },
             "put": {
                 "description": "更新用户信息",
                 "produces": [
@@ -124,6 +147,53 @@ var doc = `{
         }
     },
     "definitions": {
+        "controller.PersonalPage": {
+            "type": "object",
+            "properties": {
+                "Songs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Songs"
+                    }
+                },
+                "admire": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Admire"
+                    }
+                },
+                "avatar": {
+                    "type": "string"
+                },
+                "background": {
+                    "type": "string"
+                },
+                "more": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "requestSongs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.RequestSongs"
+                    }
+                },
+                "school": {
+                    "type": "string"
+                },
+                "setting1": {
+                    "type": "integer"
+                },
+                "setting2": {
+                    "type": "integer"
+                },
+                "setting3": {
+                    "type": "integer"
+                }
+            }
+        },
         "controller.Tag": {
             "type": "object",
             "properties": {
@@ -162,6 +232,48 @@ var doc = `{
             "type": "object",
             "properties": {
                 "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Admire": {
+            "type": "object",
+            "properties": {
+                "from": {
+                    "type": "string"
+                },
+                "number": {
+                    "type": "integer"
+                },
+                "song": {
+                    "type": "string"
+                },
+                "time": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.RequestSongs": {
+            "type": "object",
+            "properties": {
+                "song": {
+                    "type": "string"
+                },
+                "time": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Songs": {
+            "type": "object",
+            "properties": {
+                "from": {
+                    "type": "string"
+                },
+                "song": {
+                    "type": "string"
+                },
+                "time": {
                     "type": "string"
                 }
             }
