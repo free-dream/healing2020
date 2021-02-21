@@ -27,7 +27,7 @@ type PersonalPage struct {
 //@Tags perponalpage
 //@Produce json
 //@Router /user [get]
-//@Success 200 {object} PersonalPage
+//@Success 200 {object} PersonalPag
 //@Failure 403 {object} e.ErrMsgResponse
 func ResponsePerponalPage(c *gin.Context){
 	var err error

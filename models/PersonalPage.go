@@ -65,7 +65,7 @@ func deliverToSongs(deliver[] statements.Deliver) []Songs{
 //根据praiseID来select对应表的信息，并加上From来源(歌房、治愈、投递箱）
 func selectPraiseInf(db *gorm.DB, table string, from string, praiseID uint) (Admire, error) {
 	var admireInf Admire
-	err := db.Table(table).Select("name, created_at").Where("id=?", praiseID).Scan(&admireInf).Error
+	err := db.Table(table).Select("name, created_at, praise").Where("id=?", praiseID).Scan(&admireInf).Error
 	admireInf.From = from
 	return admireInf, err
 }
@@ -169,20 +169,20 @@ func ResponsePraise(userID uint) ([]Admire, error) {
 			//投递箱
 			case 1:
 				var deliverInf statements.Deliver
-				err = db.Select("text_field, created_at, praise").Where("id=?", praise[i].ID).First(&deliverInf).Error
+				err = db.Select("text_field, created_at, praise").Where("id=?", praise[i].PraiseId).First(&deliverInf).Error
 				allPraise[i] = deliverToAdmire(deliverInf)
 				if err != nil {
 					return nil, err
 				}
 			//治愈
 			case 2:
-				allPraise[i], err = selectPraiseInf(db, "song", "治愈", praise[i].ID)
+				allPraise[i], err = selectPraiseInf(db, "song", "治愈", praise[i].PraiseId)
 				if err != nil {
 					return nil, err
 				}
 			//专题歌曲
 			case 3:
-				allPraise[i], err = selectPraiseInf(db, "special", "歌房", praise[i].ID)
+				allPraise[i], err = selectPraiseInf(db, "special", "歌房", praise[i].PraiseId)
 				if err != nil {
 					return nil, err
 				}

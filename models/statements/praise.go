@@ -11,7 +11,7 @@ type Praise struct {
     gorm.Model
     UserId uint
     Type int    //1:"deliver"  2:"song"  3:"special"
-    PraiseId int
+    PraiseId uint
 }
 
 func PraiseInit() {
