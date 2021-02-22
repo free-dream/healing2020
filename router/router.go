@@ -44,8 +44,14 @@ func InitRouter() *gin.Engine {
     //swagger
     r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
+    //rank
+    r.GET("/deliver/rank",controller.DeliverRank)
+
     //test
     r.GET("/initest",controller.Test)
+
+    //god view
+    r.POST("/new/deliver",controller.NewDeliverRank)
 
     return r
 }
