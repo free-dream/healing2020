@@ -12,6 +12,7 @@ import (
 
 func main() {
     setting.MysqlConnTest()
+    setting.RedisConnTest()
     models.TableInit()
     
     routersInit := router.InitRouter()

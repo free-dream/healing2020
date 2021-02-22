@@ -9,7 +9,7 @@ import (
 
 type Deliver struct {
     gorm.Model
-    UserId int
+    UserId uint
     Type int
     TextField string
     Photo string
