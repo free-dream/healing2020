@@ -9,7 +9,7 @@ import (
 
 type Vod struct {
     gorm.Model
-    UserId int
+    UserId uint
     More string
     Name string
     Singer string

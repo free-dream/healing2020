@@ -17,7 +17,7 @@ type User struct {
     Avatar string
     Phone string
     Sex int
-    Hoppy string
+    Hobby string
     Money int
     Setting1 int
     Setting2 int

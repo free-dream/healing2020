@@ -9,7 +9,7 @@ import (
 
 type Mailbox struct {
     gorm.Model
-    MailboxId int 
+    MailboxId uint 
     Message string
 }
 

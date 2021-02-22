@@ -9,7 +9,7 @@ import (
 
 type Comment struct {
     gorm.Model
-    UserId int
+    UserId uint
     Type int
     SongId int
     DeliverId int

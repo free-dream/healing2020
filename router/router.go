@@ -19,17 +19,33 @@ func InitRouter() *gin.Engine {
     //qiniuToken
     r.GET("/qiniu/token", controller.QiniuToken)
 
-    //swagger
-    r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+    //注册
+    r.POST("/register", controller.Register)
+
+    //添加爱好
+    r.POST("/user/hobby", controller.NewHobby)
+
+    //获取爱好
+    r.GET("/user/hobby", controller.GetHobby)
+
+    //修改个人信息
+    r.PUT("/user", controller.PutUser)
+
+    //个人页
+    r.GET("/user", controller.ResponsePerponalPage)
 
     //rank
     r.GET("/deliver/rank",controller.DeliverRank)
 
-    //test
-    r.GET("/initest",controller.Test)
 
     //god view
     r.POST("/new/deliver",controller.NewDeliverRank)
+
+    //swagger
+    r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+    //test
+    r.GET("/initest",controller.Test)
 
     return r
 }

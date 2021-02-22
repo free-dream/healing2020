@@ -9,8 +9,9 @@ import (
 
 type Special struct {
     gorm.Model
-    SubjectId int
-    UserId int
+    SubjectId uint
+    UserId uint
+    Name string
     Praise int
     Song string
 }

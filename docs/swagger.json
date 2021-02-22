@@ -18,17 +18,246 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "{\"upToken\": \"xxxxx\"}",
+                        "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/controller.Token"
                         }
                     },
                     "403": {
-                        "description": "{\"err\": \"false\"}",
+                        "description": "Forbidden",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/e.ErrMsgResponse"
                         }
                     }
+                }
+            }
+        },
+        "/user": {
+            "get": {
+                "description": "个人页接口",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "perponalpage"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.PersonalPage"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "更新用户信息",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "PutUserInf"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/hobby": {
+            "get": {
+                "description": "获取用户爱好",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "hobby"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.Tag"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "爱好选择接口",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "hobby"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "controller.PersonalPage": {
+            "type": "object",
+            "properties": {
+                "Songs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Songs"
+                    }
+                },
+                "admire": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Admire"
+                    }
+                },
+                "avatar": {
+                    "type": "string"
+                },
+                "background": {
+                    "type": "string"
+                },
+                "more": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "requestSongs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.RequestSongs"
+                    }
+                },
+                "school": {
+                    "type": "string"
+                },
+                "setting1": {
+                    "type": "integer"
+                },
+                "setting2": {
+                    "type": "integer"
+                },
+                "setting3": {
+                    "type": "integer"
+                }
+            }
+        },
+        "controller.Tag": {
+            "type": "object",
+            "properties": {
+                "tag1": {
+                    "type": "integer"
+                },
+                "tag2": {
+                    "type": "integer"
+                },
+                "tag3": {
+                    "type": "integer"
+                },
+                "tag4": {
+                    "type": "integer"
+                },
+                "tag5": {
+                    "type": "integer"
+                },
+                "tag6": {
+                    "type": "integer"
+                },
+                "tag7": {
+                    "type": "integer"
+                }
+            }
+        },
+        "controller.Token": {
+            "type": "object",
+            "properties": {
+                "uptoken": {
+                    "type": "string"
+                }
+            }
+        },
+        "e.ErrMsgResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Admire": {
+            "type": "object",
+            "properties": {
+                "from": {
+                    "type": "string"
+                },
+                "number": {
+                    "type": "integer"
+                },
+                "song": {
+                    "type": "string"
+                },
+                "time": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.RequestSongs": {
+            "type": "object",
+            "properties": {
+                "song": {
+                    "type": "string"
+                },
+                "time": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Songs": {
+            "type": "object",
+            "properties": {
+                "from": {
+                    "type": "string"
+                },
+                "song": {
+                    "type": "string"
+                },
+                "time": {
+                    "type": "string"
                 }
             }
         }

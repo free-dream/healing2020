@@ -7,3 +7,6 @@ dbName =
 user = 
 password = 
 port = "127.0.0.1:3306"
+
+[redis]
+port = 
