@@ -36,6 +36,7 @@ func InitRouter() *gin.Engine {
 
     //rank
     r.GET("/deliver/rank",controller.DeliverRank)
+    r.GET("/songs/rank",controller.SongRank)
 
 
     //swagger

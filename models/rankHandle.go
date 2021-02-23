@@ -20,6 +20,10 @@ type Rank struct{
     Photo string `json:"photo"`
     Text string `json:"text"`
     Source string `json:"source"`
+
+    Time string `json:"time"`
+    Praise int `json:"praise"`
+    Name string `json:"name"`
 }
 
 type AllRank struct {
@@ -53,7 +57,7 @@ func SendDeliverRank(){
     //set in redis
     client := setting.RedisConn()
     count,_ := client.Get("rankCount").Float64()
-    keyName := strconv.FormatFloat(count,'f',2,64)
+    keyName := "Deliver." + strconv.FormatFloat(count,'f',2,64)
     client.Set(keyName,jsonRank,0)
     count = count + 1
     client.Set("rankCount",count,0)
@@ -75,6 +79,34 @@ func GetDeliverRank() ([]AllRank,string){
         }
         var date float64 = 3.15+i
         dateStr := strconv.FormatFloat(date,'f',2,64)
+        dateStr = "Deliver." + dateStr
+        data,err := client.Get(dateStr).Bytes()
+        if err != nil {
+            return nil,"Unexpected data" 
+        }
+        json.Unmarshal(data,&rank)
+        i=i+0.01
+
+        result[j].Data = rank
+    }
+
+    //fmt.Println(result)
+    return result,""
+}
+
+func GetSongRank() ([]AllRank,string){
+    var result []AllRank
+    client := setting.RedisConn()
+    count,_ := client.Get("rankCount").Float64()
+    var i float64 = 0
+    for j:=0;;j++ {
+        var rank []Rank
+        if i>=count {
+            break
+        }
+        var date float64 = 3.15+i
+        dateStr := strconv.FormatFloat(date,'f',2,64)
+        dateStr = "Song." + dateStr
         data,err := client.Get(dateStr).Bytes()
         if err != nil {
             return nil,"Unexpected data" 

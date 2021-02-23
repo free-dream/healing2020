@@ -27,7 +27,7 @@ type RedisUser struct {
 
 func GetUser() RedisUser{
 	//连接redis
-	r, err := redis.Dial("tcp", GetConfig("redis", "port"))
+	r, err := redis.Dial("tcp", GetConfig("redis", "addr"))
     if err != nil {
         fmt.Println("Connect to redis error", err)
         os.Exit(1)

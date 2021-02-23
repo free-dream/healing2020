@@ -10,8 +10,21 @@ func UserRank(c *gin.Context) {
 
 }
 
-func SongsRank(c *gin.Context) {
-
+// @Title GetSongRank
+// @Description 每日歌曲排行榜
+// @Tags rank
+// @Produce json
+// @Router /songs/rank
+// @Success 200 {object} []AllRank
+// @Failure 403 {object} e.ErrMsgResponse
+func SongRank(c *gin.Context) {
+    data,err := models.GetSongRank()
+    if err != "" {
+        c.JSON(403,e.ErrMsgResponse{Message:err})
+        return
+    }
+    c.JSON(200,data)
+    return
 }
 
 // @Title GetDeliverRank
