@@ -14,9 +14,10 @@ import (
 )
 
 type Rank struct{
-    Type int `json:"type"`
     User string `json:"user"`
     Avatar string `json:"avatar"`
+
+    Type int `json:"type"`
     Photo string `json:"photo"`
     Text string `json:"text"`
     Source string `json:"source"`
@@ -82,7 +83,7 @@ func GetDeliverRank() ([]AllRank,string){
         }
         var date float64 = 3.15+i
         dateStr := strconv.FormatFloat(date,'f',2,64)
-        dateStr = "Deliver." + dateStr
+        dateStr = "User." + dateStr
         data,err := client.Get(dateStr).Bytes()
         if err != nil {
             return nil,"Unexpected data" 
@@ -125,17 +126,65 @@ func GetSongRank() ([]AllRank,string){
     return result,""
 }
 
-func CreateDeliver(userid uint,types int,textfield string,photo string,record string,praise int) string{ 
-    var user statements.Deliver
-    user.UserId = userid
-    user.Type = types
-    user.TextField = textfield
-    user.Photo = photo
-    user.Record = record
-    user.Praise = praise
+func GetAllUserRank() ([]AllRank,string){
+    var result []AllRank
+    client := setting.RedisConn()
+    defer client.Close()
+    count,_ := client.Get("rankCount").Float64()
+    var i float64 = 0
+    for j:=0;;j++ {
+        var rank []Rank
+        if i>=count {
+            break
+        }
+        var date float64 = 3.15+i
+        dateStr := strconv.FormatFloat(date,'f',2,64)
+        dateStr = "Song." + dateStr
+        data,err := client.Get(dateStr).Bytes()
+        if err != nil {
+            return nil,"Unexpected data" 
+        }
+        json.Unmarshal(data,&rank)
+        i=i+0.01
+
+        result[j].Data = rank
+    }
+
+    //fmt.Println(result)
+    return result,""
+}
+
+func GetUserRank(userId int) (int,error){
     db := setting.MysqlConn()
     defer db.Close()
-    result := db.Model(&statements.User{}).Create(&user)
+
+    rows,err := db.Model(&statements.User{}).Order("Money desc").Rows() 
+    rank := 0
+    if err != nil {
+        return 0,err
+    }
+    for rows.Next() {
+        var user statements.User
+        db.ScanRows(rows,&user)
+        if user.Id == userId {
+            break
+        }
+        rank++
+    }
+    return rank,err
+}
+
+func CreateDeliver(deliverid uint,types int,textfield string,photo string,record string,praise int) string{ 
+    var deliver statements.Deliver
+    deliver.deliverId = deliverid
+    deliver.Type = types
+    deliver.TextField = textfield
+    deliver.Photo = photo
+    deliver.Record = record
+    deliver.Praise = praise
+    db := setting.MysqlConn()
+    defer db.Close()
+    result := db.Model(&statements.Deliver{}).Create(&deliver)
     if result.Error != nil {
         fmt.Println(result.Error)
         return "err"
