@@ -26,3 +26,30 @@ func UpdateOrCreate(openId string,nickName string) {
         return result2.Error
     })
 }
+
+//SELECT hobby FROM user where id = userID
+func SelectUserHobby(userID uint) (string, error) {
+    //连接mysql
+    db := setting.MysqlConn()
+    defer db.Close()
+    
+    var userHobby statements.User
+    err := db.Select("hobby").Where("id=?", userID).First(&userHobby).Error
+    return userHobby.Hobby, err
+}
+
+//更新user表
+func UpdateUser(user statements.User, userID uint) error {
+    //连接mysql
+    db := setting.MysqlConn()
+    defer db.Close()
+    
+    //开启事务
+    tx := db.Begin()
+    err := tx.Model(&statements.User{}).Where("id=?",userID).Update(user).Error
+    if err != nil {
+        tx.Rollback()
+        return err
+    }
+    return tx.Commit().Error
+}

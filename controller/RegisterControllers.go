@@ -3,7 +3,6 @@ package controller
 import (
 	"healing2020/models/statements"
 	"healing2020/models"
-	"healing2020/pkg/tools"
 	"healing2020/pkg/e"
 
 	"github.com/gin-gonic/gin"
@@ -26,7 +25,7 @@ type UserRegister struct {
 
 func Register(c *gin.Context) {
 	//获取redis用户信息
-	userInf := tools.GetUser() 
+	userInf := GetRedisUser() 
 	//获取json
 	json := UserRegister{}
 	c.BindJSON(&json)
@@ -41,7 +40,12 @@ func Register(c *gin.Context) {
 	err := models.UpdateUser(user, userInf.ID)
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.ERROR_USER_CREATE_FAIL)})
-	}else{	
-		c.JSON(200, e.ErrMsgResponse{Message: e.GetMsg(e.SUCCESS)})
+		return
 	}
+	err = models.CreateBackground(userInf.ID)
+	if err != nil {
+		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.ERROR_USER_CREATE_FAIL)})
+		return
+	} 
+	c.JSON(200, e.ErrMsgResponse{Message: e.GetMsg(e.SUCCESS)})
 }

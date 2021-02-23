@@ -3,7 +3,6 @@ package controller
 import (
 	"healing2020/models/statements"
 	"healing2020/models"
-	"healing2020/pkg/tools"
 	"healing2020/pkg/e"
 
 	"github.com/gin-gonic/gin"
@@ -30,7 +29,7 @@ func PutUser(c *gin.Context) {
 	json := PutUserInf{}
 	c.BindJSON(&json) 
 	//获取用户信息
-	userInf := tools.GetUser()
+	userInf := GetRedisUser()
 	//构建模型
 	user := statements.User{
 		NickName: json.NickName,

@@ -32,7 +32,7 @@ func InitRouter() *gin.Engine {
     r.PUT("/user", controller.PutUser)
 
     //个人页
-    r.GET("/user", controller.ResponsePerponalPage)
+    r.GET("/user", controller.ResponseMyPerponalPage)
 
     //rank
     r.GET("/deliver/rank",controller.DeliverRank)

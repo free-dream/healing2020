@@ -6,6 +6,7 @@ import (
 
 	"healing2020/models/statements"
 	"healing2020/pkg/setting"
+	"healing2020/pkg/tools"
 
 	"github.com/jinzhu/gorm"
   _ "github.com/jinzhu/gorm/dialects/mysql"
@@ -82,6 +83,18 @@ func deliverToAdmire(deliver statements.Deliver) Admire {
 	return a
 }
 
+//获取其它用户信息接口用
+//select并根据id返回用户信息
+func ResponseUser(userID uint) (statements.User, error) {
+    //连接mysql
+    db := setting.MysqlConn()
+    defer db.Close()
+    
+    var user statements.User
+    err := db.Where("id=?", userID).First(&user).Error
+    return user, err
+}
+
 //select并返回用户现在使用的个人背景
 func ResponseBackground(userID uint) (string, error) {
 	//连接mysql
@@ -91,7 +104,7 @@ func ResponseBackground(userID uint) (string, error) {
 	//查询
 	var nowBackground statements.Background
 	err := db.Select("now").Where("user_id=?", userID).First(&nowBackground).Error
-	return nowBackground.Now, err
+	return tools.GetBackgroundUrl(nowBackground.Now), err
 }
 
 //select并返回点歌信息
