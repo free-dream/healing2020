@@ -9,12 +9,12 @@ import (
 type Background struct {
     ID uint `gorm:"primary_key"`
     UserId uint
-    Now string
-    B1 string
-    B2 string
-    B3 string
-    B4 string
-    B5 string
+    Now int  `gorm:"default: 1"`     //初始默认为B1且只有B1可用
+    B1 int   `gorm:"default: 1"`
+    B2 int   `gorm:"default: 0"`
+    B3 int   `gorm:"default: 0"`
+    B4 int  `gorm:"default: 0"`
+    B5 int   `gorm:"default: 0"`
 }
 
 func BackgroundInit() {

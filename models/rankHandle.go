@@ -36,6 +36,7 @@ func SendDeliverRank(){
     
     //get from mysql
     db := setting.MysqlConn()
+    defer db.Close()
     var deliver []statements.Deliver
     result := db.Model(&statements.Deliver{}).Where("created_at LIKE ?","2021_02_09%").Order("created_at desc, praise").Find(&deliver)
     rows := result.RowsAffected
@@ -56,6 +57,7 @@ func SendDeliverRank(){
 
     //set in redis
     client := setting.RedisConn()
+    defer client.Close()
     count,_ := client.Get("rankCount").Float64()
     keyName := "Deliver." + strconv.FormatFloat(count,'f',2,64)
     client.Set(keyName,jsonRank,0)
@@ -70,6 +72,7 @@ func SendDeliverRank(){
 func GetDeliverRank() ([]AllRank,string){
     var result []AllRank
     client := setting.RedisConn()
+    defer client.Close()
     count,_ := client.Get("rankCount").Float64()
     var i float64 = 0
     for j:=0;;j++ {
@@ -97,6 +100,7 @@ func GetDeliverRank() ([]AllRank,string){
 func GetSongRank() ([]AllRank,string){
     var result []AllRank
     client := setting.RedisConn()
+    defer client.Close()
     count,_ := client.Get("rankCount").Float64()
     var i float64 = 0
     for j:=0;;j++ {
@@ -130,6 +134,7 @@ func CreateDeliver(userid uint,types int,textfield string,photo string,record st
     user.Record = record
     user.Praise = praise
     db := setting.MysqlConn()
+    defer db.Close()
     result := db.Model(&statements.User{}).Create(&user)
     if result.Error != nil {
         fmt.Println(result.Error)
