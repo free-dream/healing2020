@@ -7,6 +7,7 @@ import (
 	"healing2020/models"
 	"healing2020/pkg/e"
 	"healing2020/models/statements"
+	"healing2020/pkg/tools"
 
 	"github.com/gin-gonic/gin"
 )
@@ -77,7 +78,8 @@ func responsePage(c *gin.Context, user statements.User, userID uint) {
 //@Success 200 {object} PersonalPag
 //@Failure 403 {object} e.ErrMsgResponse
 func ResponseMyPerponalPage(c *gin.Context){
-	user := GetRedisUser()
+	rUser := tools.GetUser()
+	user := statements.User(rUser)
 	responsePage(c, user, user.ID)
 }
 
