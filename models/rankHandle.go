@@ -154,29 +154,37 @@ func GetAllUserRank() ([]AllRank,string){
     return result,""
 }
 
-func GetUserRank(userId int) (int,error){
+type UserRank struct {
+    Rank int `json:"rank"`
+}
+
+func GetUserRank(id string) (UserRank,error){
+    intId,_ := strconv.Atoi(id)
+    userId := uint(intId)
     db := setting.MysqlConn()
     defer db.Close()
 
     rows,err := db.Model(&statements.User{}).Order("Money desc").Rows() 
     rank := 0
     if err != nil {
-        return 0,err
+        return UserRank{},err
     }
     for rows.Next() {
         var user statements.User
         db.ScanRows(rows,&user)
-        if user.Id == userId {
+        if user.ID == userId {
             break
         }
         rank++
     }
-    return rank,err
+    var userRank UserRank
+    userRank.Rank = rank
+    return userRank,err
 }
 
-func CreateDeliver(deliverid uint,types int,textfield string,photo string,record string,praise int) string{ 
+func CreateDeliver(userid uint,types int,textfield string,photo string,record string,praise int) string{ 
     var deliver statements.Deliver
-    deliver.deliverId = deliverid
+    deliver.UserId = userid
     deliver.Type = types
     deliver.TextField = textfield
     deliver.Photo = photo

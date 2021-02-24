@@ -4,10 +4,50 @@ import (
     "healing2020/models"
 	"github.com/gin-gonic/gin"
     "healing2020/pkg/e"
+    "healing2020/pkg/tools"
 )
 
-func UserRank(c *gin.Context) {
+// @Title GetUserRank
+// @Description 用户积分排行榜
+// @Tags rank
+// @Produce json
+// @Router /user/rank
+// @Success 200 {object} []AllRank
+// @Failure 403 {object} e.ErrMsgResponse
+func AllUserRank(c *gin.Context) {
+    data,err := models.GetAllUserRank()
+    if err != "" {
+        c.JSON(403,e.ErrMsgResponse{Message:err})
+    }
+    c.JSON(200,data)
+    return
+}
 
+
+// @Title GetUserRank
+// @Description 用户排名
+// @Tags rank
+// @Produce json
+// @Router /user/rank?id=
+// @Success 200 {object} UserRank
+// @Failure 403 {object} e.ErrMsgResponse
+func UserRank(c *gin.Context) {
+    if c.Query("id") == "" {
+        AllUserRank(c)
+        return
+    } 
+    id := c.Query("id")
+    if tools.Valid(id,`^[0-9]+$`)==false {
+        c.JSON(403,e.ErrMsgResponse{Message:"error param"})
+        return
+    }
+    data,err := models.GetUserRank(id)
+    if err != nil {
+        c.JSON(403,e.ErrMsgResponse{Message:"can not get rank"})
+        return
+    }
+    c.JSON(200,data)
+    return
 }
 
 // @Title GetSongRank
