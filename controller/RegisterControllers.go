@@ -4,6 +4,7 @@ import (
 	"healing2020/models/statements"
 	"healing2020/models"
 	"healing2020/pkg/e"
+	"healing2020/pkg/tools"
 
 	"github.com/gin-gonic/gin"
 )
@@ -25,7 +26,7 @@ type UserRegister struct {
 
 func Register(c *gin.Context) {
 	//获取redis用户信息
-	userInf := GetRedisUser() 
+	userInf := tools.GetUser() 
 	//获取json
 	json := UserRegister{}
 	c.BindJSON(&json)

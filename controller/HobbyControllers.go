@@ -6,6 +6,7 @@ import (
 	"healing2020/models"
 	"healing2020/models/statements"
 	"healing2020/pkg/e"
+	"healing2020/pkg/tools"
 
 	"github.com/gin-gonic/gin"
 )
@@ -100,7 +101,7 @@ func NewHobby(c *gin.Context) {
 	c.BindJSON(&json)
 	hobby := hobbyJoin(json)
 	//获取redis用户信息
-	userInf := GetRedisUser() 
+	userInf := tools.GetUser() 
 	err := models.UpdateUser(statements.User{Hobby: hobby}, userInf.ID)
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.ERROR_USER_SAVE_FAIL)})
@@ -118,7 +119,7 @@ func NewHobby(c *gin.Context) {
 //@Failure 403 {object} e.ErrMsgResponse
 func GetHobby(c *gin.Context) {
 	//获取redis用户信息
-	user := GetRedisUser()
+	user := tools.GetUser()
 	hobby, err := models.SelectUserHobby(user.ID)
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
