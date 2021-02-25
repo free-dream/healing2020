@@ -18,6 +18,7 @@ func AllUserRank(c *gin.Context) {
     data,err := models.GetAllUserRank()
     if err != "" {
         c.JSON(403,e.ErrMsgResponse{Message:err})
+        return
     }
     c.JSON(200,data)
     return

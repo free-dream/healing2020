@@ -39,6 +39,9 @@ func InitRouter() *gin.Engine {
     r.GET("/songs/rank",controller.SongRank)
     r.GET("/user/rank",controller.UserRank)
 
+    //main
+    r.GET("/main/page",controller.MainMsg)
+
 
     //swagger
     r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
