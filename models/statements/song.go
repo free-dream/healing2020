@@ -11,7 +11,7 @@ type Song struct {
     gorm.Model
     UserId uint
     VodId uint
-    VodSend int
+    VodSend uint
     Name string
     Praise int
     Source string
