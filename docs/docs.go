@@ -24,6 +24,84 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/deliver/rank": {
+            "get": {
+                "description": "投递页排行榜",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "rank"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.AllRank"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/like": {
+            "get": {
+                "description": "点赞",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "heal"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/main/page": {
+            "get": {
+                "description": "首页数据",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "main"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.MainMsg"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/qiniu/token": {
             "get": {
                 "description": "获取七牛的upToken",
@@ -49,14 +127,90 @@ var doc = `{
                 }
             }
         },
-        "/user": {
+        "/record": {
             "get": {
-                "description": "个人页接口",
+                "description": "听录音",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "perponalpage"
+                    "heal"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.RealResp"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "录音治愈发布",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "heal"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/songs/rank": {
+            "get": {
+                "description": "每日歌曲排行榜",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "rank"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.AllRank"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user": {
+            "get": {
+                "description": "已登录用户的个人页接口",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "my perponalpage"
                 ],
                 "responses": {
                     "200": {
@@ -144,6 +298,106 @@ var doc = `{
                     }
                 }
             }
+        },
+        "/user/phone": {
+            "get": {
+                "description": "用户手机",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "heal"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.PhoneHealing"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/rank": {
+            "get": {
+                "description": "用户排名",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "rank"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.UserRank"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/{id}": {
+            "get": {
+                "description": "其它用户的个人页接口",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "others'perponalpage"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.PersonalPage"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/vod": {
+            "post": {
+                "description": "点歌",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "heal"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -191,6 +445,22 @@ var doc = `{
                 },
                 "setting3": {
                     "type": "integer"
+                }
+            }
+        },
+        "controller.PhoneHealing": {
+            "type": "object",
+            "properties": {
+                "phone": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.RealResp": {
+            "type": "object",
+            "properties": {
+                "url": {
+                    "type": "string"
                 }
             }
         },
@@ -253,6 +523,69 @@ var doc = `{
                 }
             }
         },
+        "models.AllRank": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Rank"
+                    }
+                },
+                "time": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.MainMsg": {
+            "type": "object",
+            "properties": {
+                "listen": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.SongMsg"
+                    }
+                },
+                "sing": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.SongMsg"
+                    }
+                }
+            }
+        },
+        "models.Rank": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "photo": {
+                    "type": "string"
+                },
+                "praise": {
+                    "type": "integer"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "time": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer"
+                },
+                "user": {
+                    "type": "string"
+                }
+            }
+        },
         "models.RequestSongs": {
             "type": "object",
             "properties": {
@@ -260,6 +593,38 @@ var doc = `{
                     "type": "string"
                 },
                 "time": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SongMsg": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "like": {
+                    "type": "integer"
+                },
+                "more": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "sex": {
+                    "type": "integer"
+                },
+                "style": {
+                    "type": "string"
+                },
+                "time": {
+                    "type": "string"
+                },
+                "user": {
                     "type": "string"
                 }
             }
@@ -275,6 +640,14 @@ var doc = `{
                 },
                 "time": {
                     "type": "string"
+                }
+            }
+        },
+        "models.UserRank": {
+            "type": "object",
+            "properties": {
+                "rank": {
+                    "type": "integer"
                 }
             }
         }

@@ -11,8 +11,8 @@ import (
 // @Description 首页数据
 // @Tags main
 // @Produce json
-// @Router /main/page
-// @Success 200 {object} MainMsg
+// @Router /main/page [get]
+// @Success 200 {object} models.MainMsg
 // @Failure 403 {object} e.ErrMsgResponse
 func MainMsg(c *gin.Context) {
     sort := c.Query("sort")

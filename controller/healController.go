@@ -14,7 +14,7 @@ type PhoneHealing struct {
 // @Description 用户手机
 // @Tags heal
 // @Produce json
-// @Router /user/phone
+// @Router /user/phone [get]
 // @Success 200 {object} PhoneHealing
 // @Failure 403 {object} e.ErrMsgResponse
 func PhoneHeal(c *gin.Context) {
@@ -25,12 +25,16 @@ func PhoneHeal(c *gin.Context) {
     return
 }
 
+type RealResp struct {
+    Source string `json:"url"`
+}
 // @Title GetRecord
 // @Description 听录音
 // @Tags heal
 // @Produce json
-// @Router /record?id=
-// @Success 200 {object} RecordResp
+// @Router /record [get]
+// @Params id query string
+// @Success 200 {object} RealResp
 // @Failure 403 {object} e.ErrMsgResponse
 func Record(c *gin.Context) {
     id := c.Query("id")
@@ -43,7 +47,9 @@ func Record(c *gin.Context) {
         c.JSON(403,e.ErrMsgResponse{Message:"Fail to get record"})
         return
     }
-    c.JSON(200,data)
+    var realResp RealResp
+    realResp.Source = data.Source
+    c.JSON(200,realResp)
     return
 }
 
@@ -51,7 +57,9 @@ func Record(c *gin.Context) {
 // @Description 点赞
 // @Tags heal
 // @Produce json
-// @Router /like?id=&type=
+// @Router /like [get]
+// @Params id query string
+// @Params type query string
 // @Success 200 {object} e.ErrMsgResponse
 // @Failure 403 {object} e.ErrMsgResponse
 func Praise(c *gin.Context) {
@@ -79,7 +87,10 @@ type RecordParams struct {
 // @Description 录音治愈发布
 // @Tags heal
 // @Produce json
-// @Router /record
+// @Router /record [post]
+// @Params id formData string
+// @Params name formData string
+// @Params url formData string
 // @Success 200 {object} e.ErrMsgResponse
 // @Failure 403 {object} e.ErrMsgResponse
 func RecordHeal(c *gin.Context) {
@@ -106,7 +117,12 @@ type VodParams struct {
 // @Description 点歌
 // @Tags heal
 // @Produce json
-// @Router /vod
+// @Router /vod [post]
+// @Params songs formData string
+// @Params singer formData string
+// @Params more formData string
+// @Params style formData string
+// @Params language formData string
 // @Success 200 {object} e.ErrMsgResponse
 // @Failure 403 {object} e.ErrMsgResponse
 func VodPost(c *gin.Context) {

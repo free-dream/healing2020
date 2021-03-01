@@ -11,8 +11,8 @@ import (
 // @Description 用户积分排行榜
 // @Tags rank
 // @Produce json
-// @Router /user/rank
-// @Success 200 {object} []AllRank
+// @Router /user/rank [get]
+// @Success 200 {object} []models.AllRank
 // @Failure 403 {object} e.ErrMsgResponse
 func AllUserRank(c *gin.Context) {
     data,err := models.GetAllUserRank()
@@ -29,8 +29,9 @@ func AllUserRank(c *gin.Context) {
 // @Description 用户排名
 // @Tags rank
 // @Produce json
-// @Router /user/rank?id=
-// @Success 200 {object} UserRank
+// @Router /user/rank [get]
+// @Params id query string
+// @Success 200 {object} models.UserRank
 // @Failure 403 {object} e.ErrMsgResponse
 func UserRank(c *gin.Context) {
     if c.Query("id") == "" {
@@ -55,8 +56,8 @@ func UserRank(c *gin.Context) {
 // @Description 每日歌曲排行榜
 // @Tags rank
 // @Produce json
-// @Router /songs/rank
-// @Success 200 {object} []AllRank
+// @Router /songs/rank [get]
+// @Success 200 {object} []models.AllRank
 // @Failure 403 {object} e.ErrMsgResponse
 func SongRank(c *gin.Context) {
     data,err := models.GetSongRank()
@@ -72,8 +73,8 @@ func SongRank(c *gin.Context) {
 // @Description 投递页排行榜
 // @Tags rank
 // @Produce json
-// @Router /deliver/rank
-// @Success 200 {object} []AllRank
+// @Router /deliver/rank [get]
+// @Success 200 {object} []models.AllRank
 // @Failure 403 {object} e.ErrMsgResponse
 func DeliverRank(c *gin.Context) {
     data,err := models.GetDeliverRank()

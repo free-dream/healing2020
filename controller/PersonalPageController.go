@@ -75,7 +75,7 @@ func responsePage(c *gin.Context, user statements.User, userID uint) {
 //@Tags my perponalpage
 //@Produce json
 //@Router /user [get]
-//@Success 200 {object} PersonalPag
+//@Success 200 {object} PersonalPage
 //@Failure 403 {object} e.ErrMsgResponse
 func ResponseMyPerponalPage(c *gin.Context){
 	rUser := tools.GetUser()
@@ -88,7 +88,7 @@ func ResponseMyPerponalPage(c *gin.Context){
 //@Tags others'perponalpage
 //@Produce json
 //@Router /user/{id} [get]
-//@Success 200 {object} PersonalPag
+//@Success 200 {object} PersonalPage
 //@Failure 403 {object} e.ErrMsgResponse
 func ResponseOthersPerponalPage(c *gin.Context) {
 	//获取querystring并转化格式

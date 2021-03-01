@@ -30,6 +30,16 @@ definitions:
       setting3:
         type: integer
     type: object
+  controller.PhoneHealing:
+    properties:
+      phone:
+        type: string
+    type: object
+  controller.RealResp:
+    properties:
+      url:
+        type: string
+    type: object
   controller.Tag:
     properties:
       tag1:
@@ -68,11 +78,73 @@ definitions:
       time:
         type: string
     type: object
+  models.AllRank:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/models.Rank'
+        type: array
+      time:
+        type: string
+    type: object
+  models.MainMsg:
+    properties:
+      listen:
+        items:
+          $ref: '#/definitions/models.SongMsg'
+        type: array
+      sing:
+        items:
+          $ref: '#/definitions/models.SongMsg'
+        type: array
+    type: object
+  models.Rank:
+    properties:
+      avatar:
+        type: string
+      name:
+        type: string
+      photo:
+        type: string
+      praise:
+        type: integer
+      source:
+        type: string
+      text:
+        type: string
+      time:
+        type: string
+      type:
+        type: integer
+      user:
+        type: string
+    type: object
   models.RequestSongs:
     properties:
       song:
         type: string
       time:
+        type: string
+    type: object
+  models.SongMsg:
+    properties:
+      avatar:
+        type: string
+      id:
+        type: integer
+      like:
+        type: integer
+      more:
+        type: string
+      name:
+        type: string
+      sex:
+        type: integer
+      style:
+        type: string
+      time:
+        type: string
+      user:
         type: string
     type: object
   models.Songs:
@@ -84,12 +156,67 @@ definitions:
       time:
         type: string
     type: object
+  models.UserRank:
+    properties:
+      rank:
+        type: integer
+    type: object
 info:
   contact: {}
   description: 2020治愈系
   title: healing2020
   version: "1.0"
 paths:
+  /deliver/rank:
+    get:
+      description: 投递页排行榜
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.AllRank'
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - rank
+  /like:
+    get:
+      description: 点赞
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - heal
+  /main/page:
+    get:
+      description: 首页数据
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MainMsg'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - main
   /qiniu/token:
     get:
       description: 获取七牛的upToken
@@ -106,9 +233,58 @@ paths:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
       - qiniu
+  /record:
+    get:
+      description: 听录音
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.RealResp'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - heal
+    post:
+      description: 录音治愈发布
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - heal
+  /songs/rank:
+    get:
+      description: 每日歌曲排行榜
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.AllRank'
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - rank
   /user:
     get:
-      description: 个人页接口
+      description: 已登录用户的个人页接口
       produces:
       - application/json
       responses:
@@ -121,7 +297,7 @@ paths:
           schema:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
-      - perponalpage
+      - my perponalpage
     put:
       description: 更新用户信息
       produces:
@@ -137,6 +313,22 @@ paths:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
       - PutUserInf
+  /user/{id}:
+    get:
+      description: 其它用户的个人页接口
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.PersonalPage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - others'perponalpage
   /user/hobby:
     get:
       description: 获取用户爱好
@@ -168,4 +360,52 @@ paths:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
       - hobby
+  /user/phone:
+    get:
+      description: 用户手机
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.PhoneHealing'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - heal
+  /user/rank:
+    get:
+      description: 用户排名
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserRank'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - rank
+  /vod:
+    post:
+      description: 点歌
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - heal
 swagger: "2.0"
