@@ -43,6 +43,12 @@ func InitRouter() *gin.Engine {
     //main
     r.GET("/main/page",controller.MainMsg)
 
+    //heal
+    r.GET("/user/phone",controller.PhoneHeal)
+    r.GET("/record",controller.Record)
+    r.GET("/like",controller.Praise)
+    r.POST("/record",controller.RecordHeal)
+    r.POST("/vod",controller.VodPost)
 
     //swagger
     r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
