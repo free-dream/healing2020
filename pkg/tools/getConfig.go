@@ -13,3 +13,10 @@ func GetConfig(section string,keyName string) string{
     }
     return cfg.Section(section).Key(keyName).String()
 }
+
+func IsDebug() bool{
+    if GetConfig("debug","debug")=="false" {
+        return false
+    }
+    return true
+}

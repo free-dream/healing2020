@@ -4,6 +4,8 @@ import (
     "healing2020/router"
     "healing2020/models"
     "healing2020/pkg/setting"
+    "healing2020/pkg/tools"
+    "healing2020/controller"
 )
 
 // @Title healing2020
@@ -14,6 +16,9 @@ func main() {
     setting.MysqlConnTest()
     setting.RedisConnTest()
     models.TableInit()
+    if tools.IsDebug() {
+        controller.LoadTestData()
+    }
     
     routersInit := router.InitRouter()
 

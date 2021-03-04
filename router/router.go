@@ -56,7 +56,6 @@ func InitRouter() *gin.Engine {
     r.GET("/initest",controller.Test)
 
     //god view
-    r.POST("/new/deliver",controller.NewDeliverRank)
 
     return r
 }

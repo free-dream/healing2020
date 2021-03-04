@@ -9,8 +9,8 @@ import (
 
 type Message struct {
     gorm.Model
-    Send int
-    Receive int
+    Send uint
+    Receive uint
     Type int
     Content string
     Url string

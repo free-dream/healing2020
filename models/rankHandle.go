@@ -7,7 +7,7 @@ import (
     //"github.com/jinzhu/gorm"
     _ "github.com/jinzhu/gorm/dialects/mysql"
 
-    "fmt"
+    //"fmt"
     //"time"
     "encoding/json"
     "strconv"
@@ -67,7 +67,7 @@ func SendDeliverRank(){
     redisRank,_ := client.Get("2.22").Bytes()
     var rank2 []Rank
     json.Unmarshal(redisRank,&rank2)
-    fmt.Println(rank2)
+    //fmt.Println(rank2)
 }
 
 func GetDeliverRank() ([]AllRank,string){
@@ -180,22 +180,4 @@ func GetUserRank(id string) (UserRank,error){
     var userRank UserRank
     userRank.Rank = rank
     return userRank,err
-}
-
-func CreateDeliver(userid uint,types int,textfield string,photo string,record string,praise int) string{ 
-    var deliver statements.Deliver
-    deliver.UserId = userid
-    deliver.Type = types
-    deliver.TextField = textfield
-    deliver.Photo = photo
-    deliver.Record = record
-    deliver.Praise = praise
-    db := setting.MysqlConn()
-    defer db.Close()
-    result := db.Model(&statements.Deliver{}).Create(&deliver)
-    if result.Error != nil {
-        fmt.Println(result.Error)
-        return "err"
-    }
-    return ""
 }

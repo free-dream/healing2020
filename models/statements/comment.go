@@ -11,8 +11,8 @@ type Comment struct {
     gorm.Model
     UserId uint
     Type int
-    SongId int
-    DeliverId int
+    SongId uint
+    DeliverId uint
     Content string
 }
 
