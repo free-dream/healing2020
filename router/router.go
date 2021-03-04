@@ -24,15 +24,16 @@ func InitRouter() *gin.Engine {
 
     //添加爱好
     r.POST("/user/hobby", controller.NewHobby)
-
     //获取爱好
     r.GET("/user/hobby", controller.GetHobby)
 
     //修改个人信息
     r.PUT("/user", controller.PutUser)
-
     //个人页
     r.GET("/user", controller.ResponseMyPerponalPage)
+
+    //修改用户个人背景
+    r.POST("/user/background", controller.ChangeBackground)
 
     //rank
     r.GET("/deliver/rank",controller.DeliverRank)
@@ -42,12 +43,6 @@ func InitRouter() *gin.Engine {
     //main
     r.GET("/main/page",controller.MainMsg)
 
-    //heal
-    r.GET("/user/phone",controller.PhoneHeal)
-    r.GET("/record",controller.Record)
-    r.GET("like",controller.Praise)
-    r.POST("/record",controller.RecordHeal)
-    r.POST("/vod",controller.VodPost)
 
     //swagger
     r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
