@@ -35,6 +35,21 @@ definitions:
       phone:
         type: string
     type: object
+  controller.PutUserInf:
+    properties:
+      avatar:
+        type: string
+      name:
+        type: string
+      setting1:
+        type: integer
+      setting2:
+        type: integer
+      setting3:
+        type: integer
+      signature:
+        type: string
+    type: object
   controller.RealResp:
     properties:
       url:
@@ -57,10 +72,28 @@ definitions:
       tag7:
         type: integer
     type: object
+  controller.ToSaveBackground:
+    properties:
+      background:
+        type: integer
+    type: object
   controller.Token:
     properties:
       uptoken:
         type: string
+    type: object
+  controller.UserRegister:
+    properties:
+      name:
+        type: string
+      phone:
+        type: string
+      realname:
+        type: string
+      school:
+        type: string
+      sex:
+        type: integer
     type: object
   e.ErrMsgResponse:
     properties:
@@ -86,6 +119,17 @@ definitions:
         type: array
       time:
         type: string
+    type: object
+  models.Last:
+    properties:
+      content:
+        type: string
+      id:
+        type: integer
+      time:
+        type: string
+      type:
+        type: integer
     type: object
   models.MainMsg:
     properties:
@@ -156,6 +200,22 @@ definitions:
       time:
         type: string
     type: object
+  models.Target:
+    properties:
+      avatar:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  models.ToMessagePage:
+    properties:
+      last:
+        $ref: '#/definitions/models.Last'
+      target:
+        $ref: '#/definitions/models.Target'
+    type: object
   models.UserRank:
     properties:
       rank:
@@ -217,6 +277,22 @@ paths:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
       - main
+  /message:
+    get:
+      description: 消息首页
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ToMessagePage'
+      tags:
+      - message
   /qiniu/token:
     get:
       description: 获取七牛的upToken
@@ -264,6 +340,29 @@ paths:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
       - heal
+  /register:
+    post:
+      description: 注册接口
+      parameters:
+      - description: 用户注册数据
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/controller.UserRegister'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - user
   /songs/rank:
     get:
       description: 每日歌曲排行榜
@@ -300,6 +399,13 @@ paths:
       - my perponalpage
     put:
       description: 更新用户信息
+      parameters:
+      - description: 更新的用户信息
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/controller.PutUserInf'
       produces:
       - application/json
       responses:
@@ -312,7 +418,7 @@ paths:
           schema:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
-      - PutUserInf
+      - user
   /user/{id}:
     get:
       description: 其它用户的个人页接口
@@ -329,6 +435,29 @@ paths:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
       - others'perponalpage
+  /user/background:
+    put:
+      description: 修改个人背景
+      parameters:
+      - description: 修改后的个人背景
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/controller.ToSaveBackground'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - user
   /user/hobby:
     get:
       description: 获取用户爱好
@@ -347,6 +476,13 @@ paths:
       - hobby
     post:
       description: 爱好选择接口
+      parameters:
+      - description: 用户爱好标签
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/controller.Tag'
       produces:
       - application/json
       responses:

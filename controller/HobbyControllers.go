@@ -11,10 +11,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var tagNum int = 7	//标签数
+var tagNum int = 7 //标签数
 //1.流行 2.古风 3.民谣 4.摇滚 5.抖音热歌 6.acg 7.其它
 type Tag struct {
-	Tag1 int `json:"tag1"` 
+	Tag1 int `json:"tag1"`
 	Tag2 int `json:"tag2"`
 	Tag3 int `json:"tag3"`
 	Tag4 int `json:"tag4"`
@@ -54,35 +54,42 @@ func hobbyJoin(json Tag) string {
 	if json.Tag7 == 1 {
 		h[n] = "7"
 		n++
-	}	
+	}
 	h = h[:n]
-	return strings.Join(h,",")
+	return strings.Join(h, ",")
 }
 
 //分割字符串
 func hobbySplit(hobby string) Tag {
 	returnH := Tag{
-		Tag1:0,
-		Tag2:0,
-		Tag3:0,
-		Tag4:0,
-		Tag5:0,
-		Tag6:0,
-		Tag7:0,
+		Tag1: 0,
+		Tag2: 0,
+		Tag3: 0,
+		Tag4: 0,
+		Tag5: 0,
+		Tag6: 0,
+		Tag7: 0,
 	}
 	//分割字符串
 	splitH := strings.Split(hobby, ",")
 	len := len(splitH)
 	//对结果进行判断
-	for i:=0; i<len; i++ {
+	for i := 0; i < len; i++ {
 		switch splitH[i] {
-			case "1": returnH.Tag1 = 1
-			case "2": returnH.Tag2 = 1
-			case "3": returnH.Tag3 = 1
-			case "4": returnH.Tag4 = 1
-			case "5": returnH.Tag5 = 1
-			case "6": returnH.Tag6 = 1
-			case "7": returnH.Tag7 = 1
+		case "1":
+			returnH.Tag1 = 1
+		case "2":
+			returnH.Tag2 = 1
+		case "3":
+			returnH.Tag3 = 1
+		case "4":
+			returnH.Tag4 = 1
+		case "5":
+			returnH.Tag5 = 1
+		case "6":
+			returnH.Tag6 = 1
+		case "7":
+			returnH.Tag7 = 1
 		}
 	}
 	return returnH
@@ -92,6 +99,7 @@ func hobbySplit(hobby string) Tag {
 //@Description 爱好选择接口
 //@Tags hobby
 //@Produce json
+//@Param json body Tag true "用户爱好标签"
 //@Router /user/hobby [post]
 //@Success 200 {object} e.ErrMsgResponse
 //@Failure 403 {object} e.ErrMsgResponse
@@ -101,11 +109,11 @@ func NewHobby(c *gin.Context) {
 	c.BindJSON(&json)
 	hobby := hobbyJoin(json)
 	//获取redis用户信息
-	userInf := tools.GetUser() 
+	userInf := tools.GetUser()
 	err := models.UpdateUser(statements.User{Hobby: hobby}, userInf.ID)
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.ERROR_USER_SAVE_FAIL)})
-	}else{
+	} else {
 		c.JSON(200, e.ErrMsgResponse{Message: e.GetMsg(e.SUCCESS)})
 	}
 }
@@ -123,7 +131,7 @@ func GetHobby(c *gin.Context) {
 	hobby, err := models.SelectUserHobby(user.ID)
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
-	}else{
+	} else {
 		c.JSON(200, hobbySplit(hobby))
 	}
 }

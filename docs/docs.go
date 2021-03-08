@@ -102,6 +102,31 @@ var doc = `{
                 }
             }
         },
+        "/message": {
+            "get": {
+                "description": "消息首页",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "message"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/models.ToMessagePage"
+                        }
+                    }
+                }
+            }
+        },
         "/qiniu/token": {
             "get": {
                 "description": "获取七牛的upToken",
@@ -158,6 +183,42 @@ var doc = `{
                 ],
                 "tags": [
                     "heal"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/register": {
+            "post": {
+                "description": "注册接口",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "parameters": [
+                    {
+                        "description": "用户注册数据",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.UserRegister"
+                        }
+                    }
                 ],
                 "responses": {
                     "200": {
@@ -233,7 +294,54 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "PutUserInf"
+                    "user"
+                ],
+                "parameters": [
+                    {
+                        "description": "更新的用户信息",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.PutUserInf"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/background": {
+            "put": {
+                "description": "修改个人背景",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "parameters": [
+                    {
+                        "description": "修改后的个人背景",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.ToSaveBackground"
+                        }
+                    }
                 ],
                 "responses": {
                     "200": {
@@ -282,6 +390,17 @@ var doc = `{
                 ],
                 "tags": [
                     "hobby"
+                ],
+                "parameters": [
+                    {
+                        "description": "用户爱好标签",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.Tag"
+                        }
+                    }
                 ],
                 "responses": {
                     "200": {
@@ -456,6 +575,29 @@ var doc = `{
                 }
             }
         },
+        "controller.PutUserInf": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "setting1": {
+                    "type": "integer"
+                },
+                "setting2": {
+                    "type": "integer"
+                },
+                "setting3": {
+                    "type": "integer"
+                },
+                "signature": {
+                    "type": "string"
+                }
+            }
+        },
         "controller.RealResp": {
             "type": "object",
             "properties": {
@@ -490,11 +632,39 @@ var doc = `{
                 }
             }
         },
+        "controller.ToSaveBackground": {
+            "type": "object",
+            "properties": {
+                "background": {
+                    "type": "integer"
+                }
+            }
+        },
         "controller.Token": {
             "type": "object",
             "properties": {
                 "uptoken": {
                     "type": "string"
+                }
+            }
+        },
+        "controller.UserRegister": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "realname": {
+                    "type": "string"
+                },
+                "school": {
+                    "type": "string"
+                },
+                "sex": {
+                    "type": "integer"
                 }
             }
         },
@@ -534,6 +704,23 @@ var doc = `{
                 },
                 "time": {
                     "type": "string"
+                }
+            }
+        },
+        "models.Last": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "time": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer"
                 }
             }
         },
@@ -640,6 +827,31 @@ var doc = `{
                 },
                 "time": {
                     "type": "string"
+                }
+            }
+        },
+        "models.Target": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.ToMessagePage": {
+            "type": "object",
+            "properties": {
+                "last": {
+                    "$ref": "#/definitions/models.Last"
+                },
+                "target": {
+                    "$ref": "#/definitions/models.Target"
                 }
             }
         },

@@ -9,12 +9,20 @@ import (
 )
 
 type ToSaveBackground struct {
-	Background int 
+	Background int
 }
 
+//@Title ChangeBackground
+//@Description 修改个人背景
+//@Tags user
+//@Produce json
+//@Param json body ToSaveBackground true "修改后的个人背景"
+//@Router /user/background [put]
+//@Success 200 {object} e.ErrMsgResponse
+//@Failure 403 {object} e.ErrMsgResponse
 func ChangeBackground(c *gin.Context) {
 	userInf := tools.GetUser()
-	
+
 	json := ToSaveBackground{}
 	c.BindJSON(&json)
 
