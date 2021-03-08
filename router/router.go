@@ -15,6 +15,7 @@ func InitRouter() *gin.Engine {
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
 
+<<<<<<< HEAD
 	//开发时按群组分类，并记得按swagger格式注释
 
 	//ws
@@ -59,6 +60,52 @@ func InitRouter() *gin.Engine {
 
 	//god view
 	r.POST("/new/deliver", controller.NewDeliverRank)
+=======
+    //开发时按群组分类，并记得按swagger格式注释
+    api := r.Group("/api")
+    
+    //qiniuToken
+    api.GET("/qiniu/token", controller.QiniuToken)
+
+    //注册
+    api.POST("/register", controller.Register)
+
+    //添加爱好
+    api.POST("/user/hobby", controller.NewHobby)
+    //获取爱好
+    api.GET("/user/hobby", controller.GetHobby)
+
+    //修改个人信息
+    r.PUT("/user", controller.PutUser)
+    //个人页
+    api.GET("/user", controller.ResponseMyPerponalPage)
+
+    //修改用户个人背景
+    api.POST("/user/background", controller.ChangeBackground)
+
+    //rank
+    api.GET("/deliver/rank",controller.DeliverRank)
+    api.GET("/songs/rank",controller.SongRank)
+    api.GET("/user/rank",controller.UserRank)
+
+    //main
+    api.GET("/main/page",controller.MainMsg)
+
+    //heal
+    api.GET("/user/phone",controller.PhoneHeal)
+    api.GET("/record",controller.Record)
+    api.GET("/like",controller.Praise)
+    api.POST("/record",controller.RecordHeal)
+    api.POST("/vod",controller.VodPost)
+
+    //swagger
+    api.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
+    //test
+    api.GET("/initest",controller.Test)
+
+    //god view
+>>>>>>> fae13868e69b4bdbe56ab926c618f348017ba4e6
 
 	return r
 }

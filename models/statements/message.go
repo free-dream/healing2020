@@ -9,12 +9,21 @@ import (
 )
 
 type Message struct {
+<<<<<<< HEAD
 	gorm.Model
 	Send    uint
 	Receive uint
 	Type    int
 	Content string
 	Url     string
+=======
+    gorm.Model
+    Send uint
+    Receive uint
+    Type int
+    Content string
+    Url string
+>>>>>>> fae13868e69b4bdbe56ab926c618f348017ba4e6
 }
 
 func MessageInit() {

@@ -9,7 +9,6 @@ import (
 
 type Mailbox struct {
     gorm.Model
-    MailboxId uint 
     Message string
 }
 
