@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 
+	"healing2020/models"
 	"healing2020/pkg/tools"
 )
 
@@ -116,6 +117,9 @@ func (wsConn *WsConnection) writeBroadCast() {
 				fmt.Println("write websocket fail")
 				wsConn.close()
 				return
+
+			}
+			if models.CreateMailBox(msg) != nil {
 
 			}
 		case <-wsConn.closeChan:
