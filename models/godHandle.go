@@ -94,6 +94,7 @@ func CreateMessages(id1 string, id2 string, types int, content string, url strin
 	message.Receive = receive
 	message.Type = types
 	message.Content = content
+	message.Url = url
 	db := setting.MysqlConn()
 	defer db.Close()
 	result := db.Model(&statements.Message{}).Create(&message)

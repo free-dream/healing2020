@@ -14,6 +14,7 @@ type Message struct {
 	Receive uint
 	Type    int
 	Content string
+	Url     string
 }
 
 func MessageInit() {
