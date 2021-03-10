@@ -34,6 +34,20 @@ func InitRouter() *gin.Engine {
 	api.POST("/broadcast", controller.Broadcast) //广播
 	api.GET("/message", controller.MessagePage)  //消息首页
 
+	//投递箱
+	api.GET("/deliver/home", controller.AllDeliver)
+
+	//歌房
+	api.GET("/singsubject", controller.SingSubject)
+	api.GET("/singhome", controller.SingHome)
+
+	//抽奖
+	api.GET("/lottery/money", controller.GetMoney)
+
+	//评论
+	api.GET("/getcomment", controller.GetComment)
+	api.POST("/postcomment", controller.PostComment)
+
 	//rank
 	api.GET("/deliver/rank", controller.DeliverRank)
 	api.GET("/songs/rank", controller.SongRank)
