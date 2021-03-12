@@ -40,8 +40,15 @@ func autoCreate() {
     models.CreatePraises("4",2,"1")
 
     models.CreateDelivers("2",1,"i am robot","","",1)
+    models.CreateDelivers("5",1,"i am root","","",1)
+    models.CreateDelivers("3",1,"i am robt","","",1)
     models.CreateDelivers("3",2,"i am robot2","photo1","",0)
-    models.CreateDelivers("3",3,"i am robot2","","source7",0)
+    models.CreateDelivers("1",2,"am robo2","photo2","",0)
+    models.CreateDelivers("1",2,"i am robo2","photo3","",0)
+    models.CreateDelivers("4",3,"i m robot5","","source7",0)
+    models.CreateDelivers("2",3,"i m rot2","","source8",0)
+    models.CreateDelivers("3",3,"i m rbot2","","source9",0)
+    models.CreateDelivers("1",3,"i m obot2","","source0",0)
 
     models.CreateComments("5",1,"3","","wonderful")
     models.CreateComments("5",2,"","1","me too")

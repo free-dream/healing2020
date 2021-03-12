@@ -2,6 +2,8 @@ package router
 
 import (
 	"healing2020/controller"
+    "healing2020/controller/middleware"
+    "healing2020/tools"
 	_ "healing2020/docs"
 
 	"github.com/gin-gonic/gin"
@@ -14,6 +16,9 @@ func InitRouter() *gin.Engine {
 
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
+    if tools.IsDebug() {
+        r.Use(middleware.Cors())
+    }
 
 	//开发时按群组分类，并记得按swagger格式注释
 	api := r.Group("/api")

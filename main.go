@@ -18,6 +18,7 @@ func main() {
     models.TableInit()
     if tools.IsDebug() {
         controller.LoadTestData()
+        models.SendDeliverRank()
     }
     
     routersInit := router.InitRouter()
