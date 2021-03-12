@@ -8,12 +8,13 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
+//保存广播信息
 func CreateMailBox(message string) error {
 	db := setting.MysqlConn()
 	defer db.Close()
 
 	tx := db.Begin()
-	err := tx.Model(statements.Mailbox{}).Create(statements.Mailbox{Message: message}).Error
+	err := tx.Model(&statements.Mailbox{}).Create(statements.Mailbox{Message: message}).Error
 	if err != nil {
 		fmt.Println(err)
 		tx.Rollback()

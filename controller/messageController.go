@@ -3,7 +3,6 @@ package controller
 import (
 	"fmt"
 	"healing2020/models"
-	"healing2020/models/statements"
 	"healing2020/pkg/e"
 	"healing2020/pkg/tools"
 	"strconv"
@@ -26,30 +25,6 @@ func MessagePage(c *gin.Context) {
 		return
 	}
 	c.JSON(200, responseMessage)
-}
-
-//@Title SaveToSendMessage
-//@Description 保存发送的消息
-//@Tags message
-//@Produce json
-//@Router /message [post]
-//@Success 200 {object} e.ErrMsgResponse
-//@Failure 403 {object} e.ErrMsgResponse
-func SaveToSendMessage(c *gin.Context) {
-	var msg Message //ws.go定义的结构
-	c.BindJSON(&msg)
-	msgDB := statements.Message{
-		Send:    msg.FromUserID,
-		Receive: msg.FromUserID,
-		Content: msg.Content,
-		Type:    2,
-	}
-	err := models.CreateMessage(msgDB)
-	if err != nil {
-		c.JSON(403, e.ErrMsgResponse{Message: "保存信息失败！"})
-		return
-	}
-	c.JSON(200, e.ErrMsgResponse{Message: e.GetMsg(e.SUCCESS)})
 }
 
 //@Title CellMessage
