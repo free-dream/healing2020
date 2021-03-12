@@ -19,15 +19,15 @@ type BroadCastContent struct {
 }
 
 type Message struct {
-	Type       int
-	FromuserID int
-	TouserID   int    `validate:"required"`
-	Content    string `validate:"required"`
+	Type       int    `josn:"type"`
+	FromUserID uint   `json:"fromUserID`
+	ToUserID   uint   `json:"toUserID" validate:"required"`
+	Content    string `json:"content" validate:"required"`
 }
 
 type WsConnection struct {
 	ws        *websocket.Conn
-	userID    int
+	userID    uint
 	closeChan chan byte
 	mutex     sync.Mutex
 	isClosed  bool
@@ -59,7 +59,7 @@ func WsHandle(c *gin.Context) {
 
 	wsConn := &WsConnection{
 		ws:        ws,
-		userID:    int(user.ID),
+		userID:    user.ID,
 		closeChan: make(chan byte),
 		isClosed:  false,
 	}
@@ -91,12 +91,12 @@ func (wsConn *WsConnection) heartbeat() {
 }
 
 func (wsConn *WsConnection) writeWs() {
-	if _, ok := MessageQueue[wsConn.userID]; !ok {
-		MessageQueue[wsConn.userID] = make(chan *Message, 1000)
+	if _, ok := MessageQueue[int(wsConn.userID)]; !ok {
+		MessageQueue[int(wsConn.userID)] = make(chan *Message, 1000)
 	}
 	for {
 		select {
-		case msg := <-MessageQueue[wsConn.userID]:
+		case msg := <-MessageQueue[int(wsConn.userID)]:
 			if err := wsConn.ws.WriteMessage(websocket.TextMessage, []byte(msg.Content)); err != nil {
 				fmt.Println("write websocket fail")
 				wsConn.close()
@@ -137,7 +137,7 @@ func (wsConn *WsConnection) readWs() {
 		}
 		data := Message{
 			Type:       1,
-			FromuserID: wsConn.userID,
+			FromUserID: wsConn.userID,
 		}
 		err = json.Unmarshal(rawData, &data)
 		if err != nil {
@@ -145,11 +145,11 @@ func (wsConn *WsConnection) readWs() {
 			fmt.Println("rawData: " + string(rawData))
 			continue
 		}
-		if _, ok := MessageQueue[data.TouserID]; !ok {
-			MessageQueue[data.TouserID] = make(chan *Message, 1000)
+		if _, ok := MessageQueue[int(data.ToUserID)]; !ok {
+			MessageQueue[int(data.ToUserID)] = make(chan *Message, 1000)
 		}
 		select {
-		case MessageQueue[data.TouserID] <- &data:
+		case MessageQueue[int(data.ToUserID)] <- &data:
 		case <-wsConn.closeChan:
 			return
 		}

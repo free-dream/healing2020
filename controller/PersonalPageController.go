@@ -1,29 +1,29 @@
 package controller
 
 import (
-	"strconv"
 	"fmt"
+	"strconv"
 
 	"healing2020/models"
-	"healing2020/pkg/e"
 	"healing2020/models/statements"
+	"healing2020/pkg/e"
 	"healing2020/pkg/tools"
 
 	"github.com/gin-gonic/gin"
 )
 
 type PersonalPage struct {
-	NickName string `json:"name"`
-	Campus string `json:"school"`
-	More string  `json:"more"`
-	Setting1 int `json:"setting1"`
-	Setting2 int `json:"setting2"`
-	Setting3 int `json:"setting3"`
-	Avatar string `json:"avatar"`
-	Background string `json:"background"`
-	Vod[] models.RequestSongs `json:"requestSongs"`
-	Songs[] models.Songs `json:"Songs"`
-	Praise[] models.Admire `json:"admire"` 
+	NickName   string                `json:"name"`
+	Campus     string                `json:"school"`
+	More       string                `json:"more"`
+	Setting1   int                   `json:"setting1"`
+	Setting2   int                   `json:"setting2"`
+	Setting3   int                   `json:"setting3"`
+	Avatar     string                `json:"avatar"`
+	Background string                `json:"background"`
+	Vod        []models.RequestSongs `json:"requestSongs"`
+	Songs      []models.Songs        `json:"Songs"`
+	Praise     []models.Admire       `json:"admire"`
 }
 
 //综合处理各项数据获取最终返回结果
@@ -34,12 +34,12 @@ func responsePage(c *gin.Context, user statements.User, userID uint) {
 	//初始化返回数据
 	page := PersonalPage{
 		NickName: user.NickName,
-		Campus: user.Campus,
-		More: user.More,
+		Campus:   user.Campus,
+		More:     user.More,
 		Setting1: user.Setting1,
 		Setting2: user.Setting2,
 		Setting3: user.Setting3,
-		Avatar: user.Avatar,
+		Avatar:   user.Avatar,
 	}
 
 	//补充返回数据
@@ -77,7 +77,7 @@ func responsePage(c *gin.Context, user statements.User, userID uint) {
 //@Router /user [get]
 //@Success 200 {object} PersonalPage
 //@Failure 403 {object} e.ErrMsgResponse
-func ResponseMyPerponalPage(c *gin.Context){
+func ResponseMyPerponalPage(c *gin.Context) {
 	rUser := tools.GetUser()
 	user := statements.User(rUser)
 	responsePage(c, user, user.ID)
@@ -95,8 +95,10 @@ func ResponseOthersPerponalPage(c *gin.Context) {
 	id := c.Query("id")
 	userIDInt, err := strconv.Atoi(id)
 	var userID uint = uint(userIDInt)
-	if err != nil{
+	if err != nil {
 		fmt.Println("字符串转换成整数失败")
+		c.JSON(403, e.ErrMsgResponse{Message: "获取qs参数错误"})
+		return
 	}
 	//查询id对应用户信息
 	user, err := models.ResponseUser(userID)
