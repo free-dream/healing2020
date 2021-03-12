@@ -6,6 +6,7 @@ import (
     "healing2020/pkg/setting"
     "healing2020/pkg/tools"
     "healing2020/controller"
+    "healing2020/cron"
 )
 
 // @Title healing2020
@@ -20,6 +21,10 @@ func main() {
         controller.LoadTestData()
         models.SendDeliverRank()
     }
+
+    c := cron.CronInit()
+    go c.Start()
+    defer c.Stop()
     
     routersInit := router.InitRouter()
 

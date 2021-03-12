@@ -129,16 +129,16 @@ func GetDeliverRank() ([]AllRank,string){
     var i float64 = 0
     for j:=0;;j++ {
         rank := make([]Rank,10)
-        fmt.Println(count)
-        fmt.Println(i)
+        //fmt.Println(count)
+        //fmt.Println(i)
         if i*100>=count {
             break
         }
         var date float64 = 3.15+i
         dateStr := strconv.FormatFloat(date,'f',2,64)
-        dateStr = "Deliver." + dateStr
-        fmt.Println(dateStr)
-        data,err := client.Get(dateStr).Bytes()
+        keyname := "Deliver." + dateStr
+        //fmt.Println(dateStr)
+        data,err := client.Get(keyname).Bytes()
         if err != nil {
             fmt.Println(err)
             return nil,"Unexpected data" 
@@ -147,6 +147,7 @@ func GetDeliverRank() ([]AllRank,string){
         i=i+0.01
 
         result[j].Data = rank
+        result[j].Time = dateStr
     }
 
     //fmt.Println(result)

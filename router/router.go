@@ -3,7 +3,7 @@ package router
 import (
 	"healing2020/controller"
     "healing2020/controller/middleware"
-    "healing2020/tools"
+    "healing2020/pkg/tools"
 	_ "healing2020/docs"
 
 	"github.com/gin-gonic/gin"
