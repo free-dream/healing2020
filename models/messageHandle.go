@@ -5,87 +5,59 @@ import (
 	"healing2020/models/statements"
 	"healing2020/pkg/setting"
 	"time"
-
-	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
-type ToMessagePage struct {
-	User     Target `json:"target"`
-	LastText Last   `json:"last"`
+//聊天室具体消息接口返回数据
+type ToMessageCell struct {
+	ID         uint      `json:"id"`
+	ToUserID   uint      `json:"toUserID" gorm:"column:send"`
+	FromUserID uint      `json:"fromUserID gorm:"column:receive"`
+	Content    string    `json:"content"`
+	Time       time.Time `json:"time" gorm:"column:created_at"`
+	StringTime string    `json:"stringtime"`
+	URL        string    `json:"url"`
+	Type       int       `json:"type" gorm:"column:type"`
 }
 
-type Target struct {
-	ID     uint   `json:"id"`
-	Name   string `gorm:"column:nick_name"`
-	Avatar string
-}
-
-type Last struct {
-	ID       uint `json:"id"`
-	Content  string
-	Time     time.Time `gorm:"column:created_at"`
-	TextType int       `json:"type" gorm:"column:type"`
-}
-
-func ResponseMessagePage(userID uint) ([]ToMessagePage, error) {
+//保存用户聊天的消息
+func CreateMessage(msg statements.Message) error {
 	db := setting.MysqlConn()
 	defer db.Close()
 
-	//聊天只能由录音发起
-	//查录音记录获取和用户聊过天的对象
-	var messageSender []statements.Message
-	var messageReceive []statements.Message
-	err := db.Select("send").Where("receive = ? AND type = ?", userID, 1).Find(&messageSender).
-		Select("receive").Where("send = ? AND type = ?", userID, 1).Find(&messageReceive).Error
+	tx := db.Begin()
+	err := tx.Model(&statements.Message{}).Create(msg).Error
+	if err != nil {
+		tx.Rollback()
+		fmt.Println(err)
+		return err
+	}
+	return tx.Commit().Error
+}
+
+//返回聊天室的具体消息
+func SelectCellMessage(userID uint, targetID uint) ([]ToMessageCell, error) {
+	db := setting.MysqlConn()
+	defer db.Close()
+
+	var msgUserSend []ToMessageCell
+	var msgTargetSend []ToMessageCell
+	err := db.Table("message").Where("send = ? AND receive = ?", userID, targetID).Scan(&msgUserSend).Error
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
 	}
-	allTargetID := append(messageSender, messageReceive...)
-
-	//获取和用户聊过天的对象具体信息
-	userTarget := make([]Target, len(allTargetID))
-	for key, value := range allTargetID {
-		err = db.Table("user").Select("id, nick_name, avatar").Where("id = ?", value.Send).Scan(&userTarget[key]).Error
-		if err != nil {
-			fmt.Println(err)
-			return nil, err
-		}
-	}
-	fmt.Println(userTarget)
-
-	//分别获取用户与聊天对象各自发出的最新消息
-	//比对时间确定最后一条消息
-	var sendMessage Last
-	var receiveMessage Last
-	lastMessage := make([]Last, len(userTarget))
-	for key, value := range userTarget {
-		err = db.Table("message").Where("send = ? AND receive = ?", userID, value.ID).Order("created_at desc").Limit(1).Scan(&sendMessage).Error
-		if err != nil {
-			fmt.Println(err)
-			return nil, err
-		}
-		err = db.Table("message").Where("send = ? AND receive = ?", value.ID, userID).Order("created_at desc").Limit(1).Scan(&receiveMessage).Error
-		if err != nil {
-			fmt.Println(err)
-			return nil, err
-		}
-		fmt.Println(sendMessage)
-		fmt.Println(receiveMessage)
-		if sendMessage.Time.After(receiveMessage.Time) {
-			lastMessage[key] = sendMessage
-		} else {
-			lastMessage[key] = receiveMessage
-		}
+	err = db.Table("message").Where("send = ? AND receive = ?", targetID, userID).Scan(&msgTargetSend).Error
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
 	}
 
-	//综合数据return
-	responseMessage := make([]ToMessagePage, len(userTarget))
-	for i := 0; i < len(userTarget); i++ {
-		responseMessage[i] = ToMessagePage{
-			User:     userTarget[i],
-			LastText: lastMessage[i],
-		}
+	msg := append(msgUserSend, msgTargetSend...)
+
+	for key, value := range msg {
+		msg[key].StringTime = value.Time.Format("2006-01-02 15:04:05")
 	}
-	return responseMessage, err
+
+	return msg, err
+
 }

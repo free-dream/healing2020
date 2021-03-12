@@ -5,6 +5,7 @@ import (
     "healing2020/controller/middleware"
     "healing2020/pkg/tools"
 	_ "healing2020/docs"
+	"healing2020/pkg/tools"
 
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -16,9 +17,9 @@ func InitRouter() *gin.Engine {
 
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
-    if tools.IsDebug() {
-        r.Use(middleware.Cors())
-    }
+	if tools.IsDebug() {
+		r.Use(middleware.Cors())
+	}
 
 	//开发时按群组分类，并记得按swagger格式注释
 	api := r.Group("/api")
@@ -38,6 +39,7 @@ func InitRouter() *gin.Engine {
 	api.POST("/ws", controller.WsHandle)         //websocket服务
 	api.POST("/broadcast", controller.Broadcast) //广播
 	api.GET("/message", controller.MessagePage)  //消息首页
+	api.POST("/message", controller.SendMessage) //发送消息
 
 	//投递箱
 	api.GET("/deliver/home", controller.AllDeliver)
