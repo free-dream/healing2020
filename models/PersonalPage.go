@@ -13,15 +13,19 @@ import (
 )
 
 type RequestSongs struct { //点歌
+	ID        uint      `json:"id"`
 	Name      string    `json:"song"`
 	CreatedAt time.Time `json:"time"`
+	HideName  int       `json:"hidename"`
 }
 type Songs struct { //唱歌
+	ID        uint      `json:"id"`
 	Name      string    `json:"song"`
 	CreatedAt time.Time `json:"time"`
 	From      string    `json:"from"`
 }
 type Admire struct { //点赞
+	ID        uint      `json:"id"`
 	Name      string    `json:"song"`
 	CreatedAt time.Time `json:"time"`
 	From      string    `json:"from"`
@@ -54,6 +58,7 @@ func deliverToSongs(deliver []statements.Deliver) []Songs {
 	s := make([]Songs, len(deliver))
 	for i := 0; i < len(deliver); i++ {
 		s[i] = Songs{
+			ID:        deliver[i].ID,
 			Name:      deliver[i].TextField,
 			CreatedAt: deliver[i].CreatedAt,
 			From:      "投递箱",
@@ -66,7 +71,7 @@ func deliverToSongs(deliver []statements.Deliver) []Songs {
 //根据praiseID来select对应表的信息，并加上From来源(歌房、治愈、投递箱）
 func selectPraiseInf(db *gorm.DB, table string, from string, praiseID uint) (Admire, error) {
 	var admireInf Admire
-	err := db.Table(table).Select("name, created_at, praise").Where("id=?", praiseID).Scan(&admireInf).Error
+	err := db.Table(table).Select("id, name, created_at, praise").Where("id=?", praiseID).Scan(&admireInf).Error
 	admireInf.From = from
 	return admireInf, err
 }
@@ -75,6 +80,7 @@ func selectPraiseInf(db *gorm.DB, table string, from string, praiseID uint) (Adm
 //将select到的deliver信息代入到一个Admire结构
 func deliverToAdmire(deliver statements.Deliver) Admire {
 	a := Admire{
+		ID:        deliver.ID,
 		Name:      deliver.TextField,
 		CreatedAt: deliver.CreatedAt,
 		From:      "投递箱",
@@ -96,15 +102,15 @@ func ResponseUser(userID uint) (statements.User, error) {
 }
 
 //select并返回用户现在使用的个人背景
-func ResponseBackground(userID uint) (string, error) {
+func ResponseUserOther(userID uint) (string, error) {
 	//连接mysql
 	db := setting.MysqlConn()
 	defer db.Close()
 
 	//查询
-	var nowBackground statements.Background
-	err := db.Select("now").Where("user_id=?", userID).First(&nowBackground).Error
-	return tools.GetBackgroundUrl(nowBackground.Now), err
+	var nowUserOther statements.UserOther
+	err := db.Select("now").Where("user_id=?", userID).First(&nowUserOther).Error
+	return tools.GetBackgroundUrl(nowUserOther.Now), err
 }
 
 //select并返回点歌信息
@@ -115,7 +121,7 @@ func ResponseVod(userID uint) ([]RequestSongs, error) {
 
 	//获取点歌信息
 	var allVod []RequestSongs
-	err := db.Table("vod").Select("name, created_at").Where("user_id=?", userID).Scan(&allVod).Error
+	err := db.Table("vod").Select("id, name, created_at, hide_name").Where("user_id=?", userID).Scan(&allVod).Error
 	return allVod, err
 }
 
@@ -129,26 +135,26 @@ func ResponseSongs(userID uint) ([]Songs, error) {
 
 	//获取唱歌信息
 	var singSongs []Songs
-	err = db.Table("song").Select("name, created_at").Where("user_id=?", userID).Scan(&singSongs).Error
+	err = db.Table("song").Select("id, name, created_at").Where("user_id=?", userID).Scan(&singSongs).Error
 	if err != nil {
 		return nil, err
 	}
 
 	//获取歌房专题歌曲信息
 	var specialSongs []Songs
-	err = db.Table("special").Select("name, created_at").Where("user_id=?", userID).Scan(&specialSongs).Error
+	err = db.Table("special").Select("id, name, created_at").Where("user_id=?", userID).Scan(&specialSongs).Error
 	if err != nil {
 		return nil, err
 	}
 
 	//获得投递箱信息
 	var deliver []statements.Deliver
-	err = db.Select("text_field, created_at").Where("user_id=?", userID).Find(&deliver).Error
+	err = db.Select("id, text_field, created_at").Where("user_id=?", userID).Find(&deliver).Error
 	if err != nil {
 		return nil, err
 	}
 
-	//处理不同表select下来的信息
+	//处理不同表select下来的信息, 转换为Songs类型
 	singSongs = songsFrom(singSongs, "治愈")
 
 	specialSongs = songsFrom(specialSongs, "歌房")
@@ -182,7 +188,7 @@ func ResponsePraise(userID uint) ([]Admire, error) {
 		//投递箱
 		case 1:
 			var deliverInf statements.Deliver
-			err = db.Select("text_field, created_at, praise").Where("id=?", praise[i].PraiseId).First(&deliverInf).Error
+			err = db.Select("id, text_field, created_at, praise").Where("id=?", praise[i].PraiseId).First(&deliverInf).Error
 			allPraise[i] = deliverToAdmire(deliverInf)
 			if err != nil {
 				return nil, err

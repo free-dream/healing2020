@@ -13,17 +13,17 @@ import (
 )
 
 type PersonalPage struct {
-	NickName   string                `json:"name"`
-	Campus     string                `json:"school"`
-	More       string                `json:"more"`
-	Setting1   int                   `json:"setting1"`
-	Setting2   int                   `json:"setting2"`
-	Setting3   int                   `json:"setting3"`
-	Avatar     string                `json:"avatar"`
-	Background string                `json:"background"`
-	Vod        []models.RequestSongs `json:"requestSongs"`
-	Songs      []models.Songs        `json:"Songs"`
-	Praise     []models.Admire       `json:"admire"`
+	NickName  string                `json:"name"`
+	Campus    string                `json:"school"`
+	More      string                `json:"more"`
+	Setting1  int                   `json:"setting1"`
+	Setting2  int                   `json:"setting2"`
+	Setting3  int                   `json:"setting3"`
+	Avatar    string                `json:"avatar"`
+	UserOther string                `json:"userother"`
+	Vod       []models.RequestSongs `json:"requestSongs"`
+	Songs     []models.Songs        `json:"Songs"`
+	Praise    []models.Admire       `json:"admire"`
 }
 
 //综合处理各项数据获取最终返回结果
@@ -43,7 +43,7 @@ func responsePage(c *gin.Context, user statements.User, userID uint) {
 	}
 
 	//补充返回数据
-	page.Background, err = models.ResponseBackground(userID)
+	page.UserOther, err = models.ResponseUserOther(userID)
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
 		return
