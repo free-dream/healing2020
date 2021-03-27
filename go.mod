@@ -5,6 +5,8 @@ go 1.15
 require (
 	github.com/alecthomas/template v0.0.0-20190718012654-fb15b899a751
 	github.com/garyburd/redigo v1.6.2
+	github.com/gin-contrib/sessions v0.0.3
+	github.com/gin-gonic/contrib v0.0.0-20201101042839-6a891bf89f19
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-openapi/spec v0.20.2 // indirect
 	github.com/go-redis/redis v6.15.9+incompatible

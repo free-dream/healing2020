@@ -11,6 +11,7 @@ func RedisConnTest() {
     if err != nil {
         panic(err)
     }
+    client.Set("apiv3:rankCount",0,0)
     client.Close()
 }
 

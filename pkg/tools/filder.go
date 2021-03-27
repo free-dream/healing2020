@@ -2,6 +2,7 @@ package tools
 
 import (
     "regexp"
+    "reflect"
 )
 
 func Valid(param string,pattern string) bool{
@@ -9,4 +10,12 @@ func Valid(param string,pattern string) bool{
         return false
     }
     return true
+}
+
+func IsZeroValue(i interface{}) bool{
+    defer func() {
+        recover()
+    }()
+    vi := reflect.ValueOf(i)
+    return !vi.IsValid()
 }

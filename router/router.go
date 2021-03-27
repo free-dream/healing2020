@@ -2,11 +2,14 @@ package router
 
 import (
 	"healing2020/controller"
+    "healing2020/controller/auth"
     "healing2020/controller/middleware"
 	_ "healing2020/docs"
 	"healing2020/pkg/tools"
 
 	"github.com/gin-gonic/gin"
+    "github.com/gin-contrib/sessions"
+    "github.com/gin-contrib/sessions/cookie"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -16,12 +19,15 @@ func InitRouter() *gin.Engine {
 
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
+    store := cookie.NewStore([]byte("healing2020"))
+    r.Use(sessions.Sessions("session",store))
 	if tools.IsDebug() {
 		r.Use(middleware.Cors())
 	}
 
 	//开发时按群组分类，并记得按swagger格式注释
 	api := r.Group("/api")
+    api.Use(middleware.IdentityCheck)
 
 	//qiniuToken
 	api.GET("/qiniu/token", controller.QiniuToken)
@@ -76,6 +82,9 @@ func InitRouter() *gin.Engine {
 	api.GET("/initest", controller.Test)
 
 	//god view
+    
+    //login
+    r.GET("/fake",auth.FakeLogin)
 
 	return r
 }

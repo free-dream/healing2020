@@ -108,11 +108,11 @@ func SendDeliverRank() error{
     //set in redis
     client := setting.RedisConn()
     defer client.Close()
-    count,_ := client.Get("rankCount").Float64()
+    count,_ := client.Get("apiv3:rankCount").Float64()
     keyName := "Deliver." + strconv.FormatFloat(count/100+3.15,'f',2,64)
     client.Set(keyName,jsonRank,0)
     count = count + 1
-    client.Set("rankCount",count,0)
+    client.Set("apiv3:rankCount",count,0)
     //redisRank,_ := client.Get("2.22").Bytes()
     //var rank2 []Rank
     //json.Unmarshal(redisRank,&rank2)
@@ -125,7 +125,7 @@ func GetDeliverRank() ([]AllRank,string){
     result := make([]AllRank,10)
     client := setting.RedisConn()
     defer client.Close()
-    count,_ := client.Get("rankCount").Float64()
+    count,_ := client.Get("apiv3:rankCount").Float64()
     var i float64 = 0
     for j:=0;;j++ {
         rank := make([]Rank,10)
@@ -197,11 +197,11 @@ func SendSongRank() error{
     //set in redis
     client := setting.RedisConn()
     defer client.Close()
-    count,_ := client.Get("rankCount").Float64()
+    count,_ := client.Get("apiv3:rankCount").Float64()
     keyName := "Deliver." + strconv.FormatFloat(count/100+3.15,'f',2,64)
     client.Set(keyName,jsonRank,0)
     count = count + 1
-    client.Set("rankCount",count,0)
+    client.Set("apiv3:rankCount",count,0)
 
     return nil
 }
@@ -210,7 +210,7 @@ func GetSongRank() ([]AllRank,string){
     var result []AllRank
     client := setting.RedisConn()
     defer client.Close()
-    count,_ := client.Get("rankCount").Float64()
+    count,_ := client.Get("apiv3:rankCount").Float64()
     var i float64 = 0
     for j:=0;;j++ {
         var rank []Rank
@@ -238,7 +238,7 @@ func GetAllUserRank() ([]AllRank,string){
     var result []AllRank
     client := setting.RedisConn()
     defer client.Close()
-    count,_ := client.Get("rankCount").Float64()
+    count,_ := client.Get("apiv3:rankCount").Float64()
     var i float64 = 0
     for j:=0;;j++ {
         var rank []Rank
