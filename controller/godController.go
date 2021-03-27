@@ -11,11 +11,11 @@ func autoCreate() {
     models.CreateUsers("","robot4","truename4","more","avatar4","中大","18182311310",1,"日语",120,0,1,0)
     models.CreateUsers("","robot5","truename5","more","avatar5","华工","12312123412",0,"爵士",300,1,1,1)
 
-    models.CreateBgs("1",1,1,1,1,1,1)
-    models.CreateBgs("2",2,1,1,1,1,1)
-    models.CreateBgs("3",3,1,1,1,1,1)
-    models.CreateBgs("4",4,1,1,1,1,1)
-    models.CreateBgs("5",5,1,1,1,1,1)
+//    models.CreateBgs("1",1,1,1,1,1,1)
+//    models.CreateBgs("2",2,1,1,1,1,1)
+//    models.CreateBgs("3",3,1,1,1,1,1)
+//    models.CreateBgs("4",4,1,1,1,1,1)
+//    models.CreateBgs("5",5,1,1,1,1,1)
 
     models.CreateVods("1","no more","abc","tobor","","")
     models.CreateVods("2","no more","abcd","2tobor","","")

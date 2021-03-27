@@ -53,7 +53,7 @@ func Register(c *gin.Context) {
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.ERROR_USER_CREATE_FAIL)})
 		return
 	}
-	err = models.CreateBackground(userInf.ID)
+	err = models.CreateUserOther(userInf.ID)
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.ERROR_USER_CREATE_FAIL)})
 		return

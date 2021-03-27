@@ -26,22 +26,22 @@ func CreateDelivers(id string, types int, textfield string, photo string, record
 	return result.Error
 }
 
-func CreateBgs(id string, now int, b1 int, b2 int, b3 int, b4 int, b5 int) error {
-	intId, _ := strconv.Atoi(id)
-	userid := uint(intId)
-	var bg statements.Background
-	bg.UserId = userid
-	bg.Now = now
-	bg.B1 = b1
-	bg.B2 = b2
-	bg.B3 = b3
-	bg.B4 = b4
-	bg.B5 = b5
-	db := setting.MysqlConn()
-	defer db.Close()
-	result := db.Model(&statements.Background{}).Create(&bg)
-	return result.Error
-}
+//func CreateBgs(id string, now int, b1 int, b2 int, b3 int, b4 int, b5 int) error {
+//	intId, _ := strconv.Atoi(id)
+//	userid := uint(intId)
+//	var bg statements.Background
+//	bg.UserId = userid
+//	bg.Now = now
+//	bg.B1 = b1
+//	bg.B2 = b2
+//	bg.B3 = b3
+//	bg.B4 = b4
+//	bg.B5 = b5
+//	db := setting.MysqlConn()
+//	defer db.Close()
+//	result := db.Model(&statements.Background{}).Create(&bg)
+//	return result.Error
+//}
 
 func CreateComments(id string, types int, id1 string, id2 string, content string) error {
 	intId1, _ := strconv.Atoi(id1)
@@ -229,7 +229,7 @@ func TableCleanUp() {
 	db := setting.MysqlConn()
 	defer db.Close()
 
-	db.Exec("TRUNCATE TABLE background")
+	//db.Exec("TRUNCATE TABLE background")
 	db.Exec("TRUNCATE TABLE comment")
 	db.Exec("TRUNCATE TABLE deliver")
 	db.Exec("TRUNCATE TABLE lottery")
