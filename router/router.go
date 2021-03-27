@@ -83,9 +83,8 @@ func InitRouter() *gin.Engine {
 
 	//god view
     
-    //login
-    auth := r.Group("/auth")
-    auth.GET("/fake",auth.FakeLogin)
+        //login
+        r.GET("/auth/fake",auth.FakeLogin)
 
 	return r
 }
