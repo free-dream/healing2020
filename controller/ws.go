@@ -18,13 +18,17 @@ import (
 
 type BroadcastContent struct {
 	Text string `json:"message"`
+	Time string `json:"time"`
+	Type int    `json:"type"`
 }
 
 type Message struct {
 	Type       int    `josn:"type"`
+	Time       string `json:"time"`
 	FromUserID uint   `json:"fromUserID"`
 	ToUserID   uint   `json:"toUserID" validate:"required"`
 	Content    string `json:"content" validate:"required"`
+	URL        string `json:"url"`
 }
 
 type WsConnection struct {
@@ -42,7 +46,7 @@ var upGrader = websocket.Upgrader{
 }
 
 var MessageQueue = make(map[int](chan *Message))
-var broadcastChan = make(chan string)
+var broadcastChan = make(chan *BroadcastContent)
 
 //@Title Broadcast
 //@Description 广播
@@ -53,14 +57,16 @@ var broadcastChan = make(chan string)
 //@Success 200 {object} e.ErrMsgResponse
 //@Failure 403 {object} e.ErrMsgResponse
 func Broadcast(c *gin.Context) {
-	json := BroadcastContent{}
+	json := BroadcastContent{
+		Type: 0,
+	}
 	c.BindJSON(&json)
 
-	broadcastChan <- json.Text
+	broadcastChan <- &json
 
 	err := models.CreateMailBox(json.Text)
 	if err != nil {
-		c.JSON(403, e.ErrMsgResponse{Message: "广播失败!"})
+		c.JSON(403, e.ErrMsgResponse{Message: "存储广播信息失败"})
 		return
 	}
 	c.JSON(200, e.ErrMsgResponse{Message: e.GetMsg(e.SUCCESS)})
@@ -166,13 +172,14 @@ func (wsConn *WsConnection) writeBroadCast() {
 	for {
 		select {
 		case msg := <-broadcastChan:
-			if err := wsConn.ws.WriteMessage(websocket.TextMessage, []byte(msg)); err != nil {
+			responseMsg, _ := json.Marshal(msg)
+			if err := wsConn.ws.WriteMessage(websocket.TextMessage, []byte(responseMsg)); err != nil {
 				fmt.Println("write websocket fail")
 				wsConn.close()
 				return
 
 			}
-			if models.CreateMailBox(msg) != nil {
+			if models.CreateMailBox(msg.Text) != nil {
 
 			}
 		case <-wsConn.closeChan:
@@ -189,7 +196,7 @@ func (wsConn *WsConnection) readWs() {
 			return
 		}
 		data := Message{
-			Type:       1,
+			Type:       2,
 			FromUserID: wsConn.userID,
 		}
 		err = json.Unmarshal(rawData, &data)
