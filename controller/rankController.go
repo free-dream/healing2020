@@ -30,7 +30,7 @@ func AllUserRank(c *gin.Context) {
 // @Tags rank
 // @Produce json
 // @Router /user/rank [get]
-// @Params id query string
+// @Params id query string false
 // @Success 200 {object} models.UserRank
 // @Failure 403 {object} e.ErrMsgResponse
 func UserRank(c *gin.Context) {

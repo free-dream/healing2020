@@ -23,6 +23,14 @@ type LoginStatus struct {
     Message string `json:"message"`
 }
 
+// @Title FakeLogin
+// @Description 假登录接口
+// @Tags login
+// @Produce json
+// @Router /fake [get]
+// @Param id query string true "user id"
+// @Success 200 {object} LoginStatus
+// @Failure 403 {object} e.ErrMsgResponse
 func FakeLogin(c *gin.Context) {
     id := c.Query("id")
 
