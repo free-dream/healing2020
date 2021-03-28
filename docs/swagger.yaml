@@ -1,4 +1,18 @@
 definitions:
+  auth.LoginStatus:
+    properties:
+      message:
+        type: string
+    type: object
+  controller.BroadcastContent:
+    properties:
+      message:
+        type: string
+      time:
+        type: string
+      type:
+        type: integer
+    type: object
   controller.PersonalPage:
     properties:
       Songs:
@@ -10,8 +24,6 @@ definitions:
           $ref: '#/definitions/models.Admire'
         type: array
       avatar:
-        type: string
-      background:
         type: string
       more:
         type: string
@@ -29,6 +41,8 @@ definitions:
         type: integer
       setting3:
         type: integer
+      userother:
+        type: string
     type: object
   controller.PhoneHealing:
     properties:
@@ -54,6 +68,19 @@ definitions:
     properties:
       url:
         type: string
+    type: object
+  controller.RecordParams:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      url:
+        type: string
+    required:
+    - id
+    - name
+    - url
     type: object
   controller.Tag:
     properties:
@@ -95,6 +122,25 @@ definitions:
       sex:
         type: integer
     type: object
+  controller.VodParams:
+    properties:
+      language:
+        type: string
+      more:
+        type: string
+      singer:
+        type: string
+      songs:
+        type: string
+      style:
+        type: string
+    required:
+    - language
+    - more
+    - singer
+    - songs
+    - style
+    type: object
   e.ErrMsgResponse:
     properties:
       message:
@@ -104,6 +150,8 @@ definitions:
     properties:
       from:
         type: string
+      id:
+        type: integer
       number:
         type: integer
       song:
@@ -126,10 +174,14 @@ definitions:
         type: string
       id:
         type: integer
+      stringtime:
+        type: string
       time:
         type: string
       type:
         type: integer
+      url:
+        type: string
     type: object
   models.MainMsg:
     properties:
@@ -165,6 +217,10 @@ definitions:
     type: object
   models.RequestSongs:
     properties:
+      hidename:
+        type: integer
+      id:
+        type: integer
       song:
         type: string
       time:
@@ -195,6 +251,8 @@ definitions:
     properties:
       from:
         type: string
+      id:
+        type: integer
       song:
         type: string
       time:
@@ -207,6 +265,25 @@ definitions:
       id:
         type: integer
       name:
+        type: string
+    type: object
+  models.ToMessageCell:
+    properties:
+      content:
+        type: string
+      'fromUserID gorm:':
+        type: integer
+      id:
+        type: integer
+      stringtime:
+        type: string
+      time:
+        type: string
+      toUserID:
+        type: integer
+      type:
+        type: integer
+      url:
         type: string
     type: object
   models.ToMessagePage:
@@ -227,6 +304,29 @@ info:
   title: healing2020
   version: "1.0"
 paths:
+  /broadcast:
+    post:
+      description: 广播
+      parameters:
+      - description: 广播信息
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/controller.BroadcastContent'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - message
   /deliver/rank:
     get:
       description: 投递页排行榜
@@ -245,9 +345,42 @@ paths:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
       - rank
+  /fake:
+    get:
+      description: 假登录接口
+      parameters:
+      - description: user id
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.LoginStatus'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - login
   /like:
     get:
       description: 点赞
+      parameters:
+      - description: type id
+        in: query
+        name: id
+        required: true
+        type: string
+      - description: 1 song; 2 deliver
+        in: query
+        name: type
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -264,6 +397,20 @@ paths:
   /main/page:
     get:
       description: 首页数据
+      parameters:
+      - description: 1综合排序2最新发布
+        in: query
+        name: sort
+        required: true
+        type: string
+      - description: language
+        in: query
+        name: language
+        type: string
+      - description: style
+        in: query
+        name: style
+        type: string
       produces:
       - application/json
       responses:
@@ -286,11 +433,48 @@ paths:
         "200":
           description: OK
           schema:
+            $ref: '#/definitions/models.ToMessagePage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - message
+    post:
+      description: 发送消息并保存于数据库
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
             $ref: '#/definitions/e.ErrMsgResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/models.ToMessagePage'
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - message
+  /message/cell:
+    get:
+      description: 用户与另一用户聊天室的具体信息
+      parameters:
+      - description: id
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ToMessageCell'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
       tags:
       - message
   /qiniu/token:
@@ -312,6 +496,12 @@ paths:
   /record:
     get:
       description: 听录音
+      parameters:
+      - description: record id
+        in: query
+        name: id
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -327,6 +517,24 @@ paths:
       - heal
     post:
       description: 录音治愈发布
+      parameters:
+      - description: 点歌单id
+        in: body
+        name: id
+        required: true
+        schema:
+          $ref: '#/definitions/controller.RecordParams'
+      - description: user name
+        in: body
+        name: name
+        schema:
+          $ref: '#/definitions/controller.RecordParams'
+      - description: url
+        in: body
+        name: url
+        required: true
+        schema:
+          $ref: '#/definitions/controller.RecordParams'
       produces:
       - application/json
       responses:
@@ -531,6 +739,37 @@ paths:
   /vod:
     post:
       description: 点歌
+      parameters:
+      - description: song's name
+        in: body
+        name: songs
+        required: true
+        schema:
+          $ref: '#/definitions/controller.VodParams'
+      - description: singer
+        in: body
+        name: singer
+        required: true
+        schema:
+          $ref: '#/definitions/controller.VodParams'
+      - description: 备注
+        in: body
+        name: more
+        required: true
+        schema:
+          $ref: '#/definitions/controller.VodParams'
+      - description: style
+        in: body
+        name: style
+        required: true
+        schema:
+          $ref: '#/definitions/controller.VodParams'
+      - description: language
+        in: body
+        name: language
+        required: true
+        schema:
+          $ref: '#/definitions/controller.VodParams'
       produces:
       - application/json
       responses:

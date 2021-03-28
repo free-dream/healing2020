@@ -36,7 +36,7 @@ type RealResp struct {
 // @Tags heal
 // @Produce json
 // @Router /record [get]
-// @Params id query string
+// @Param id query string true "record id"
 // @Success 200 {object} RealResp
 // @Failure 403 {object} e.ErrMsgResponse
 func Record(c *gin.Context) {
@@ -61,8 +61,8 @@ func Record(c *gin.Context) {
 // @Tags heal
 // @Produce json
 // @Router /like [get]
-// @Params id query string
-// @Params type query string
+// @Param id query string true "type id"
+// @Param type query string true "1 song; 2 deliver"
 // @Success 200 {object} e.ErrMsgResponse
 // @Failure 403 {object} e.ErrMsgResponse
 func Praise(c *gin.Context) {
@@ -92,9 +92,9 @@ type RecordParams struct {
 // @Tags heal
 // @Produce json
 // @Router /record [post]
-// @Params id formData string
-// @Params name formData string
-// @Params url formData string
+// @Param id body RecordParams true "点歌单id"
+// @Param name body RecordParams false "user name"
+// @Param url body RecordParams true "url"
 // @Success 200 {object} e.ErrMsgResponse
 // @Failure 403 {object} e.ErrMsgResponse
 func RecordHeal(c *gin.Context) {
@@ -123,11 +123,11 @@ type VodParams struct {
 // @Tags heal
 // @Produce json
 // @Router /vod [post]
-// @Params songs formData string
-// @Params singer formData string
-// @Params more formData string
-// @Params style formData string
-// @Params language formData string
+// @Param songs body VodParams true "song's name"
+// @Param singer body VodParams true "singer"
+// @Param more body VodParams true "备注"
+// @Param style body VodParams true "style"
+// @Param language body VodParams true "language"
 // @Success 200 {object} e.ErrMsgResponse
 // @Failure 403 {object} e.ErrMsgResponse
 func VodPost(c *gin.Context) {

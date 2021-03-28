@@ -12,12 +12,15 @@ import (
 // @Tags main
 // @Produce json
 // @Router /main/page [get]
+// @Param sort query string true "1综合排序2最新发布"
+// @Param language query string false "language" 
+// @Param style query string false "style"
 // @Success 200 {object} models.MainMsg
 // @Failure 403 {object} e.ErrMsgResponse
 func MainMsg(c *gin.Context) {
     sort := c.Query("sort")
     language := c.Query("language")
-    style := c.Query("language")
+    style := c.Query("style")
     if !tools.Valid(sort,`^[12]$`) {
         c.JSON(403,e.ErrMsgResponse{Message:"Unexpected input"})
         return

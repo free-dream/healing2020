@@ -31,7 +31,8 @@ func MessagePage(c *gin.Context) {
 //@Description 用户与另一用户聊天室的具体信息
 //@Tags message
 //@Produce json
-//@Router /message/cell?id= [GET]
+//@Router /message/cell [GET]
+//@Param id query string true "id"
 //@Success 200 {object} models.ToMessageCell
 //@Failure 403 {object} e.ErrMsgResponse
 func CellMessage(c *gin.Context) {

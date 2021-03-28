@@ -24,6 +24,42 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/broadcast": {
+            "post": {
+                "description": "广播",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "message"
+                ],
+                "parameters": [
+                    {
+                        "description": "广播信息",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.BroadcastContent"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/deliver/rank": {
             "get": {
                 "description": "投递页排行榜",
@@ -52,6 +88,40 @@ var doc = `{
                 }
             }
         },
+        "/fake": {
+            "get": {
+                "description": "假登录接口",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "login"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "user id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/auth.LoginStatus"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/like": {
             "get": {
                 "description": "点赞",
@@ -60,6 +130,22 @@ var doc = `{
                 ],
                 "tags": [
                     "heal"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "type id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "1 song; 2 deliver",
+                        "name": "type",
+                        "in": "query",
+                        "required": true
+                    }
                 ],
                 "responses": {
                     "200": {
@@ -85,6 +171,27 @@ var doc = `{
                 ],
                 "tags": [
                     "main"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "1综合排序2最新发布",
+                        "name": "sort",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "language",
+                        "name": "language",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "style",
+                        "name": "style",
+                        "in": "query"
+                    }
                 ],
                 "responses": {
                     "200": {
@@ -115,13 +222,70 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
+                            "$ref": "#/definitions/models.ToMessagePage"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "发送消息并保存于数据库",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "message"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
                             "$ref": "#/definitions/e.ErrMsgResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ToMessagePage"
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/message/cell": {
+            "get": {
+                "description": "用户与另一用户聊天室的具体信息",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "message"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.ToMessageCell"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
                         }
                     }
                 }
@@ -161,6 +325,15 @@ var doc = `{
                 "tags": [
                     "heal"
                 ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "record id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -183,6 +356,34 @@ var doc = `{
                 ],
                 "tags": [
                     "heal"
+                ],
+                "parameters": [
+                    {
+                        "description": "点歌单id",
+                        "name": "id",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.RecordParams"
+                        }
+                    },
+                    {
+                        "description": "user name",
+                        "name": "name",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/controller.RecordParams"
+                        }
+                    },
+                    {
+                        "description": "url",
+                        "name": "url",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.RecordParams"
+                        }
+                    }
                 ],
                 "responses": {
                     "200": {
@@ -502,6 +703,53 @@ var doc = `{
                 "tags": [
                     "heal"
                 ],
+                "parameters": [
+                    {
+                        "description": "song's name",
+                        "name": "songs",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.VodParams"
+                        }
+                    },
+                    {
+                        "description": "singer",
+                        "name": "singer",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.VodParams"
+                        }
+                    },
+                    {
+                        "description": "备注",
+                        "name": "more",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.VodParams"
+                        }
+                    },
+                    {
+                        "description": "style",
+                        "name": "style",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.VodParams"
+                        }
+                    },
+                    {
+                        "description": "language",
+                        "name": "language",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.VodParams"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -520,6 +768,28 @@ var doc = `{
         }
     },
     "definitions": {
+        "auth.LoginStatus": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.BroadcastContent": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "time": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer"
+                }
+            }
+        },
         "controller.PersonalPage": {
             "type": "object",
             "properties": {
@@ -536,9 +806,6 @@ var doc = `{
                     }
                 },
                 "avatar": {
-                    "type": "string"
-                },
-                "background": {
                     "type": "string"
                 },
                 "more": {
@@ -564,6 +831,9 @@ var doc = `{
                 },
                 "setting3": {
                     "type": "integer"
+                },
+                "userother": {
+                    "type": "string"
                 }
             }
         },
@@ -601,6 +871,25 @@ var doc = `{
         "controller.RealResp": {
             "type": "object",
             "properties": {
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.RecordParams": {
+            "type": "object",
+            "required": [
+                "id",
+                "name",
+                "url"
+            ],
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
                 "url": {
                     "type": "string"
                 }
@@ -668,6 +957,33 @@ var doc = `{
                 }
             }
         },
+        "controller.VodParams": {
+            "type": "object",
+            "required": [
+                "language",
+                "more",
+                "singer",
+                "songs",
+                "style"
+            ],
+            "properties": {
+                "language": {
+                    "type": "string"
+                },
+                "more": {
+                    "type": "string"
+                },
+                "singer": {
+                    "type": "string"
+                },
+                "songs": {
+                    "type": "string"
+                },
+                "style": {
+                    "type": "string"
+                }
+            }
+        },
         "e.ErrMsgResponse": {
             "type": "object",
             "properties": {
@@ -681,6 +997,9 @@ var doc = `{
             "properties": {
                 "from": {
                     "type": "string"
+                },
+                "id": {
+                    "type": "integer"
                 },
                 "number": {
                     "type": "integer"
@@ -716,11 +1035,17 @@ var doc = `{
                 "id": {
                     "type": "integer"
                 },
+                "stringtime": {
+                    "type": "string"
+                },
                 "time": {
                     "type": "string"
                 },
                 "type": {
                     "type": "integer"
+                },
+                "url": {
+                    "type": "string"
                 }
             }
         },
@@ -776,6 +1101,12 @@ var doc = `{
         "models.RequestSongs": {
             "type": "object",
             "properties": {
+                "hidename": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
                 "song": {
                     "type": "string"
                 },
@@ -822,6 +1153,9 @@ var doc = `{
                 "from": {
                     "type": "string"
                 },
+                "id": {
+                    "type": "integer"
+                },
                 "song": {
                     "type": "string"
                 },
@@ -840,6 +1174,35 @@ var doc = `{
                     "type": "integer"
                 },
                 "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.ToMessageCell": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "fromUserID gorm:": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "stringtime": {
+                    "type": "string"
+                },
+                "time": {
+                    "type": "string"
+                },
+                "toUserID": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "integer"
+                },
+                "url": {
                     "type": "string"
                 }
             }
