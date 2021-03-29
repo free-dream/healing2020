@@ -9,7 +9,7 @@ import (
 )
 
 func GetMoney(c *gin.Context) {
-	userInf := tools.GetUser()
+	userInf := tools.GetUser(c)
 
 	Money, err := models.GetMoney(userInf.ID)
 	if err != nil {

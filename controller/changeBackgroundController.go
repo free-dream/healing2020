@@ -21,7 +21,7 @@ type ToSaveBackground struct {
 //@Success 200 {object} e.ErrMsgResponse
 //@Failure 403 {object} e.ErrMsgResponse
 func ChangeBackground(c *gin.Context) {
-	userInf := tools.GetUser()
+	userInf := tools.GetUser(c)
 
 	json := ToSaveBackground{}
 	c.BindJSON(&json)

@@ -18,7 +18,7 @@ import (
 //@Success 200 {object} models.ToMessagePage
 //@Failure 403 {object} e.ErrMsgResponse
 func MessagePage(c *gin.Context) {
-	user := tools.GetUser()
+	user := tools.GetUser(c)
 	responseMessage, err := models.ResponseMessagePage(user.ID)
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
@@ -46,7 +46,7 @@ func CellMessage(c *gin.Context) {
 	}
 	var targetID uint = uint(targetIDInt)
 
-	user := tools.GetUser()
+	user := tools.GetUser(c)
 
 	responseCellMessage, err := models.SelectCellMessage(user.ID, targetID)
 	if err != nil {

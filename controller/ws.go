@@ -103,7 +103,7 @@ func SendMessage(c *gin.Context) {
 
 //处理ws连接
 func WsHandle(c *gin.Context) {
-	user := tools.GetUser()
+	user := tools.GetUser(c)
 
 	ws, err := upGrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
@@ -120,7 +120,7 @@ func WsHandle(c *gin.Context) {
 
 	//	go wsConn.heartbeat()
 	go wsConn.readWs()
-	go wsConn.writeWs()
+	go wsConn.writeWs(c)
 	go wsConn.writeBroadCast()
 }
 
@@ -144,15 +144,15 @@ func (wsConn *WsConnection) heartbeat() {
 	}
 }
 
-func (wsConn *WsConnection) writeWs() {
+func (wsConn *WsConnection) writeWs(c *gin.Context) {
 	if _, ok := MessageQueue[int(wsConn.userID)]; !ok {
 		MessageQueue[int(wsConn.userID)] = make(chan *Message, 1000)
 	}
 	for {
 		select {
 		case msg := <-MessageQueue[int(wsConn.userID)]:
-			user := tools.GetUser()
-			if wsConn.userID != user.ID {
+			userID := tools.GetUser(c).ID
+			if wsConn.userID != userID {
 				continue
 			}
 			responseMsg, _ := json.Marshal(msg)

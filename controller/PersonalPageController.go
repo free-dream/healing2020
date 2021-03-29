@@ -78,7 +78,7 @@ func responsePage(c *gin.Context, user statements.User, userID uint) {
 //@Success 200 {object} PersonalPage
 //@Failure 403 {object} e.ErrMsgResponse
 func ResponseMyPerponalPage(c *gin.Context) {
-	rUser := tools.GetUser()
+	rUser := tools.GetUser(c)
 	user := statements.User(rUser)
 	responsePage(c, user, user.ID)
 }

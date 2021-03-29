@@ -36,7 +36,7 @@ type UserRegister struct {
 //@Failure 403 {object} e.ErrMsgResponse
 func Register(c *gin.Context) {
 	//获取redis用户信息
-	userInf := tools.GetUser()
+	userInf := tools.GetUser(c)
 	//获取json
 	json := UserRegister{}
 	c.BindJSON(&json)
@@ -74,7 +74,7 @@ func PutUser(c *gin.Context) {
 	json := PutUserInf{}
 	c.BindJSON(&json)
 	//获取用户信息
-	userInf := tools.GetUser()
+	userInf := tools.GetUser(c)
 	//构建模型
 	user := statements.User{
 		NickName: json.NickName,
