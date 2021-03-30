@@ -7,8 +7,21 @@ import (
 
 func CronInit() *cron.Cron{
     c := cron.New()
-    c.AddFunc("0 0 0 * *", func() {
+
+    c.AddFunc("0 */2 * * *", func() {
         models.SendDeliverRank()
+    })
+
+    c.AddFunc("1 */2 * * *", func() {
+        models.SendSongRank()
+    })
+
+    c.AddFunc("2 */2 * * *", func() {
+        models.SendUserRank()
+    })
+
+    c.AddFunc("0 0 * * *", func() {
+        models.UpdateRankCount()
     })
 
     return c

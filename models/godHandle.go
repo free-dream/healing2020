@@ -188,7 +188,7 @@ func CreateSubjects(name string, intro string) error {
 	return result.Error
 }
 
-func CreateUsers(openid string, nick string, name string, more string, campus string, avatar string, phone string, sex int, hobby string, money int, setting1 int, setting2 int, setting3 int) error {
+func CreateUsers(openid string, nick string, name string, more string, avatar string, campus string, phone string, sex int, hobby string, money int, setting1 int, setting2 int, setting3 int) error {
 	var user statements.User
 	user.OpenId = openid
 	user.NickName = nick

@@ -20,6 +20,8 @@ func main() {
     if tools.IsDebug() {
         controller.LoadTestData()
         models.SendDeliverRank()
+        models.SendUserRank()
+        models.SendSongRank()
     }
 
     c := cron.CronInit()
