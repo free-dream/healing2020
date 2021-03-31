@@ -32,7 +32,7 @@ type LoginStatus struct {
 // @Success 200 {object} LoginStatus
 // @Failure 403 {object} e.ErrMsgResponse
 func FakeLogin(c *gin.Context) {
-    id := c.Query("id")
+    id := c.Param("id")
 
     db := setting.MysqlConn()
     defer db.Close()
