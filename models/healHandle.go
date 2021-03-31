@@ -7,12 +7,8 @@ import (
     "healing2020/models/statements"
 )
 
-func GetPhone() string{
-    client := setting.RedisConn()
-    defer client.Close()
-    userInfo := tools.GetUser()
-    phone := userInfo.Phone
-    return phone
+func GetPhone(info tools.RedisUser) string{
+    return info.Phone
 }
 
 type RecordResp struct {
@@ -34,21 +30,12 @@ func GetRecord(id string) RecordResp{
     return recordResp
 }
 
-func GetId() uint {
-    client := setting.RedisConn()
-    defer client.Close()
-
-    userInfo := tools.GetUser()
-    id := userInfo.ID
-    return id
-}
-
-func CreateRecord(id string,source string) error{
+func CreateRecord(id string,source string,uid uint) error{
     intId,_ := strconv.Atoi(id) 
     vodId := uint(intId)
     db := setting.MysqlConn()
     defer db.Close()
-    userId := GetId()
+    userId := uid
     status := 0
 
     tx := db.Begin()
@@ -125,14 +112,14 @@ func AddPraise(strId string,types string) error{
     return tx.Commit().Error
 }
 
-func CreateVod(singer string,style string,language string,name string,more string) error{
+func CreateVod(uid uint,singer string,style string,language string,name string,more string) error{
     db := setting.MysqlConn()
     defer db.Close()
 
     status := 0
     tx := db.Begin()
     var vod statements.Vod
-    vod.UserId = GetId()   
+    vod.UserId = uid   
     vod.More = more
     vod.Name = name
     vod.Singer = singer

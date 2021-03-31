@@ -20,7 +20,7 @@ type PhoneHealing struct {
 // @Success 200 {object} PhoneHealing
 // @Failure 403 {object} e.ErrMsgResponse
 func PhoneHeal(c *gin.Context) {
-	data := models.GetPhone()
+	data := models.GetPhone(tools.GetUser(c))
 	var phoneHealing PhoneHealing
 	phoneHealing.Phone = data
 	c.JSON(200, phoneHealing)
@@ -103,7 +103,7 @@ func RecordHeal(c *gin.Context) {
 		c.JSON(400, e.ErrMsgResponse{Message: "Uncomplete params"})
 		return
 	}
-	err := models.CreateRecord(params.Id, params.Url)
+	err := models.CreateRecord(params.Id, params.Url,tools.GetUser(c).ID)
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: "Fail to add praise"})
 	}
@@ -136,7 +136,7 @@ func VodPost(c *gin.Context) {
 		c.JSON(400, e.ErrMsgResponse{Message: "Uncomplete params"})
 		return
 	}
-	err := models.CreateVod(params.Singer, params.Style, params.Language, params.Songs, params.More)
+	err := models.CreateVod(tools.GetUser(c).ID,params.Singer, params.Style, params.Language, params.Songs, params.More)
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: "Fail to add praise"})
 	}
