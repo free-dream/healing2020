@@ -28,11 +28,13 @@ type LoginStatus struct {
 // @Tags login
 // @Produce json
 // @Router /fake [get]
-// @Param id query string true "user id"
+// @Param id param string true "user id"
+// @Param redirect query string false "redirect url"
 // @Success 200 {object} LoginStatus
 // @Failure 403 {object} e.ErrMsgResponse
 func FakeLogin(c *gin.Context) {
     id := c.Param("id")
+    redirect := c.Query("redirect")
 
     db := setting.MysqlConn()
     defer db.Close()
@@ -61,6 +63,10 @@ func FakeLogin(c *gin.Context) {
 
     loginStatus := LoginStatus{
         Message: "ok",
+    }
+    if redirect != "" {
+        c.Redirect(302,redirect)
+        return
     }
     c.JSON(200,loginStatus)
 }
