@@ -225,6 +225,20 @@ func CreateVods(id string, more string, name string, singer string, style string
 	return result.Error
 }
 
+func CreateFakeUserOther(id string, user_id uint, remainHideName int, remainVod int) error {
+	intId, _ := strconv.Atoi(id)
+	ID := uint(intId)
+	var user_other statements.UserOther
+	user_other.ID = ID
+	user_other.UserId = user_id
+	user_other.RemainHideName = remainHideName
+	user_other.RemainSing = remainVod
+	db := setting.MysqlConn()
+	defer db.Close()
+	result := db.Model(&statements.Vod{}).Create(&user_other)
+	return result.Error
+}
+
 func TableCleanUp() {
 	db := setting.MysqlConn()
 	defer db.Close()

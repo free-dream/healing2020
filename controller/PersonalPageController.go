@@ -27,7 +27,6 @@ type PersonalPage struct {
 }
 
 //综合处理各项数据获取最终返回结果
-//type: 1为其它用户个人页接口使用，2为登录用户个人页接口使用
 func responsePage(c *gin.Context, user statements.User, userID uint) {
 	var err error
 
@@ -45,24 +44,28 @@ func responsePage(c *gin.Context, user statements.User, userID uint) {
 	//补充返回数据
 	page.UserOther, err = models.ResponseUserOther(userID)
 	if err != nil {
+		fmt.Println(err)
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
 		return
 	}
 
 	page.Vod, err = models.ResponseVod(userID)
 	if err != nil {
+		fmt.Println(err)
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
 		return
 	}
 
 	page.Songs, err = models.ResponseSongs(userID)
 	if err != nil {
+		fmt.Println(err)
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
 		return
 	}
 
 	page.Praise, err = models.ResponsePraise(userID)
 	if err != nil {
+		fmt.Println(err)
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
 		return
 	}
@@ -103,6 +106,7 @@ func ResponseOthersPerponalPage(c *gin.Context) {
 	//查询id对应用户信息
 	user, err := models.ResponseUser(userID)
 	if err != nil {
+		fmt.Println(err)
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
 		return
 	}

@@ -2,14 +2,14 @@ package router
 
 import (
 	"healing2020/controller"
-    "healing2020/controller/auth"
-    "healing2020/controller/middleware"
+	"healing2020/controller/auth"
+	"healing2020/controller/middleware"
 	_ "healing2020/docs"
 	"healing2020/pkg/tools"
 
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
-    "github.com/gin-contrib/sessions"
-    "github.com/gin-contrib/sessions/cookie"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -19,26 +19,27 @@ func InitRouter() *gin.Engine {
 
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
-    store := cookie.NewStore([]byte("healing2020"))
-    r.Use(sessions.Sessions("session",store))
+	store := cookie.NewStore([]byte("healing2020"))
+	r.Use(sessions.Sessions("session", store))
 	if tools.IsDebug() {
 		r.Use(middleware.Cors())
 	}
 
 	//开发时按群组分类，并记得按swagger格式注释
 	api := r.Group("/api")
-    api.Use(middleware.IdentityCheck)
+	api.Use(middleware.IdentityCheck)
 
 	//qiniuToken
 	api.GET("/qiniu/token", controller.QiniuToken)
 
 	//个人
-	api.POST("/register", controller.Register)                //注册
-	api.POST("/user/hobby", controller.NewHobby)              //添加爱好
-	api.GET("/user/hobby", controller.GetHobby)               //获取爱好
-	api.PUT("/user", controller.PutUser)                      //修改个人信息
-	api.GET("/user", controller.ResponseMyPerponalPage)       //个人页
-	api.POST("/user/background", controller.ChangeBackground) //修改用户个人背景
+	api.POST("/register", controller.Register)                     //注册
+	api.POST("/user/hobby", controller.NewHobby)                   //添加爱好
+	api.GET("/user/hobby", controller.GetHobby)                    //获取爱好
+	api.PUT("/user", controller.PutUser)                           //修改个人信息
+	api.GET("/user", controller.ResponseMyPerponalPage)            //自己个人页
+	api.GET("/user/others", controller.ResponseOthersPerponalPage) //他人个人页
+	api.POST("/user/background", controller.ChangeBackground)      //修改用户个人背景
 
 	//消息
 	api.POST("/ws", controller.WsHandle)         //websocket服务
@@ -82,9 +83,9 @@ func InitRouter() *gin.Engine {
 	api.GET("/initest", controller.Test)
 
 	//god view
-    
-        //login
-        r.GET("/auth/fake/:id",auth.FakeLogin)
+
+	//login
+	r.GET("/auth/fake/:id", auth.FakeLogin)
 
 	return r
 }
