@@ -27,5 +27,9 @@ func Authenticate(c *gin.Context) int{
         c.JSON(401,e.ErrMsgResponse{Message:"Fail to authenticate"})
         return 0
     }
+    redirect := c.Query("redirect")
+    if redirect != "" {
+        c.Redirect(302,redirect)
+    }
     return 1
 }

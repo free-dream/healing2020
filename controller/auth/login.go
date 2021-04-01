@@ -64,6 +64,7 @@ func FakeLogin(c *gin.Context) {
     loginStatus := LoginStatus{
         Message: "ok",
     }
+
     if redirect != "" {
         c.Redirect(302,redirect)
         return
