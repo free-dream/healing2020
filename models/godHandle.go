@@ -235,7 +235,7 @@ func CreateFakeUserOther(id string, user_id uint, remainHideName int, remainVod 
 	user_other.RemainSing = remainVod
 	db := setting.MysqlConn()
 	defer db.Close()
-	result := db.Model(&statements.Vod{}).Create(&user_other)
+	result := db.Model(&statements.UserOther{}).Create(&user_other)
 	return result.Error
 }
 

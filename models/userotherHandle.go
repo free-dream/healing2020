@@ -36,5 +36,6 @@ func UpdateUserOtherNow(userID uint, toSaveUserOther int) error {
 		tx.Rollback()
 		return err
 	}
+
 	return tx.Commit().Error
 }

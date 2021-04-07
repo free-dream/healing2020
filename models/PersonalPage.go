@@ -101,16 +101,16 @@ func ResponseUser(userID uint) (statements.User, error) {
 	return user, err
 }
 
-//select并返回用户现在使用的个人背景
-func ResponseUserOther(userID uint) (string, error) {
+//select并返回用户现在使用的个人背景和剩余匿名次数
+func ResponseUserOther(userID uint) (string, int, error) {
 	//连接mysql
 	db := setting.MysqlConn()
 	defer db.Close()
 
 	//查询
 	var nowUserOther statements.UserOther
-	err := db.Select("now").Where("user_id=?", userID).First(&nowUserOther).Error
-	return tools.GetBackgroundUrl(nowUserOther.Now), err
+	err := db.Select("now, remain_hide_name").Where("user_id=?", userID).First(&nowUserOther).Error
+	return tools.GetBackgroundUrl(nowUserOther.Now), nowUserOther.RemainHideName, err
 }
 
 //select并返回点歌信息
@@ -208,4 +208,27 @@ func ResponsePraise(userID uint) ([]Admire, error) {
 		}
 	}
 	return allPraise, err
+}
+
+//给对应点歌匿名
+func HideName(vodID uint, userID uint) error {
+	db := setting.MysqlConn()
+	defer db.Close()
+
+	//开始更新事务
+	tx := db.Begin()
+
+	err := tx.Model(&statements.Vod{}).Where("id = ?", vodID).Update(statements.Vod{HideName: 1}).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	err = tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).Update("remain_hide_name", gorm.Expr("remain_hide_name - ?", 1)).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit().Error
 }

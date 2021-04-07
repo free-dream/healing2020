@@ -40,6 +40,7 @@ func InitRouter() *gin.Engine {
 	api.GET("/user", controller.ResponseMyPerponalPage)            //自己个人页
 	api.GET("/user/others", controller.ResponseOthersPerponalPage) //他人个人页
 	api.POST("/user/background", controller.ChangeBackground)      //修改用户个人背景
+	api.PUT("/vod/hide_name", controller.HideName)                 //匿名
 
 	//消息
 	api.POST("/ws", controller.WsHandle)         //websocket服务

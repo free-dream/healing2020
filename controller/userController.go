@@ -16,6 +16,8 @@ type PutUserInf struct {
 	Setting2 int    `json:"setting2"`
 	Setting3 int    `json:"setting3"`
 	Avatar   string `json:"avatar"`
+	Phone    string `json:"phone"`
+	TrueName string `json:"trueName"`
 }
 
 type UserRegister struct {
@@ -83,6 +85,8 @@ func PutUser(c *gin.Context) {
 		Setting2: json.Setting2,
 		Setting3: json.Setting3,
 		Avatar:   json.Avatar,
+		Phone:    json.Phone,
+		TrueName: json.TrueName,
 	}
 	err := models.UpdateUser(user, userInf.ID)
 	if err != nil {
