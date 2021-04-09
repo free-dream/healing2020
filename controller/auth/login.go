@@ -52,7 +52,7 @@ func FakeLogin(c *gin.Context) {
 
     client := setting.RedisConn()
     defer client.Close()
-    keyname := "healing:token:"+token
+    keyname := "healing2020:token:"+token
     //fmt.Println(keyname)
     client.Set(keyname,data,time.Minute*30)
     //fmt.Println(result2)

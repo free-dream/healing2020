@@ -12,11 +12,16 @@ import (
     "github.com/gin-contrib/sessions/cookie"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
+
+    "os"
+    "io"
 )
 
 func InitRouter() *gin.Engine {
 	r := gin.New()
 
+    f, _ := os.Create(tools.GetConfig("log","location"))
+    gin.DefaultWriter = io.MultiWriter(f)
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
     store := cookie.NewStore([]byte("healing2020"))
@@ -83,8 +88,8 @@ func InitRouter() *gin.Engine {
 
 	//god view
     
-        //login
-        r.GET("/auth/fake/:id",auth.FakeLogin)
+    //login
+    r.GET("/auth/fake/:id",auth.FakeLogin)
 
 	return r
 }

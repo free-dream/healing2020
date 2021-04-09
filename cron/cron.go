@@ -20,7 +20,7 @@ func CronInit() *cron.Cron{
         models.SendUserRank()
     })
 
-    c.AddFunc("0 0 * * *", func() {
+    c.AddFunc("0 0 0 * *", func() {
         models.UpdateRankCount()
     })
 

@@ -1,3 +1,6 @@
+[log]
+location = "./healing.log"
+
 [qiniu]
 accessKey = 
 secretKey = 

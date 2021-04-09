@@ -108,8 +108,8 @@ func SendDeliverRank() error{
     //set in redis
     client := setting.RedisConn()
     defer client.Close()
-    count,_ := client.Get("healing:rankCount").Float64()
-    keyName := "healing:Deliver." + strconv.FormatFloat(count/100+3.30,'f',2,64)
+    count,_ := client.Get("healing2020:rankCount").Float64()
+    keyName := "healing2020:Deliver." + strconv.FormatFloat(count/100+3.30,'f',2,64)
     client.Set(keyName,jsonRank,0)
 
     return nil
@@ -119,7 +119,7 @@ func GetDeliverRank() ([]AllRank,string){
     result := make([]AllRank,10)
     client := setting.RedisConn()
     defer client.Close()
-    count,_ := client.Get("healing:rankCount").Float64()
+    count,_ := client.Get("healing2020:rankCount").Float64()
     var i float64 = 0
     for j:=0;;j++ {
         rank := make([]Rank,10)
@@ -130,7 +130,7 @@ func GetDeliverRank() ([]AllRank,string){
         }
         var date float64 = 3.30+i
         dateStr := strconv.FormatFloat(date,'f',2,64)
-        keyname := "healing:Deliver." + dateStr
+        keyname := "healing2020:Deliver." + dateStr
         //fmt.Println(dateStr)
         data,err := client.Get(keyname).Bytes()
         if err != nil {
@@ -191,8 +191,8 @@ func SendSongRank() error{
     //set in redis
     client := setting.RedisConn()
     defer client.Close()
-    count,_ := client.Get("healing:rankCount").Float64()
-    keyName := "healing:Song." + strconv.FormatFloat(count/100+3.30,'f',2,64)
+    count,_ := client.Get("healing2020:rankCount").Float64()
+    keyName := "healing2020:Song." + strconv.FormatFloat(count/100+3.30,'f',2,64)
     client.Set(keyName,jsonRank,0)
 
     return nil
@@ -202,7 +202,7 @@ func GetSongRank() ([]AllRank,string){
     result := make([]AllRank,10)
     client := setting.RedisConn()
     defer client.Close()
-    count,_ := client.Get("healing:rankCount").Float64()
+    count,_ := client.Get("healing2020:rankCount").Float64()
     var i float64 = 0
     for j:=0;;j++ {
         var rank []Rank
@@ -211,7 +211,7 @@ func GetSongRank() ([]AllRank,string){
         }
         var date float64 = 3.30+i
         dateStr := strconv.FormatFloat(date,'f',2,64)
-        keyname := "healing:Song." + dateStr
+        keyname := "healing2020:Song." + dateStr
         data,err := client.Get(keyname).Bytes()
         if err != nil {
             return nil,"Unexpected data" 
@@ -254,8 +254,8 @@ func SendUserRank() error{
     //set in redis
     client := setting.RedisConn()
     defer client.Close()
-    count,_ := client.Get("healing:rankCount").Float64()
-    keyName := "healing:User." + strconv.FormatFloat(count/100+3.30,'f',2,64)
+    count,_ := client.Get("healing2020:rankCount").Float64()
+    keyName := "healing2020:User." + strconv.FormatFloat(count/100+3.30,'f',2,64)
     client.Set(keyName,jsonRank,0)
 
     return nil
@@ -265,7 +265,7 @@ func GetAllUserRank() ([]AllRank,string){
     result := make([]AllRank,10)
     client := setting.RedisConn()
     defer client.Close()
-    count,_ := client.Get("healing:rankCount").Float64()
+    count,_ := client.Get("healing2020:rankCount").Float64()
     var i float64 = 0
     for j:=0;;j++ {
         var rank []Rank
@@ -275,7 +275,7 @@ func GetAllUserRank() ([]AllRank,string){
         }
         var date float64 = 3.30+i
         dateStr := strconv.FormatFloat(date,'f',2,64)
-        keyname := "healing:User." + dateStr
+        keyname := "healing2020:User." + dateStr
         data,err := client.Get(keyname).Bytes()
         if err != nil {
             return nil,"Unexpected data" 
@@ -323,7 +323,7 @@ func UpdateRankCount() {
     client := setting.RedisConn()
     defer client.Close()
 
-    count,_ := client.Get("healing:rankCount").Float64()
+    count,_ := client.Get("healing2020:rankCount").Float64()
     count++
-    client.Set("healing:rankCount",count,0)
+    client.Set("healing2020:rankCount",count,0)
 }

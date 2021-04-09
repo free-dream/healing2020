@@ -22,7 +22,7 @@ func Authenticate(c *gin.Context) int{
 
     client := setting.RedisConn()
     defer client.Close()
-    _,err := client.Get("healing:token:"+token.(string)).Result()
+    _,err := client.Get("healing2020:token:"+token.(string)).Result()
     if err != nil {
         c.JSON(401,e.ErrMsgResponse{Message:"Fail to authenticate"})
         return 0

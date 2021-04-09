@@ -11,7 +11,7 @@ func RedisConnTest() {
     if err != nil {
         panic(err)
     }
-    client.Set("healing:rankCount",0,0)
+    client.Set("healing2020:rankCount",0,0)
     client.Close()
 }
 

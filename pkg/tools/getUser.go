@@ -39,7 +39,7 @@ func GetUser(c *gin.Context) RedisUser {
 	//session
 	session := sessions.Default(c)
 	sessionToken := session.Get("token")
-	keyname := "healing:token:" + sessionToken.(string)
+	keyname := "healing2020:token:" + sessionToken.(string)
 
 	//redis获取数据并绑定json
 	var userInf RedisUser
