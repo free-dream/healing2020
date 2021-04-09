@@ -7,7 +7,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
-//注册时为用户初始化背景
+//注册时为用户初始化杂项信息
 func CreateUserOther(userID uint) error {
 	//连接mysql
 	db := setting.MysqlConn()
@@ -36,5 +36,6 @@ func UpdateUserOtherNow(userID uint, toSaveUserOther int) error {
 		tx.Rollback()
 		return err
 	}
+
 	return tx.Commit().Error
 }

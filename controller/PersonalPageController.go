@@ -13,21 +13,25 @@ import (
 )
 
 type PersonalPage struct {
-	NickName  string                `json:"name"`
-	Campus    string                `json:"school"`
-	More      string                `json:"more"`
-	Setting1  int                   `json:"setting1"`
-	Setting2  int                   `json:"setting2"`
-	Setting3  int                   `json:"setting3"`
-	Avatar    string                `json:"avatar"`
-	UserOther string                `json:"userother"`
-	Vod       []models.RequestSongs `json:"requestSongs"`
-	Songs     []models.Songs        `json:"Songs"`
-	Praise    []models.Admire       `json:"admire"`
+	NickName       string                `json:"name"`
+	Campus         string                `json:"school"`
+	More           string                `json:"more"`
+	Setting1       int                   `json:"setting1"`
+	Setting2       int                   `json:"setting2"`
+	Setting3       int                   `json:"setting3"`
+	Avatar         string                `json:"avatar"`
+	Background     string                `json:"background"`
+	RemainHideName int                   `json:"hide_number"`
+	Vod            []models.RequestSongs `json:"requestSongs"`
+	Songs          []models.Songs        `json:"Songs"`
+	Praise         []models.Admire       `json:"admire"`
+}
+
+type VodID struct {
+	VodID uint `json:"VodID"`
 }
 
 //综合处理各项数据获取最终返回结果
-//type: 1为其它用户个人页接口使用，2为登录用户个人页接口使用
 func responsePage(c *gin.Context, user statements.User, userID uint) {
 	var err error
 
@@ -43,26 +47,30 @@ func responsePage(c *gin.Context, user statements.User, userID uint) {
 	}
 
 	//补充返回数据
-	page.UserOther, err = models.ResponseUserOther(userID)
+	page.Background, page.RemainHideName, err = models.ResponseUserOther(userID)
 	if err != nil {
+		fmt.Println(err)
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
 		return
 	}
 
 	page.Vod, err = models.ResponseVod(userID)
 	if err != nil {
+		fmt.Println(err)
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
 		return
 	}
 
 	page.Songs, err = models.ResponseSongs(userID)
 	if err != nil {
+		fmt.Println(err)
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
 		return
 	}
 
 	page.Praise, err = models.ResponsePraise(userID)
 	if err != nil {
+		fmt.Println(err)
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
 		return
 	}
@@ -72,7 +80,7 @@ func responsePage(c *gin.Context, user statements.User, userID uint) {
 
 //@Title ResponseMyPerponalPage
 //@Description 已登录用户的个人页接口
-//@Tags my perponalpage
+//@Tags myperponalpage
 //@Produce json
 //@Router /user [get]
 //@Success 200 {object} PersonalPage
@@ -103,8 +111,41 @@ func ResponseOthersPerponalPage(c *gin.Context) {
 	//查询id对应用户信息
 	user, err := models.ResponseUser(userID)
 	if err != nil {
+		fmt.Println(err)
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
 		return
 	}
 	responsePage(c, user, userID)
+}
+
+//@Title HideName
+//@Description 匿名
+//@Tags mypersonalpage
+//@Produce json
+//@Router /vod/hide_name [put]
+//@Success 200 {object} e.ErrMsgResponse
+//@Failure 403 {object} e.ErrMsgResponse
+func HideName(c *gin.Context) {
+	json := VodID{}
+	c.BindJSON(&json)
+
+	userID := tools.GetUser(c).ID
+	_, remainHideName, err := models.ResponseUserOther(userID)
+	if err != nil {
+		fmt.Println(err)
+		c.JSON(403, e.ErrMsgResponse{Message: "无法获取剩余匿名次数！"})
+		return
+	}
+	if remainHideName == 0 {
+		c.JSON(403, e.ErrMsgResponse{Message: "已无剩余匿名次数！"})
+		return
+	}
+
+	err = models.HideName(json.VodID, userID)
+	if err != nil {
+		fmt.Println(err)
+		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
+		return
+	}
+	c.JSON(200, e.ErrMsgResponse{Message: e.GetMsg(e.SUCCESS)})
 }
