@@ -13,15 +13,15 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
-    "os"
-    "io"
+	"io"
+	"os"
 )
 
 func InitRouter() *gin.Engine {
 	r := gin.New()
 
-    f, _ := os.Create(tools.GetConfig("log","location"))
-    gin.DefaultWriter = io.MultiWriter(f)
+	f, _ := os.Create(tools.GetConfig("log", "location"))
+	gin.DefaultWriter = io.MultiWriter(f)
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
 	store := cookie.NewStore([]byte("healing2020"))
@@ -61,6 +61,8 @@ func InitRouter() *gin.Engine {
 	api.GET("/singhome", controller.SingHome)
 
 	//抽奖
+	api.GET("/lottery/allprize", controller.ALLPrize)
+	api.GET("/lottery/mylottery", controller.UserLottery)
 	api.GET("/lottery/money", controller.GetMoney)
 
 	//评论
@@ -89,9 +91,9 @@ func InitRouter() *gin.Engine {
 	api.GET("/initest", controller.Test)
 
 	//god view
-    
-    //login
-    r.GET("/auth/fake/:id",auth.FakeLogin)
+
+	//login
+	r.GET("/auth/fake/:id", auth.FakeLogin)
 
 	return r
 }
