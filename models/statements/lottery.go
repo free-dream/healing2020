@@ -1,29 +1,29 @@
 package statements
 
 import (
-    "fmt"
-    "github.com/jinzhu/gorm"
-    _ "github.com/jinzhu/gorm/dialects/mysql"
-    "healing2020/pkg/setting"
+	"fmt"
+	"healing2020/pkg/setting"
+
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
 type Lottery struct {
-    gorm.Model
-    PrizeId uint
-    UserId uint
-    Weight int
+	gorm.Model
+	PrizeId uint `gorm:"default: 0"`
+	UserId  uint `gorm:"default: 0"`
+	Weight  int  `gorm:"default: 0"`
 }
 
 func LotteryInit() {
-    db := setting.MysqlConn()
-    if !db.HasTable(&Lottery{}) {
-        if err := db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8").CreateTable(&Lottery{}).Error; err != nil {
-            panic(err)
-        }
-        fmt.Println("Table Lottery has been created")
-    }else {
-        db.AutoMigrate(&Lottery{})
-        fmt.Println("Table Lottery has existed")
-    }
+	db := setting.MysqlConn()
+	if !db.HasTable(&Lottery{}) {
+		if err := db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8").CreateTable(&Lottery{}).Error; err != nil {
+			panic(err)
+		}
+		fmt.Println("Table Lottery has been created")
+	} else {
+		db.AutoMigrate(&Lottery{})
+		fmt.Println("Table Lottery has existed")
+	}
 }
-
