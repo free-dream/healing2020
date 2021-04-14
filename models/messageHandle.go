@@ -11,7 +11,7 @@ import (
 type ToMessageCell struct {
 	ID         uint      `json:"id"`
 	ToUserID   uint      `json:"toUserID" gorm:"column:send"`
-	FromUserID uint      `json:"fromUserID gorm:"column:receive"`
+	FromUserID uint      `json:"fromUserID" gorm:"column:receive"`
 	Content    string    `json:"content"`
 	Time       time.Time `json:"time" gorm:"column:created_at"`
 	StringTime string    `json:"stringtime"`
