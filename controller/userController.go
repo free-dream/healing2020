@@ -17,7 +17,7 @@ type PutUserInf struct {
 	Setting3 int    `json:"setting3"`
 	Avatar   string `json:"avatar"`
 	Phone    string `json:"phone"`
-	TrueName string `json:"trueName"`
+	TrueName string `json:"truename"`
 }
 
 type UserRegister struct {
