@@ -44,8 +44,8 @@ func InitRouter() *gin.Engine {
 	}
 
 	r.GET("/wx/jump2wechat", jumpToWechat)
-	r.POST("/wx/oauth", wechatOAuth)
 	r.GET("/wx/login", disposableLogin)
+	r.POST("/wx/oauth", wechatOAuth)
 
 	//开发时按群组分类，并记得按swagger格式注释
 	api := r.Group("/api")
@@ -115,6 +115,40 @@ func InitRouter() *gin.Engine {
 	return r
 }
 
+// 微信授权起点在这个接口，这里会重定向到微信服务器
+func jumpToWechat(ctx *gin.Context) {
+	urlOfApiv3 := "https://apiv2.100steps.top/v3"
+	urlOfOAuth := "https://healing2020.100steps.top/wx/oauth"
+	appid := "wx293bc6f4ee88d87d"
+	// todo: redirect
+	url2b64 := base64.StdEncoding.EncodeToString([]byte(urlOfOAuth))
+	redirectUri := url.Values{}
+	redirectUri.Set("redirect_uri", urlOfApiv3+"/api/bbtwoa/oauth/"+url2b64)
+	finalRedirectUrl := fmt.Sprintf("https://open.weixin.qq.com/connect/oauth2/authorize?appid=%s&%s&response_type=code&scope=snsapi_userinfo#wechat_redirect&test=false", appid, redirectUri.Encode())
+	ctx.Redirect(302, finalRedirectUrl)
+}
+
+type WechatUser struct {
+	Nickname   string `json:"nickname"`
+	Sex        string `json:"sex"`
+	HeadImgUrl string `json:"headimgurl"`
+	OpenID     string `json:"openid"`
+}
+
+// 微信服务器又会重定向到apiv3，apiv3访问该接口，该接口返回一次性登陆地址
+func wechatOAuth(ctx *gin.Context) {
+	body := ctx.PostForm("body")
+	user := &WechatUser{}
+	json.Unmarshal([]byte(body), user)
+	if user.OpenID == "" {
+		ctx.JSON(403, e.ErrMsgResponse{Message: "decoding userdata failed"})
+		return
+	}
+	loginToken[user.OpenID] = body
+	ctx.String(200, "https://healing2020.100steps.top/wx/login?token="+user.OpenID)
+}
+
+// apiv3通过一次性登陆地址重定向到此处，完成登录流程
 func disposableLogin(ctx *gin.Context) {
 	token := ctx.Query("token")
 	if token == "" || loginToken[token] == "" {
@@ -141,47 +175,11 @@ func disposableLogin(ctx *gin.Context) {
 	client := setting.RedisConn()
 	defer client.Close()
 	keyname := "healing2020:token:" + sessionToken
-	//fmt.Println(keyname)
 	client.Set(keyname, data, time.Minute*30)
-	//fmt.Println(result2)
 
 	session := sessions.Default(ctx)
 	session.Set("token", sessionToken)
 	session.Save()
 
-	// ctx.Redirect(302, "http://test.scut18pie1.top/api/user")
 	ctx.JSON(200, &user)
-}
-
-func jumpToWechat(ctx *gin.Context) {
-	urlOfApiv3 := "https://apiv2.100steps.top/v3"
-	// urlOfOAuth := "https://healing2020.100steps.top/wx/oauth"
-	urlOfOAuth := "http://test.scut18pie1.top/wx/oauth"
-	appid := "wx293bc6f4ee88d87d"
-	//todo: redirect
-	url2b64 := base64.StdEncoding.EncodeToString([]byte(urlOfOAuth))
-	redirectUri := url.Values{}
-	redirectUri.Set("redirect_uri", urlOfApiv3+"/api/bbtwoa/oauth/"+url2b64)
-	finalRedirectUrl := fmt.Sprintf("https://open.weixin.qq.com/connect/oauth2/authorize?appid=%s&%s&response_type=code&scope=snsapi_userinfo#wechat_redirect&test=false", appid, redirectUri.Encode())
-	ctx.Redirect(302, finalRedirectUrl)
-}
-
-type WechatUser struct {
-	Nickname   string `json:"nickname"`
-	Sex        string `json:"sex"`
-	HeadImgUrl string `json:"headimgurl"`
-	OpenID     string `json:"openid"`
-}
-
-func wechatOAuth(ctx *gin.Context) {
-	body := ctx.PostForm("body")
-	user := &WechatUser{}
-	json.Unmarshal([]byte(body), user)
-	if user.OpenID == "" {
-		ctx.JSON(403, e.ErrMsgResponse{Message: "decoding userdata failed"})
-		return
-	}
-	loginToken[user.OpenID] = body
-	// ctx.String(200, "https://healing2020.100steps.top/wx/login?token="+user.OpenID)
-	ctx.String(200, "http://test.scut18pie1.top/wx/login?token="+user.OpenID)
 }
