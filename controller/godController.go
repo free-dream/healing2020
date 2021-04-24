@@ -56,6 +56,7 @@ func autoCreate() {
 	models.CreateFakeUserOther("1", 1, 0, 3)
 	models.CreateFakeUserOther("2", 2, 1, 2)
 	models.CreateFakeUserOther("3", 3, 2, 3)
+	models.CreateFakeUserOther("4", 4, 2, 3)
 }
 
 func LoadTestData() {

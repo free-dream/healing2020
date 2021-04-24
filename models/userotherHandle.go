@@ -15,7 +15,7 @@ func CreateUserOther(userID uint) error {
 
 	//开启事务
 	tx := db.Begin()
-	err := tx.Model(&statements.UserOther{}).Create(statements.UserOther{UserId: userID}).Error
+	err := tx.Model(&statements.UserOther{}).Create(&statements.UserOther{UserId: userID}).Error
 
 	if err != nil {
 		tx.Rollback()

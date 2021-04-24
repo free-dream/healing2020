@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"healing2020/models"
 	"healing2020/models/statements"
 	"healing2020/pkg/e"
@@ -52,11 +53,13 @@ func Register(c *gin.Context) {
 	}
 	err := models.UpdateUser(user, userInf.ID)
 	if err != nil {
+		fmt.Println(err)
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.ERROR_USER_CREATE_FAIL)})
 		return
 	}
 	err = models.CreateUserOther(userInf.ID)
 	if err != nil {
+		fmt.Println(err)
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.ERROR_USER_CREATE_FAIL)})
 		return
 	}
