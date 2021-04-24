@@ -65,7 +65,7 @@ func InitRouter() *gin.Engine {
 	api.PUT("/vod/hide_name", controller.HideName)                 //匿名
 
 	//消息
-	api.POST("/ws", controller.WsHandle)         //websocket服务
+	api.GET("/ws", controller.WsHandle)          //websocket服务
 	api.POST("/broadcast", controller.Broadcast) //广播
 	api.GET("/message", controller.MessagePage)  //消息首页
 	api.POST("/message", controller.SendMessage) //发送消息
