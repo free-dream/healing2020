@@ -1,11 +1,20 @@
 package router
 
 import (
+	"encoding/base64"
+	"encoding/json"
+	"fmt"
 	"healing2020/controller"
 	"healing2020/controller/auth"
 	"healing2020/controller/middleware"
 	_ "healing2020/docs"
+	"healing2020/models"
+	"healing2020/models/statements"
+	"healing2020/pkg/e"
+	"healing2020/pkg/setting"
 	"healing2020/pkg/tools"
+	"net/url"
+	"time"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
@@ -13,22 +22,30 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
-    "os"
-    "io"
+	"io"
+	"os"
 )
 
+var loginToken map[string]string
+var store cookie.Store
+
 func InitRouter() *gin.Engine {
+	loginToken = make(map[string]string)
 	r := gin.New()
 
-    f, _ := os.Create(tools.GetConfig("log","location"))
-    gin.DefaultWriter = io.MultiWriter(f)
+	f, _ := os.Create(tools.GetConfig("log", "location"))
+	gin.DefaultWriter = io.MultiWriter(f)
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
-	store := cookie.NewStore([]byte("healing2020"))
+	store = cookie.NewStore([]byte("healing2020"))
 	r.Use(sessions.Sessions("session", store))
 	if tools.IsDebug() {
 		r.Use(middleware.Cors())
 	}
+
+	r.GET("/wx/jump2wechat", jumpToWechat)
+	r.GET("/wx/login", disposableLogin)
+	r.POST("/wx/oauth", wechatOAuth)
 
 	//开发时按群组分类，并记得按swagger格式注释
 	api := r.Group("/api")
@@ -48,19 +65,22 @@ func InitRouter() *gin.Engine {
 	api.PUT("/vod/hide_name", controller.HideName)                 //匿名
 
 	//消息
-	api.POST("/ws", controller.WsHandle)         //websocket服务
+	api.GET("/ws", controller.WsHandle)          //websocket服务
 	api.POST("/broadcast", controller.Broadcast) //广播
 	api.GET("/message", controller.MessagePage)  //消息首页
 	api.POST("/message", controller.SendMessage) //发送消息
 
 	//投递箱
 	api.GET("/deliver/home", controller.AllDeliver)
+	api.POST("/deliver/postdeliver", controller.PostDeliver)
 
 	//歌房
 	api.GET("/singsubject", controller.SingSubject)
 	api.GET("/singhome", controller.SingHome)
 
 	//抽奖
+	api.GET("/lottery/allprize", controller.ALLPrize)
+	api.GET("/lottery/mylottery", controller.UserLottery)
 	api.GET("/lottery/money", controller.GetMoney)
 
 	//评论
@@ -89,18 +109,78 @@ func InitRouter() *gin.Engine {
 	api.GET("/initest", controller.Test)
 
 	//god view
-    
-    //login
-    r.GET("/auth/fake/:id",auth.FakeLogin)
+
+	//login
+	r.GET("/auth/fake/:id", auth.FakeLogin)
 
 	return r
 }
 
-// @Title name
-// @Description
-// @Tags groupName
-// @Produce json
-// @Router /xx/xx/xx [get/post]
-// @Params xxx formData string true "xxx"
-// @Success 200 {object} structName
-// @Failure xxx {object} structName
+// 微信授权起点在这个接口，这里会重定向到微信服务器
+func jumpToWechat(ctx *gin.Context) {
+	urlOfApiv3 := "https://apiv2.100steps.top/v3"
+	urlOfOAuth := "https://healing2020.100steps.top/wx/oauth"
+	appid := "wx293bc6f4ee88d87d"
+	// todo: redirect
+	url2b64 := base64.StdEncoding.EncodeToString([]byte(urlOfOAuth))
+	redirectUri := url.Values{}
+	redirectUri.Set("redirect_uri", urlOfApiv3+"/api/bbtwoa/oauth/"+url2b64)
+	finalRedirectUrl := fmt.Sprintf("https://open.weixin.qq.com/connect/oauth2/authorize?appid=%s&%s&response_type=code&scope=snsapi_userinfo#wechat_redirect&test=false", appid, redirectUri.Encode())
+	ctx.Redirect(302, finalRedirectUrl)
+}
+
+type WechatUser struct {
+	Nickname   string `json:"nickname"`
+	Sex        string `json:"sex"`
+	HeadImgUrl string `json:"headimgurl"`
+	OpenID     string `json:"openid"`
+}
+
+// 微信服务器又会重定向到apiv3，apiv3访问该接口，该接口返回一次性登陆地址
+func wechatOAuth(ctx *gin.Context) {
+	body := ctx.PostForm("body")
+	user := &WechatUser{}
+	json.Unmarshal([]byte(body), user)
+	if user.OpenID == "" {
+		ctx.JSON(403, e.ErrMsgResponse{Message: "decoding userdata failed"})
+		return
+	}
+	loginToken[user.OpenID] = body
+	ctx.String(200, "https://healing2020.100steps.top/wx/login?token="+user.OpenID)
+}
+
+// apiv3通过一次性登陆地址重定向到此处，完成登录流程
+func disposableLogin(ctx *gin.Context) {
+	token := ctx.Query("token")
+	if token == "" || loginToken[token] == "" {
+		ctx.JSON(401, &e.ErrMsgResponse{Message: e.GetMsg(401)})
+		return
+	}
+	wechatUser := &WechatUser{}
+	json.Unmarshal([]byte(loginToken[token]), wechatUser)
+	models.UpdateOrCreate(wechatUser.OpenID, wechatUser.Nickname)
+	db := setting.MysqlConn()
+	defer db.Close()
+	var user statements.User
+	result := db.Model(&statements.User{}).Where("open_id=?", wechatUser.OpenID).First(&user)
+	if result.Error != nil {
+		ctx.JSON(404, e.ErrMsgResponse{Message: "user not exists"})
+		return
+	}
+
+	dataByte, _ := json.Marshal(user)
+	data := string(dataByte)
+	random := tools.GetRandomString(16)
+	sessionToken := base64.StdEncoding.EncodeToString(random)
+
+	client := setting.RedisConn()
+	defer client.Close()
+	keyname := "healing2020:token:" + sessionToken
+	client.Set(keyname, data, time.Minute*30)
+
+	session := sessions.Default(ctx)
+	session.Set("token", sessionToken)
+	session.Save()
+
+	ctx.JSON(200, &user)
+}

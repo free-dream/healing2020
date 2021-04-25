@@ -4,20 +4,21 @@ import (
 	"fmt"
 	"healing2020/pkg/setting"
 
+	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
 type UserOther struct {
-	ID             uint `gorm:"primary_key"`
-	UserId         uint
-	Now            int `gorm:"default: 1"` //初始默认为B1且只有B1可用
-	B1             int `gorm:"default: 1"`
-	B2             int `gorm:"default: 0"`
-	B3             int `gorm:"default: 0"`
-	B4             int `gorm:"default: 0"`
-	B5             int `gorm:"default: 0"`
-	RemainSing     int `gorm:"default: 0"`
-	RemainHideName int `gorm:"default: 0"`
+	gorm.Model
+	UserId         uint `gorm:"default: 0"`
+	Now            int  `gorm:"default: 1"` //初始默认为B1且只有B1可用
+	B1             int  `gorm:"default: 1"`
+	B2             int  `gorm:"default: 0"`
+	B3             int  `gorm:"default: 0"`
+	B4             int  `gorm:"default: 0"`
+	B5             int  `gorm:"default: 0"`
+	RemainSing     int  `gorm:"default: 0"`
+	RemainHideName int  `gorm:"default: 0"`
 }
 
 func UserOtherInit() {

@@ -10,14 +10,14 @@ import (
 
 type Song struct {
 	gorm.Model
-	UserId   uint
-	VodId    uint
-	VodSend  uint
-	Name     string
-	Praise   int
-	Source   string
-	Style    string
-	Language string
+	UserId   uint   `gorm:"default: 0"`
+	VodId    uint   `gorm:"default: 0"`
+	VodSend  uint   `gorm:"default: 0"`
+	Name     string `gorm:"default: ''"`
+	Praise   int    `gorm:"default: 0"`
+	Source   string `gorm:"default: ''"`
+	Style    string `gorm:"default: ''"`
+	Language string `gorm:"default: ''"`
 }
 
 func SongInit() {

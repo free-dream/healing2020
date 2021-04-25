@@ -10,11 +10,11 @@ import (
 
 type Message struct {
 	gorm.Model
-	Send    uint
-	Receive uint
-	Type    int
-	Content string
-	Url     string
+	Send    uint   `gorm:"default: 0"`
+	Receive uint   `gorm:"default: 0"`
+	Type    int    `gorm:"default: 0"`
+	Content string `gorm:"default: ''"`
+	Url     string `gorm:"default: ''"`
 }
 
 func MessageInit() {

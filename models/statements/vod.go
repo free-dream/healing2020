@@ -10,13 +10,13 @@ import (
 
 type Vod struct {
 	gorm.Model
-	UserId   uint
-	More     string
-	Name     string
-	Singer   string
-	Style    string
-	Language string
-	HideName int `gorm:"default: 0"`
+	UserId   uint   `gorm:"default: 0"`
+	More     string `gorm:"default: ''"`
+	Name     string `gorm:"default: ''"`
+	Singer   string `gorm:"default: ''"`
+	Style    string `gorm:"default: ''"`
+	Language string `gorm:"default: ''"`
+	HideName int    `gorm:"default: 0"`
 }
 
 func VodInit() {

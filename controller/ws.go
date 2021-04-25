@@ -118,7 +118,7 @@ func WsHandle(c *gin.Context) {
 		isClosed:  false,
 	}
 
-	//	go wsConn.heartbeat()
+	//go wsConn.heartbeat()
 	go wsConn.readWs()
 	go wsConn.writeWs(c)
 	go wsConn.writeBroadCast()

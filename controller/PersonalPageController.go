@@ -22,6 +22,8 @@ type PersonalPage struct {
 	Avatar         string                `json:"avatar"`
 	Background     string                `json:"background"`
 	RemainHideName int                   `json:"hide_number"`
+	TrueName       string                `json:"truename"`
+	Phone          string                `json:"phone"`
 	Vod            []models.RequestSongs `json:"requestSongs"`
 	Songs          []models.Songs        `json:"Songs"`
 	Praise         []models.Admire       `json:"admire"`
@@ -44,6 +46,8 @@ func responsePage(c *gin.Context, user statements.User, userID uint) {
 		Setting2: user.Setting2,
 		Setting3: user.Setting3,
 		Avatar:   user.Avatar,
+		Phone:    user.Phone,
+		TrueName: user.TrueName,
 	}
 
 	//补充返回数据
