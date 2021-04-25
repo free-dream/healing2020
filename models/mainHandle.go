@@ -30,10 +30,26 @@ type SongMsg struct {
     Like int `json:"like"`
     Style string `json:"style"`
     Source string `json:"source"`
+    Singer string `json:"singer"`
 }
 
 func SendMainMsg() {
+    client := setting.RedisConn()
+    defer client.Close()
+    
+    var sortArr = []string{"0","1"}
+    var keyArr = []string{"ACG","流行","古风","民谣","摇滚","抖音热搜","国语","英语","日语","粤语"}
+    for _,sort := range sortArr {
+        for _,key :=  range keyArr {
+            listen := LoadSongMsg(sort,key)
+            sing := LoadVodMsg(sort,key)
 
+            keyname := "healing2020:Main:"+key+"ListenMsg"+sort
+            client.Set(keyname,listen,0)
+            keyname = "healing2020:Main:"+key+"Sing"+sort
+            client.Set(keyname,sing,0)
+        }
+    }
 }
 
 func LoadSongMsg(sort string,key string) []SongMsg{
@@ -81,13 +97,54 @@ func LoadSongMsg(sort string,key string) []SongMsg{
     return songList
 }
 
+func LoadVodMsg(sort string,key string) []SongMsg{
+    db := setting.MysqlConn()
+    defer db.Close()
+    var vodList []SongMsg = make([]SongMsg,10)
+    i := 0
+
+    var rows *sql.Rows
+    if key == ""{
+        rows,_ = db.Raw("select id,user_id,name,singer,more,created_at from vod order by rand() limit 10").Rows()
+    }else {
+        if sort == "1" {
+            rows,_ = db.Raw("select id,user_id,name,singer,more,created_at from vod where style=? or language=? order by rand() limit 10",key,key).Rows()
+        }else {
+            rows,_ = db.Raw("select id,user_id,name,singer,more,created_at from vod where style=? or language=? order by created_at,praise desc limit 10",key,key).Rows()
+        }
+    } 
+    defer rows.Close()
+
+    for rows.Next() {
+        var vod statements.Vod
+        db.ScanRows(rows,&vod)
+        vodList[i].Id = vod.ID
+        vodList[i].Name = vod.Name
+        vodList[i].More = vod.More
+        //vodList[i].Time = vod.CreatedAt
+        vodList[i].Singer = vod.Singer
+        
+        userid := vod.UserId
+
+        var user statements.User
+        db.Model(&statements.User{}).Select("nick_name,sex,avatar").Where("id=?",userid).Find(&user)
+        vodList[i].User = user.NickName
+        vodList[i].Sex = user.Sex
+        vodList[i].Avatar = user.Avatar
+
+        i++
+    }
+
+    return vodList
+}
+
 func GetMainMsg(sort string,key string) (MainMsg,error){
     var result MainMsg
     client := setting.RedisConn()
     defer client.Close()
-    data1,err1 := client.Get("healing:main:"+key+"SingMsg"+sort).Bytes()
+    data1,err1 := client.Get("healing2020:Main:"+key+"SingMsg"+sort).Bytes()
     if err1!=nil {return MainMsg{},err1}
-    data2,err2 := client.Get("healing:main:"+key+"ListenMsg"+sort).Bytes()
+    data2,err2 := client.Get("healing2020:Main:"+key+"ListenMsg"+sort).Bytes()
     if err2!=nil {return MainMsg{},err2}
 
     var sing []SongMsg

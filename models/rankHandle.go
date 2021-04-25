@@ -14,6 +14,7 @@ import (
 )
 
 type Rank struct{
+    ID uint `json:"id"`
     User string `json:"user"`
     Avatar string `json:"avatar"`
 
@@ -86,6 +87,7 @@ func SendDeliverRank() error{
     rows := result.RowsAffected
     var rank []Rank = make([]Rank,10)
     for i:=0;i<int(rows);i++ {
+        rank[i].ID = deliver[i].ID
         rank[i].Type = deliver[i].Type
         rank[i].Text = deliver[i].TextField
         rank[i].Photo = deliver[i].Photo
@@ -169,6 +171,7 @@ func SendSongRank() error{
     rows := result.RowsAffected
     var rank []Rank = make([]Rank,10)
     for i:=0;i<int(rows);i++ {
+        rank[i].ID = song[i].ID
         rank[i].Name = song[i].Name
         rank[i].Praise = song[i].Praise
         rank[i].Time = date
@@ -246,6 +249,7 @@ func SendUserRank() error{
     rows := result.RowsAffected
     var rank []Rank = make([]Rank,10)
     for i:=0;i<int(rows);i++ {
+        rank[i].ID = user[i].ID
         rank[i].User = user[i].NickName
         rank[i].Avatar = user[i].Avatar
     }

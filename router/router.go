@@ -32,7 +32,7 @@ func InitRouter() *gin.Engine {
 
 	//开发时按群组分类，并记得按swagger格式注释
 	api := r.Group("/api")
-	api.Use(middleware.IdentityCheck)
+	api.Use(middleware.IdentityCheck())
 
 	//qiniuToken
 	api.GET("/qiniu/token", controller.QiniuToken)
