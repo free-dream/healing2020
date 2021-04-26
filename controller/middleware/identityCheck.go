@@ -5,7 +5,6 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"healing2020/pkg/e"
-	"healing2020/pkg/tools"
 )
 
 func IdentityCheck() gin.HandlerFunc {
@@ -14,17 +13,17 @@ func IdentityCheck() gin.HandlerFunc {
 		session := sessions.Default(c)
 		token := session.Get("token")
 
-		if startWith(rUrl, "/auth") {
+		if startWith(rUrl, "/auth") || startWith(rUrl, "/wx") {
 			c.Next()
 		}
-		if tools.IsZeroValue(token) {
+		if token == nil || token == "" {
 			if startWith(rUrl, "/api") {
 				c.JSON(401, e.ErrMsgResponse{Message: "fail to authenticate"})
 				c.Abort()
 				return
 			} else {
 				redirect := c.Query("redirect")
-				url := "https://healing2020.100steps.top/auth/jump?redirect=" + redirect
+				url := "https://healing2020.100steps.top/wx/jump2wechat?redirect=" + redirect
 				c.Redirect(302, url)
 				c.Abort()
 				return
