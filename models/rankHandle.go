@@ -11,6 +11,7 @@ import (
     "time"
     "encoding/json"
     "strconv"
+    "errors"
 )
 
 type Rank struct{
@@ -85,6 +86,9 @@ func SendDeliverRank() error{
         return err1
     }
     rows := result.RowsAffected
+    if rows == 0 {
+        return errors.New("no data")
+    }
     var rank []Rank = make([]Rank,10)
     for i:=0;i<int(rows);i++ {
         rank[i].ID = deliver[i].ID
@@ -169,6 +173,9 @@ func SendSongRank() error{
         return err1
     }
     rows := result.RowsAffected
+    if rows == 0 {
+        return errors.New("no data")
+    }
     var rank []Rank = make([]Rank,10)
     for i:=0;i<int(rows);i++ {
         rank[i].ID = song[i].ID
@@ -247,6 +254,9 @@ func SendUserRank() error{
         return err1
     }
     rows := result.RowsAffected
+    if rows == 0 {
+        return errors.New("no data")
+    }
     var rank []Rank = make([]Rank,10)
     for i:=0;i<int(rows);i++ {
         rank[i].ID = user[i].ID
