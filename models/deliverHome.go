@@ -32,12 +32,11 @@ func DeliverHome() ([]AllDeliver, error) {
 	//获取用户昵称
 	UserNickname := make([]statements.User, len(deliverHome))
 	for i := 0; i < len(deliverHome); i++ {
-		err = db.Table("User").Select("nick_name").Where("id = ?", deliverHome[i].UserID).Scan(&UserNickname[i]).Error
+		err = db.Table("user").Select("nick_name").Where("id = ?", deliverHome[i].UserID).Scan(&UserNickname[i]).Error
 		if err != nil {
 			return nil, err
 		}
 	}
-
 	responseDeliver := make([]AllDeliver, len(deliverHome))
 	for i := 0; i < len(deliverHome); i++ {
 		responseDeliver[i] = AllDeliver{
@@ -46,5 +45,4 @@ func DeliverHome() ([]AllDeliver, error) {
 		}
 	}
 	return responseDeliver, err
-
 }

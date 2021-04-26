@@ -8,17 +8,17 @@ import (
 )
 
 type AllSpecial struct {
-	ID    uint    `json:"id"`
-	Name  string `json:"name"`
-	Intro string `json:"intro"`	
+	ID       uint   `json:"id"`
+	Name     string `json:"name"`
+	Intro    string `json:"intro"`
 	SingSong []Sing
 }
 
 type Sing struct {
-	UserID    uint    `json:"id"`
-	Name  string `json:"name"`
+	UserID uint   `json:"id"`
+	Name   string `json:"name"`
 	Praise string `json:"praise"`
-	Song string `json:"song"`
+	Song   string `json:"song"`
 }
 
 func SingHome(subjectID uint) (AllSpecial, error) {
@@ -28,21 +28,15 @@ func SingHome(subjectID uint) (AllSpecial, error) {
 
 	//获取歌房信息
 	var singSubject statements.Subject
-	err := db.Table("Subject").Select("id, name, intro").Where("id = ? ", subjectID).First(&singSubject).Error
+	err := db.Table("subject").Select("id, name, intro").Where("id = ? ", subjectID).First(&singSubject).Error
 
 	var SingHome []Sing
-	err = db.Table("Special").Select("user_id, name, praise, song").Where("subject_id = ? ", subjectID).Scan(&SingHome).Error
-	
-	// var allSpecial []AllSpecial
+	err = db.Table("special").Select("user_id, name, praise, song").Where("subject_id = ? ", subjectID).Scan(&SingHome).Error
 
-	// 	allSpecial.ID = singSubject.id
-	// 	allSpecial.Name = singSubject.name
-	// 	allSpecial.Intro = singSubject.Intro
-	// 	allSpecial.SingSong = SingHome[3]
 	allSpecial := AllSpecial{
-		ID: singSubject.ID,
-		Name: singSubject.Name, 
-		Intro: singSubject.Intro, 
+		ID:       singSubject.ID,
+		Name:     singSubject.Name,
+		Intro:    singSubject.Intro,
 		SingSong: SingHome,
 	}
 
