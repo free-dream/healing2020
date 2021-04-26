@@ -111,7 +111,7 @@ func SendDeliverRank() error{
     client := setting.RedisConn()
     defer client.Close()
     count,_ := client.Get("healing2020:rankCount").Float64()
-    keyName := "healing2020:Deliver." + strconv.FormatFloat(count/100+3.30,'f',2,64)
+    keyName := "healing2020:Deliver." + strconv.FormatFloat(count/100+4.20,'f',2,64)
     client.Set(keyName,jsonRank,0)
 
     return nil
@@ -130,7 +130,7 @@ func GetDeliverRank() ([]AllRank,string){
         if i*100>count {
             break
         }
-        var date float64 = 3.30+i
+        var date float64 = 4.20+i
         dateStr := strconv.FormatFloat(date,'f',2,64)
         keyname := "healing2020:Deliver." + dateStr
         //fmt.Println(dateStr)
@@ -195,7 +195,7 @@ func SendSongRank() error{
     client := setting.RedisConn()
     defer client.Close()
     count,_ := client.Get("healing2020:rankCount").Float64()
-    keyName := "healing2020:Song." + strconv.FormatFloat(count/100+3.30,'f',2,64)
+    keyName := "healing2020:Song." + strconv.FormatFloat(count/100+4.20,'f',2,64)
     client.Set(keyName,jsonRank,0)
 
     return nil
@@ -212,7 +212,7 @@ func GetSongRank() ([]AllRank,string){
         if i*100>count {
             break
         }
-        var date float64 = 3.30+i
+        var date float64 = 4.20+i
         dateStr := strconv.FormatFloat(date,'f',2,64)
         keyname := "healing2020:Song." + dateStr
         data,err := client.Get(keyname).Bytes()
@@ -259,7 +259,7 @@ func SendUserRank() error{
     client := setting.RedisConn()
     defer client.Close()
     count,_ := client.Get("healing2020:rankCount").Float64()
-    keyName := "healing2020:User." + strconv.FormatFloat(count/100+3.30,'f',2,64)
+    keyName := "healing2020:User." + strconv.FormatFloat(count/100+4.20,'f',2,64)
     client.Set(keyName,jsonRank,0)
 
     return nil
@@ -277,7 +277,7 @@ func GetAllUserRank() ([]AllRank,string){
             fmt.Println(j)
             break
         }
-        var date float64 = 3.30+i
+        var date float64 = 4.20+i
         dateStr := strconv.FormatFloat(date,'f',2,64)
         keyname := "healing2020:User." + dateStr
         data,err := client.Get(keyname).Bytes()
