@@ -38,7 +38,7 @@ func SendMainMsg() {
     defer client.Close()
     
     var sortArr = []string{"0","1"}
-    var keyArr = []string{"ACG","流行","古风","民谣","摇滚","抖音热搜","国语","英语","日语","粤语"}
+    var keyArr = []string{"","ACG","流行","古风","民谣","摇滚","抖音热搜","国语","英语","日语","粤语"}
     for _,sort := range sortArr {
         for _,key :=  range keyArr {
             listen := LoadSongMsg(sort,key)
