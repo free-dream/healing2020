@@ -5,7 +5,7 @@ import (
     "healing2020/models"
     "healing2020/pkg/setting"
     "healing2020/pkg/tools"
-    "healing2020/controller"
+    //"healing2020/controller"
     "healing2020/cron"
 )
 
@@ -16,9 +16,9 @@ import (
 func main() {
     setting.MysqlConnTest()
     setting.RedisConnTest()
-    models.TableInit()
+    //models.TableInit()
     if tools.IsDebug() {
-        controller.LoadTestData()
+        //controller.LoadTestData()
         models.SendDeliverRank()
         models.SendUserRank()
         models.SendSongRank()

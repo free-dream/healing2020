@@ -131,7 +131,7 @@ func jumpToWechat(ctx *gin.Context) {
 
 type WechatUser struct {
 	Nickname   string `json:"nickname"`
-	Sex        string `json:"sex"`
+	Sex        int `json:"sex"`
 	HeadImgUrl string `json:"headimgurl"`
 	OpenID     string `json:"openid"`
 }
@@ -158,7 +158,7 @@ func disposableLogin(ctx *gin.Context) {
 	}
 	wechatUser := &WechatUser{}
 	json.Unmarshal([]byte(loginToken[token]), wechatUser)
-	models.UpdateOrCreate(wechatUser.OpenID, wechatUser.Nickname)
+	models.UpdateOrCreate(wechatUser.OpenID, wechatUser.Nickname,wechatUser.Sex,wechatUser.HeadImgUrl)
 	db := setting.MysqlConn()
 	defer db.Close()
 	var user statements.User

@@ -45,7 +45,11 @@ func Login(c *gin.Context) {
     // save user info -- update or create -- set in redis
     random := tools.GetRandomString(16)
     token := base64.StdEncoding.EncodeToString(random)
-    models.UpdateOrCreate(loginForm.OpenId,loginForm.NickName,loginForm.Sex,loginForm.Avatar,token)
+	client := setting.RedisConn()
+	defer client.Close()
+	keyname := "healing2020:token:" + token
+	client.Set(keyname, data, time.Minute*30)
+    models.UpdateOrCreate(loginForm.OpenId,loginForm.NickName,loginForm.Sex,loginForm.Avatar)
     // if err != nil {
     //     c.JSON(403,e.ErrMsgResponse{Message:"failed to login"})
     //     return

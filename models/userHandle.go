@@ -8,11 +8,11 @@ import (
     _ "github.com/jinzhu/gorm/dialects/mysql"
 
     "errors"
-    "encoding/json"
-    "time"
+    //"encoding/json"
+    //"time"
 )
 
-func UpdateOrCreate(openId string,nickName string,sex int,avatar string,token string) {
+func UpdateOrCreate(openId string,nickName string,sex int,avatar string) {
     db := setting.MysqlConn()
     db.Transaction(func(tx *gorm.DB) error {
         var user statements.User
@@ -28,12 +28,12 @@ func UpdateOrCreate(openId string,nickName string,sex int,avatar string,token st
         //     result2 = tx.Model(&statements.User{}).Where("open_id=?",openId).Update(&user)
         //     
         }
-        client := setting.RedisConn()
-        defer client.Close()
-        dataByte,_ := json.Marshal(user)
-        data := string(dataByte)
-        keyname := "healing2020:token:"+token
-        client.Set(keyname,data,time.Minute*30)
+        // client := setting.RedisConn()
+        // defer client.Close()
+        // dataByte,_ := json.Marshal(user)
+        // data := string(dataByte)
+        // keyname := "healing2020:token:"+token
+        // client.Set(keyname,data,time.Minute*30)
 
         return result2.Error
     })

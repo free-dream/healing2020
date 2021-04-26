@@ -24,6 +24,9 @@ func CronInit() *cron.Cron{
         models.UpdateRankCount()
     })
 
+    c.AddFunc("0 0 1 * *",func() {
+        models.SendMainMsg()
+    })
     return c
 }
 
