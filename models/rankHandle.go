@@ -90,7 +90,7 @@ func SendDeliverRank() error{
         return errors.New("no data")
     }
     var rank []Rank = make([]Rank,10)
-    for i:=0;i<int(rows);i++ {
+    for i:=0;i<min(int(rows),10);i++ {
         rank[i].ID = deliver[i].ID
         rank[i].Type = deliver[i].Type
         rank[i].Text = deliver[i].TextField
@@ -177,7 +177,7 @@ func SendSongRank() error{
         return errors.New("no data")
     }
     var rank []Rank = make([]Rank,10)
-    for i:=0;i<int(rows);i++ {
+    for i:=0;i<min(int(rows),10);i++ {
         rank[i].ID = song[i].ID
         rank[i].Name = song[i].Name
         rank[i].Praise = song[i].Praise
@@ -258,7 +258,7 @@ func SendUserRank() error{
         return errors.New("no data")
     }
     var rank []Rank = make([]Rank,10)
-    for i:=0;i<int(rows);i++ {
+    for i:=0;i<min(int(rows),10);i++ {
         rank[i].ID = user[i].ID
         rank[i].User = user[i].NickName
         rank[i].Avatar = user[i].Avatar
@@ -340,4 +340,12 @@ func UpdateRankCount() {
     count,_ := client.Get("healing2020:rankCount").Float64()
     count++
     client.Set("healing2020:rankCount",count,0)
+}
+
+func min(a int,b int) int{
+    if a>b {
+        return b
+    }else {
+        return a
+    }
 }
