@@ -57,12 +57,6 @@ func Register(c *gin.Context) {
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.ERROR_USER_CREATE_FAIL)})
 		return
 	}
-	err = models.CreateUserOther(userInf.ID)
-	if err != nil {
-		fmt.Println(err)
-		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.ERROR_USER_CREATE_FAIL)})
-		return
-	}
 	c.JSON(200, e.ErrMsgResponse{Message: e.GetMsg(e.SUCCESS)})
 }
 
