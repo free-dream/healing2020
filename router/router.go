@@ -120,8 +120,7 @@ func InitRouter() *gin.Engine {
 // 微信授权起点在这个接口，这里会重定向到微信服务器
 func jumpToWechat(ctx *gin.Context) {
 	urlOfApiv3 := "https://apiv3.100steps.top"
-	// urlOfOAuth := "https://healing2020.100steps.top/wx/oauth?redirect=" + ctx.Query("redirect")
-	urlOfOAuth := "http://test.scut18pie1.top/wx/oauth/" + url.QueryEscape(url.QueryEscape(ctx.Query("redirect")))
+	urlOfOAuth := "https://healing2020.100steps.top/wx/oauth/" + url.QueryEscape(url.QueryEscape(ctx.Query("redirect")))
 	appid := "wx293bc6f4ee88d87d"
 	// todo: redirect
 	url2b64 := base64.StdEncoding.EncodeToString([]byte(urlOfOAuth))
@@ -148,8 +147,7 @@ func wechatOAuth(ctx *gin.Context) {
 		return
 	}
 	loginToken[user.OpenID] = body
-	// ctx.String(200, fmt.Sprintf("https://healing2020.100steps.top/wx/login?token=%s&redirect=%s", user.OpenID, ctx.Query("redirect")))
-	ctx.String(200, fmt.Sprintf("http://test.scut18pie1.top/wx/login?token=%s&redirect=%s", user.OpenID, ctx.Param("redirect")[1:]))
+	ctx.String(200, fmt.Sprintf("https://healing2020.100steps.top/wx/login?token=%s&redirect=%s", user.OpenID, ctx.Query("redirect")))
 }
 
 // apiv3通过一次性登陆地址重定向到此处，完成登录流程
