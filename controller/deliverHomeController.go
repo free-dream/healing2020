@@ -9,7 +9,8 @@ import (
 )
 
 func AllDeliver(c *gin.Context) {
-	user, err := models.DeliverHome()
+	Type := c.Query("Type")
+	user, err := models.DeliverHome(Type)
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
