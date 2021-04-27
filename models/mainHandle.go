@@ -177,8 +177,8 @@ func GetMainMsg(sort string,key string) (MainMsg,error){
 
     var sing []SongMsg
     var listen []SongMsg
-    json.Unmarshal(data1,sing)
-    json.Unmarshal(data2,listen)
+    json.Unmarshal(data1,&sing)
+    json.Unmarshal(data2,&listen)
     result.Sing = sing
     result.Listen = listen
 
