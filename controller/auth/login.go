@@ -22,7 +22,7 @@ import (
 
 var loginToken map[string]string
 
-func Init() {
+func init() {
 	loginToken = make(map[string]string)
 }
 
