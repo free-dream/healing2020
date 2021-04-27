@@ -108,7 +108,7 @@ func FakeLogin(c *gin.Context) {
 	json.Unmarshal(tmp, &redisUser)
 
 	session := sessions.Default(c)
-	session.Set("token", redisUser)
+	session.Set("user", redisUser)
 	session.Save()
 
 	loginStatus := LoginStatus{
