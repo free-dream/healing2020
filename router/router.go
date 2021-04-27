@@ -31,7 +31,7 @@ var store cookie.Store
 
 func InitRouter() *gin.Engine {
 	loginToken = make(map[string]string)
-	r := gin.New()
+	r := gin.Default()
 
 	f, _ := os.Create(tools.GetConfig("log", "location"))
 	gin.DefaultWriter = io.MultiWriter(f)
@@ -45,7 +45,7 @@ func InitRouter() *gin.Engine {
 
 	r.GET("/wx/jump2wechat", jumpToWechat)
 	r.GET("/wx/login", disposableLogin)
-	r.POST("/wx/oauth", wechatOAuth)
+	r.POST("/wx/oauth/*redirect", wechatOAuth)
 
 	//开发时按群组分类，并记得按swagger格式注释
 	api := r.Group("/api")
@@ -119,8 +119,9 @@ func InitRouter() *gin.Engine {
 
 // 微信授权起点在这个接口，这里会重定向到微信服务器
 func jumpToWechat(ctx *gin.Context) {
-	urlOfApiv3 := "https://apiv2.100steps.top/v3"
-	urlOfOAuth := "https://healing2020.100steps.top/wx/oauth"
+	urlOfApiv3 := "https://apiv3.100steps.top"
+	// urlOfOAuth := "https://healing2020.100steps.top/wx/oauth?redirect=" + ctx.Query("redirect")
+	urlOfOAuth := "http://test.scut18pie1.top/wx/oauth/" + url.QueryEscape(url.QueryEscape(ctx.Query("redirect")))
 	appid := "wx293bc6f4ee88d87d"
 	// todo: redirect
 	url2b64 := base64.StdEncoding.EncodeToString([]byte(urlOfOAuth))
@@ -147,7 +148,8 @@ func wechatOAuth(ctx *gin.Context) {
 		return
 	}
 	loginToken[user.OpenID] = body
-	ctx.String(200, "https://healing2020.100steps.top/wx/login?token="+user.OpenID)
+	// ctx.String(200, fmt.Sprintf("https://healing2020.100steps.top/wx/login?token=%s&redirect=%s", user.OpenID, ctx.Query("redirect")))
+	ctx.String(200, fmt.Sprintf("http://test.scut18pie1.top/wx/login?token=%s&redirect=%s", user.OpenID, ctx.Param("redirect")[1:]))
 }
 
 // apiv3通过一次性登陆地址重定向到此处，完成登录流程
@@ -183,5 +185,10 @@ func disposableLogin(ctx *gin.Context) {
 	session.Set("token", sessionToken)
 	session.Save()
 
-	ctx.Redirect(302, "https://healing2020.100steps.top")
+	redirectUrl := ctx.Query("redirect")
+	if redirectUrl == "" {
+		ctx.Redirect(302, "https://healing2020.100steps.top")
+	} else {
+		ctx.Redirect(302, redirectUrl)
+	}
 }
