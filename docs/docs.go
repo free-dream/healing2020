@@ -24,68 +24,7 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/usermodel": {
-            "get": {
-                "description": "获取已登录用户模型",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "user"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/controller.GetUserResp"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/e.ErrMsgResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/broadcast": {
-            "post": {
-                "description": "广播",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "message"
-                ],
-                "parameters": [
-                    {
-                        "description": "广播信息",
-                        "name": "json",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/controller.BroadcastContent"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/e.ErrMsgResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/e.ErrMsgResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/deliver/rank": {
+        "/api/deliver/rank": {
             "get": {
                 "description": "投递页排行榜",
                 "produces": [
@@ -113,47 +52,7 @@ var doc = `{
                 }
             }
         },
-        "/fake": {
-            "get": {
-                "description": "假登录接口",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "login"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "user id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "redirect url",
-                        "name": "redirect",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/auth.LoginStatus"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/e.ErrMsgResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/like": {
+        "/api/like": {
             "get": {
                 "description": "点赞",
                 "produces": [
@@ -194,7 +93,7 @@ var doc = `{
                 }
             }
         },
-        "/main/page": {
+        "/api/main/page": {
             "get": {
                 "description": "首页数据",
                 "produces": [
@@ -240,7 +139,7 @@ var doc = `{
                 }
             }
         },
-        "/message": {
+        "/api/message": {
             "get": {
                 "description": "消息首页",
                 "produces": [
@@ -263,32 +162,9 @@ var doc = `{
                         }
                     }
                 }
-            },
-            "post": {
-                "description": "发送消息并保存于数据库",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "message"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/e.ErrMsgResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/e.ErrMsgResponse"
-                        }
-                    }
-                }
             }
         },
-        "/message/cell": {
+        "/api/message/cell": {
             "get": {
                 "description": "用户与另一用户聊天室的具体信息",
                 "produces": [
@@ -322,7 +198,7 @@ var doc = `{
                 }
             }
         },
-        "/qiniu/token": {
+        "/api/qiniu/token": {
             "get": {
                 "description": "获取七牛的upToken",
                 "produces": [
@@ -347,7 +223,7 @@ var doc = `{
                 }
             }
         },
-        "/record": {
+        "/api/record": {
             "get": {
                 "description": "听录音",
                 "produces": [
@@ -432,7 +308,7 @@ var doc = `{
                 }
             }
         },
-        "/register": {
+        "/api/register": {
             "post": {
                 "description": "注册接口",
                 "produces": [
@@ -468,7 +344,7 @@ var doc = `{
                 }
             }
         },
-        "/songs/rank": {
+        "/api/songs/rank": {
             "get": {
                 "description": "每日歌曲排行榜",
                 "produces": [
@@ -496,14 +372,14 @@ var doc = `{
                 }
             }
         },
-        "/user": {
+        "/api/user": {
             "get": {
                 "description": "已登录用户的个人页接口",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "myperponalpage"
+                    "user"
                 ],
                 "responses": {
                     "200": {
@@ -555,7 +431,7 @@ var doc = `{
                 }
             }
         },
-        "/user/background": {
+        "/api/user/background": {
             "put": {
                 "description": "修改个人背景",
                 "produces": [
@@ -591,7 +467,7 @@ var doc = `{
                 }
             }
         },
-        "/user/hobby": {
+        "/api/user/hobby": {
             "get": {
                 "description": "获取用户爱好",
                 "produces": [
@@ -650,7 +526,7 @@ var doc = `{
                 }
             }
         },
-        "/user/phone": {
+        "/api/user/phone": {
             "get": {
                 "description": "用户手机",
                 "produces": [
@@ -675,7 +551,7 @@ var doc = `{
                 }
             }
         },
-        "/user/rank": {
+        "/api/user/rank": {
             "get": {
                 "description": "用户排名",
                 "produces": [
@@ -700,14 +576,14 @@ var doc = `{
                 }
             }
         },
-        "/user/{id}": {
+        "/api/user/{id}": {
             "get": {
                 "description": "其它用户的个人页接口",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "others'perponalpage"
+                    "user"
                 ],
                 "responses": {
                     "200": {
@@ -725,7 +601,32 @@ var doc = `{
                 }
             }
         },
-        "/vod": {
+        "/api/usermodel": {
+            "get": {
+                "description": "获取已登录用户模型",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.GetUserResp"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/vod": {
             "post": {
                 "description": "点歌",
                 "produces": [
@@ -797,7 +698,7 @@ var doc = `{
                 }
             }
         },
-        "/vod/hide_name": {
+        "/api/vod/hide_name": {
             "put": {
                 "description": "匿名",
                 "produces": [
@@ -805,6 +706,107 @@ var doc = `{
                 ],
                 "tags": [
                     "mypersonalpage"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/broadcast": {
+            "post": {
+                "description": "广播",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "message"
+                ],
+                "parameters": [
+                    {
+                        "description": "广播信息",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.BroadcastContent"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/fake": {
+            "get": {
+                "description": "假登录接口",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "login"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "user id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "redirect url",
+                        "name": "redirect",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/auth.LoginStatus"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/message": {
+            "post": {
+                "description": "发送消息并保存于数据库",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "message"
                 ],
                 "responses": {
                     "200": {

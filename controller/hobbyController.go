@@ -100,7 +100,7 @@ func hobbySplit(hobby string) Tag {
 //@Tags hobby
 //@Produce json
 //@Param json body Tag true "用户爱好标签"
-//@Router /user/hobby [post]
+//@Router /api/user/hobby [post]
 //@Success 200 {object} e.ErrMsgResponse
 //@Failure 403 {object} e.ErrMsgResponse
 func NewHobby(c *gin.Context) {
@@ -122,7 +122,7 @@ func NewHobby(c *gin.Context) {
 //@Description 获取用户爱好
 //@Tags hobby
 //@Produce json
-//@Router /user/hobby [get]
+//@Router /api/user/hobby [get]
 //@Success 200 {object} Tag
 //@Failure 403 {object} e.ErrMsgResponse
 func GetHobby(c *gin.Context) {

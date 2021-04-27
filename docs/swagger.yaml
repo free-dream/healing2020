@@ -353,46 +353,7 @@ info:
   title: healing2020
   version: "1.0"
 paths:
-  /api/usermodel:
-    get:
-      description: 获取已登录用户模型
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/controller.GetUserResp'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/e.ErrMsgResponse'
-      tags:
-      - user
-  /broadcast:
-    post:
-      description: 广播
-      parameters:
-      - description: 广播信息
-        in: body
-        name: json
-        required: true
-        schema:
-          $ref: '#/definitions/controller.BroadcastContent'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/e.ErrMsgResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/e.ErrMsgResponse'
-      tags:
-      - message
-  /deliver/rank:
+  /api/deliver/rank:
     get:
       description: 投递页排行榜
       produces:
@@ -410,33 +371,7 @@ paths:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
       - rank
-  /fake:
-    get:
-      description: 假登录接口
-      parameters:
-      - description: user id
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: redirect url
-        in: query
-        name: redirect
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/auth.LoginStatus'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/e.ErrMsgResponse'
-      tags:
-      - login
-  /like:
+  /api/like:
     get:
       description: 点赞
       parameters:
@@ -463,7 +398,7 @@ paths:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
       - heal
-  /main/page:
+  /api/main/page:
     get:
       description: 首页数据
       parameters:
@@ -493,7 +428,7 @@ paths:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
       - main
-  /message:
+  /api/message:
     get:
       description: 消息首页
       produces:
@@ -509,22 +444,7 @@ paths:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
       - message
-    post:
-      description: 发送消息并保存于数据库
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/e.ErrMsgResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/e.ErrMsgResponse'
-      tags:
-      - message
-  /message/cell:
+  /api/message/cell:
     get:
       description: 用户与另一用户聊天室的具体信息
       parameters:
@@ -546,7 +466,7 @@ paths:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
       - message
-  /qiniu/token:
+  /api/qiniu/token:
     get:
       description: 获取七牛的upToken
       produces:
@@ -562,7 +482,7 @@ paths:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
       - qiniu
-  /record:
+  /api/record:
     get:
       description: 听录音
       parameters:
@@ -617,7 +537,7 @@ paths:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
       - heal
-  /register:
+  /api/register:
     post:
       description: 注册接口
       parameters:
@@ -640,7 +560,7 @@ paths:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
       - user
-  /songs/rank:
+  /api/songs/rank:
     get:
       description: 每日歌曲排行榜
       produces:
@@ -658,7 +578,7 @@ paths:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
       - rank
-  /user:
+  /api/user:
     get:
       description: 已登录用户的个人页接口
       produces:
@@ -673,7 +593,7 @@ paths:
           schema:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
-      - myperponalpage
+      - user
     put:
       description: 更新用户信息
       parameters:
@@ -696,7 +616,7 @@ paths:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
       - user
-  /user/{id}:
+  /api/user/{id}:
     get:
       description: 其它用户的个人页接口
       produces:
@@ -711,8 +631,8 @@ paths:
           schema:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
-      - others'perponalpage
-  /user/background:
+      - user
+  /api/user/background:
     put:
       description: 修改个人背景
       parameters:
@@ -735,7 +655,7 @@ paths:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
       - user
-  /user/hobby:
+  /api/user/hobby:
     get:
       description: 获取用户爱好
       produces:
@@ -773,7 +693,7 @@ paths:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
       - hobby
-  /user/phone:
+  /api/user/phone:
     get:
       description: 用户手机
       produces:
@@ -789,7 +709,7 @@ paths:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
       - heal
-  /user/rank:
+  /api/user/rank:
     get:
       description: 用户排名
       produces:
@@ -805,7 +725,23 @@ paths:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
       - rank
-  /vod:
+  /api/usermodel:
+    get:
+      description: 获取已登录用户模型
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.GetUserResp'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - user
+  /api/vod:
     post:
       description: 点歌
       parameters:
@@ -852,7 +788,7 @@ paths:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
       - heal
-  /vod/hide_name:
+  /api/vod/hide_name:
     put:
       description: 匿名
       produces:
@@ -868,4 +804,69 @@ paths:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
       - mypersonalpage
+  /broadcast:
+    post:
+      description: 广播
+      parameters:
+      - description: 广播信息
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/controller.BroadcastContent'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - message
+  /fake:
+    get:
+      description: 假登录接口
+      parameters:
+      - description: user id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: redirect url
+        in: query
+        name: redirect
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.LoginStatus'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - login
+  /message:
+    post:
+      description: 发送消息并保存于数据库
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - message
 swagger: "2.0"

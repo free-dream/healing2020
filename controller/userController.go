@@ -34,7 +34,7 @@ type UserRegister struct {
 //@Tags user
 //@Produce json
 //@Param json body UserRegister true "用户注册数据"
-//@Router /register [post]
+//@Router /api/register [post]
 //@Success 200 {object} e.ErrMsgResponse
 //@Failure 403 {object} e.ErrMsgResponse
 func Register(c *gin.Context) {
@@ -65,7 +65,7 @@ func Register(c *gin.Context) {
 //@Tags user
 //@Produce json
 //@Param json body PutUserInf true "更新的用户信息"
-//@Router /user [put]
+//@Router /api/user [put]
 //@Success 200 {object} e.ErrMsgResponse
 //@Failure 403 {object} e.ErrMsgResponse
 func PutUser(c *gin.Context) {

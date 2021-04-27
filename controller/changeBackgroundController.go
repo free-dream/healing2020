@@ -17,7 +17,7 @@ type ToSaveBackground struct {
 //@Tags user
 //@Produce json
 //@Param json body ToSaveBackground true "修改后的个人背景"
-//@Router /user/background [put]
+//@Router /api/user/background [put]
 //@Success 200 {object} e.ErrMsgResponse
 //@Failure 403 {object} e.ErrMsgResponse
 func ChangeBackground(c *gin.Context) {

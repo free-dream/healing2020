@@ -84,9 +84,9 @@ func responsePage(c *gin.Context, user statements.User, userID uint) {
 
 //@Title ResponseMyPerponalPage
 //@Description 已登录用户的个人页接口
-//@Tags myperponalpage
+//@Tags user
 //@Produce json
-//@Router /user [get]
+//@Router /api/user [get]
 //@Success 200 {object} PersonalPage
 //@Failure 403 {object} e.ErrMsgResponse
 func ResponseMyPerponalPage(c *gin.Context) {
@@ -103,9 +103,9 @@ func ResponseMyPerponalPage(c *gin.Context) {
 
 //@Title ResponseOthersPerponalPage
 //@Description 其它用户的个人页接口
-//@Tags others'perponalpage
+//@Tags user
 //@Produce json
-//@Router /user/{id} [get]
+//@Router /api/user/{id} [get]
 //@Success 200 {object} PersonalPage
 //@Failure 403 {object} e.ErrMsgResponse
 func ResponseOthersPerponalPage(c *gin.Context) {
@@ -132,7 +132,7 @@ func ResponseOthersPerponalPage(c *gin.Context) {
 //@Description 匿名
 //@Tags mypersonalpage
 //@Produce json
-//@Router /vod/hide_name [put]
+//@Router /api/vod/hide_name [put]
 //@Success 200 {object} e.ErrMsgResponse
 //@Failure 403 {object} e.ErrMsgResponse
 func HideName(c *gin.Context) {

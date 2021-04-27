@@ -14,7 +14,7 @@ import (
 //@Description 消息首页
 //@Tags message
 //@Produce json
-//@Router /message [get]
+//@Router /api/message [get]
 //@Success 200 {object} models.ToMessagePage
 //@Failure 403 {object} e.ErrMsgResponse
 func MessagePage(c *gin.Context) {
@@ -31,7 +31,7 @@ func MessagePage(c *gin.Context) {
 //@Description 用户与另一用户聊天室的具体信息
 //@Tags message
 //@Produce json
-//@Router /message/cell [GET]
+//@Router /api/message/cell [GET]
 //@Param id query string true "id"
 //@Success 200 {object} models.ToMessageCell
 //@Failure 403 {object} e.ErrMsgResponse

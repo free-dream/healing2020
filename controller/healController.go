@@ -16,7 +16,7 @@ type PhoneHealing struct {
 // @Description 用户手机
 // @Tags heal
 // @Produce json
-// @Router /user/phone [get]
+// @Router /api/user/phone [get]
 // @Success 200 {object} PhoneHealing
 // @Failure 403 {object} e.ErrMsgResponse
 func PhoneHeal(c *gin.Context) {
@@ -35,7 +35,7 @@ type RealResp struct {
 // @Description 听录音
 // @Tags heal
 // @Produce json
-// @Router /record [get]
+// @Router /api/record [get]
 // @Param id query string true "record id"
 // @Success 200 {object} RealResp
 // @Failure 403 {object} e.ErrMsgResponse
@@ -60,7 +60,7 @@ func Record(c *gin.Context) {
 // @Description 点赞
 // @Tags heal
 // @Produce json
-// @Router /like [get]
+// @Router /api/like [get]
 // @Param id query string true "type id"
 // @Param type query string true "1 song; 2 deliver"
 // @Success 200 {object} e.ErrMsgResponse
@@ -91,7 +91,7 @@ type RecordParams struct {
 // @Description 录音治愈发布
 // @Tags heal
 // @Produce json
-// @Router /record [post]
+// @Router /api/record [post]
 // @Param id body RecordParams true "点歌单id"
 // @Param name body RecordParams false "user name"
 // @Param url body RecordParams true "url"
@@ -103,7 +103,7 @@ func RecordHeal(c *gin.Context) {
 		c.JSON(400, e.ErrMsgResponse{Message: "Uncomplete params"})
 		return
 	}
-	err := models.CreateRecord(params.Id, params.Url,tools.GetUser(c).ID)
+	err := models.CreateRecord(params.Id, params.Url, tools.GetUser(c).ID)
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: "Fail to add praise"})
 	}
@@ -122,7 +122,7 @@ type VodParams struct {
 // @Description 点歌
 // @Tags heal
 // @Produce json
-// @Router /vod [post]
+// @Router /api/vod [post]
 // @Param songs body VodParams true "song's name"
 // @Param singer body VodParams true "singer"
 // @Param more body VodParams true "备注"
@@ -136,7 +136,7 @@ func VodPost(c *gin.Context) {
 		c.JSON(400, e.ErrMsgResponse{Message: "Uncomplete params"})
 		return
 	}
-	err := models.CreateVod(tools.GetUser(c).ID,params.Singer, params.Style, params.Language, params.Songs, params.More)
+	err := models.CreateVod(tools.GetUser(c).ID, params.Singer, params.Style, params.Language, params.Songs, params.More)
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: "Fail to add praise"})
 	}
