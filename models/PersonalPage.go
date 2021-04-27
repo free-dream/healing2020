@@ -109,7 +109,7 @@ func ResponseUserOther(userID uint) (string, int, error) {
 
 	//查询
 	var nowUserOther statements.UserOther
-	err := db.Select("now, remain_hide_name").Where("user_id=?", userID).First(&nowUserOther).Error
+	err := db.Select("now, remain_hide_name").Where("user_id=?", userID).Find(&nowUserOther).Error
 	return tools.GetBackgroundUrl(nowUserOther.Now), nowUserOther.RemainHideName, err
 }
 
@@ -136,21 +136,21 @@ func ResponseSongs(userID uint) ([]Songs, error) {
 	//获取唱歌信息
 	var singSongs []Songs
 	err = db.Table("song").Select("id, name, created_at").Where("user_id=?", userID).Scan(&singSongs).Error
-	if err != nil {
+	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		return nil, err
 	}
 
 	//获取歌房专题歌曲信息
 	var specialSongs []Songs
 	err = db.Table("special").Select("id, name, created_at").Where("user_id=?", userID).Scan(&specialSongs).Error
-	if err != nil {
+	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		return nil, err
 	}
 
 	//获得投递箱信息
 	var deliver []statements.Deliver
 	err = db.Select("id, text_field, created_at").Where("user_id=?", userID).Find(&deliver).Error
-	if err != nil {
+	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		return nil, err
 	}
 
@@ -164,7 +164,7 @@ func ResponseSongs(userID uint) ([]Songs, error) {
 
 	//合并数据
 	allSongs := append(append(singSongs, specialSongs...), deliverSongs...)
-	return allSongs, err
+	return allSongs, nil
 }
 
 //select并返回用户点赞信息
@@ -188,21 +188,21 @@ func ResponsePraise(userID uint) ([]Admire, error) {
 		//投递箱
 		case 1:
 			var deliverInf statements.Deliver
-			err = db.Select("id, text_field, created_at, praise").Where("id=?", praise[i].PraiseId).First(&deliverInf).Error
+			err = db.Select("id, text_field, created_at, praise").Where("id=?", praise[i].PraiseId).Find(&deliverInf).Error
 			allPraise[i] = deliverToAdmire(deliverInf)
-			if err != nil {
+			if err != nil && !gorm.IsRecordNotFoundError(err) {
 				return nil, err
 			}
 		//治愈
 		case 2:
 			allPraise[i], err = selectPraiseInf(db, "song", "治愈", praise[i].PraiseId)
-			if err != nil {
+			if err != nil && !gorm.IsRecordNotFoundError(err) {
 				return nil, err
 			}
 		//专题歌曲
 		case 3:
 			allPraise[i], err = selectPraiseInf(db, "special", "歌房", praise[i].PraiseId)
-			if err != nil {
+			if err != nil && !gorm.IsRecordNotFoundError(err) {
 				return nil, err
 			}
 		}

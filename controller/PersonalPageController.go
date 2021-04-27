@@ -10,6 +10,7 @@ import (
 	"healing2020/pkg/tools"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
 )
 
 type PersonalPage struct {
@@ -52,32 +53,29 @@ func responsePage(c *gin.Context, user statements.User, userID uint) {
 
 	//补充返回数据
 	page.Background, page.RemainHideName, err = models.ResponseUserOther(userID)
-	if err != nil {
-		fmt.Println(err)
+	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
 		return
 	}
 
 	page.Vod, err = models.ResponseVod(userID)
-	if err != nil {
-		fmt.Println(err)
+	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
 		return
 	}
 
 	page.Songs, err = models.ResponseSongs(userID)
-	if err != nil {
-		fmt.Println(err)
+	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
 		return
 	}
 
 	page.Praise, err = models.ResponsePraise(userID)
-	if err != nil {
-		fmt.Println(err)
+	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
 		return
 	}
+
 	c.JSON(200, page)
 	return
 }
