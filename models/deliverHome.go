@@ -9,18 +9,20 @@ import (
 )
 
 type User struct {
-	UserID    int    `json:"user_id" `
-	CreatedAt time.Time `json:"created_at"` 
-	Type      int    `json:"Type"`
-	TextField string `json:"text_field"`
-	Photo     string `json:"photo"`
-	Record    string `json:"record"`
-	Praise    int    `json:"praise"`
+	Id        int       `json:"deliver_id"`
+	UserID    int       `json:"user_id" `
+	CreatedAt time.Time `json:"created_at"`
+	Type      int       `json:"Type"`
+	TextField string    `json:"text_field"`
+	Photo     string    `json:"photo"`
+	Record    string    `json:"record"`
+	Praise    int       `json:"praise"`
 }
 
 type AllDeliver struct {
 	Deliverelse User
 	Nickname    string `json:"nickname"`
+	Avatar      string `json:"avater"`
 }
 
 func DeliverHome(Type string) ([]AllDeliver, error) {
@@ -33,23 +35,23 @@ func DeliverHome(Type string) ([]AllDeliver, error) {
 	//最新排序
 	if Type == "0" {
 		//获取投递信息
-		err := db.Table("deliver").Select("user_id, created_at, type, text_field, photo, record, praise").Order("created_at DESC").Scan(&deliverHome).Error
+		err := db.Table("deliver").Select("id, user_id, created_at, type, text_field, photo, record, praise").Order("created_at DESC").Scan(&deliverHome).Error
 		if err != nil {
 			return nil, err
 		}
 	}
 	//随机排序
 	if Type == "1" {
-		err := db.Table("deliver").Select("user_id, created_at, type, text_field, photo, record, praise").Order("rand()").Scan(&deliverHome).Error
+		err := db.Table("deliver").Select("id, user_id, created_at, type, text_field, photo, record, praise").Order("rand()").Scan(&deliverHome).Error
 		if err != nil {
 			return nil, err
 		}
 	}
 
 	//获取用户昵称
-	UserNickname := make([]statements.User, len(deliverHome))
+	UserElse := make([]statements.User, len(deliverHome))
 	for i := 0; i < len(deliverHome); i++ {
-		err = db.Table("user").Select("nick_name").Where("id = ?", deliverHome[i].UserID).Scan(&UserNickname[i]).Error
+		err = db.Table("user").Select("nick_name, avatar").Where("id = ?", deliverHome[i].UserID).Scan(&UserElse[i]).Error
 		if err != nil {
 			return nil, err
 		}
@@ -59,7 +61,8 @@ func DeliverHome(Type string) ([]AllDeliver, error) {
 	for i := 0; i < len(deliverHome); i++ {
 		responseDeliver[i] = AllDeliver{
 			Deliverelse: deliverHome[i],
-			Nickname:    UserNickname[i].NickName,
+			Nickname:    UserElse[i].NickName,
+			Avatar:      UserElse[i].Avatar,
 		}
 	}
 
