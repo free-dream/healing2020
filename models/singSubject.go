@@ -19,6 +19,6 @@ func SingSubject() ([]Subject, error) {
 
 	//获取歌房信息
 	var singSubject []Subject
-	err := db.Table("Subject").Select("id, name, intro").Scan(&singSubject).Error
+	err := db.Table("subject").Select("id, name, intro").Scan(&singSubject).Error
 	return singSubject, err
 }
