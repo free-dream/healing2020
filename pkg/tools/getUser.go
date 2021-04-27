@@ -43,7 +43,7 @@ func GetUser(c *gin.Context) RedisUser {
 
 	//redis获取数据并绑定json
 	var userInf RedisUser
-	value, err := redis.Bytes(r.Do("GET", keyname, 86400))
+	value, err := redis.Bytes(r.Do("GET", keyname))
 	if err != nil {
 		fmt.Println(err)
 	}

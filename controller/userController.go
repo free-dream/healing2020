@@ -92,3 +92,33 @@ func PutUser(c *gin.Context) {
 		c.JSON(200, e.ErrMsgResponse{Message: e.GetMsg(e.SUCCESS)})
 	}
 }
+
+type GetUserResp struct {
+	ID       int
+	OpenId   string
+	NickName string
+	TrueName string
+	More     string
+	Campus   string
+	Avatar   string
+	Phone    string
+	Sex      int
+	Hobby    string
+	Money    int
+	Setting1 int
+	Setting2 int
+	Setting3 int
+}
+
+// @Title GetUser
+// @Description 获取已登录用户模型
+// @Tags user
+// @Produce json
+// @Router /api/usermodel [get]
+// @Success 200 {object} GetUserResp
+// @Failure 401 {object} e.ErrMsgResponse
+func GetUser(ctx *gin.Context) {
+	user := tools.GetUser(ctx)
+	ctx.JSON(200, &user)
+	return
+}

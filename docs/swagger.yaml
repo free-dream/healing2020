@@ -13,6 +13,37 @@ definitions:
       type:
         type: integer
     type: object
+  controller.GetUserResp:
+    properties:
+      avatar:
+        type: string
+      campus:
+        type: string
+      hobby:
+        type: string
+      id:
+        type: integer
+      money:
+        type: integer
+      more:
+        type: string
+      nickName:
+        type: string
+      openId:
+        type: string
+      phone:
+        type: string
+      setting1:
+        type: integer
+      setting2:
+        type: integer
+      setting3:
+        type: integer
+      sex:
+        type: integer
+      trueName:
+        type: string
+    type: object
   controller.PersonalPage:
     properties:
       Songs:
@@ -25,9 +56,15 @@ definitions:
         type: array
       avatar:
         type: string
+      background:
+        type: string
+      hide_number:
+        type: integer
       more:
         type: string
       name:
+        type: string
+      phone:
         type: string
       requestSongs:
         items:
@@ -41,7 +78,7 @@ definitions:
         type: integer
       setting3:
         type: integer
-      userother:
+      truename:
         type: string
     type: object
   controller.PhoneHealing:
@@ -55,6 +92,8 @@ definitions:
         type: string
       name:
         type: string
+      phone:
+        type: string
       setting1:
         type: integer
       setting2:
@@ -62,6 +101,8 @@ definitions:
       setting3:
         type: integer
       signature:
+        type: string
+      truename:
         type: string
     type: object
   controller.RealResp:
@@ -198,6 +239,8 @@ definitions:
     properties:
       avatar:
         type: string
+      id:
+        type: integer
       name:
         type: string
       photo:
@@ -238,8 +281,14 @@ definitions:
         type: string
       name:
         type: string
+      senduser:
+        type: string
       sex:
         type: integer
+      singer:
+        type: string
+      source:
+        type: string
       style:
         type: string
       time:
@@ -271,7 +320,7 @@ definitions:
     properties:
       content:
         type: string
-      'fromUserID gorm:':
+      fromUserID:
         type: integer
       id:
         type: integer
@@ -304,6 +353,22 @@ info:
   title: healing2020
   version: "1.0"
 paths:
+  /api/usermodel:
+    get:
+      description: 获取已登录用户模型
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.GetUserResp'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - user
   /broadcast:
     post:
       description: 广播
@@ -350,9 +415,13 @@ paths:
       description: 假登录接口
       parameters:
       - description: user id
-        in: query
+        in: path
         name: id
         required: true
+        type: string
+      - description: redirect url
+        in: query
+        name: redirect
         type: string
       produces:
       - application/json
@@ -604,7 +673,7 @@ paths:
           schema:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
-      - my perponalpage
+      - myperponalpage
     put:
       description: 更新用户信息
       parameters:
@@ -783,4 +852,20 @@ paths:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
       - heal
+  /vod/hide_name:
+    put:
+      description: 匿名
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - mypersonalpage
 swagger: "2.0"

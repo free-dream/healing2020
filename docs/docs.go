@@ -24,6 +24,31 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/usermodel": {
+            "get": {
+                "description": "获取已登录用户模型",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.GetUserResp"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/broadcast": {
             "post": {
                 "description": "广播",
@@ -102,8 +127,14 @@ var doc = `{
                         "type": "string",
                         "description": "user id",
                         "name": "id",
-                        "in": "query",
+                        "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "redirect url",
+                        "name": "redirect",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -472,7 +503,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "my perponalpage"
+                    "myperponalpage"
                 ],
                 "responses": {
                     "200": {
@@ -765,6 +796,31 @@ var doc = `{
                     }
                 }
             }
+        },
+        "/vod/hide_name": {
+            "put": {
+                "description": "匿名",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "mypersonalpage"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -790,6 +846,53 @@ var doc = `{
                 }
             }
         },
+        "controller.GetUserResp": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "campus": {
+                    "type": "string"
+                },
+                "hobby": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "money": {
+                    "type": "integer"
+                },
+                "more": {
+                    "type": "string"
+                },
+                "nickName": {
+                    "type": "string"
+                },
+                "openId": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "setting1": {
+                    "type": "integer"
+                },
+                "setting2": {
+                    "type": "integer"
+                },
+                "setting3": {
+                    "type": "integer"
+                },
+                "sex": {
+                    "type": "integer"
+                },
+                "trueName": {
+                    "type": "string"
+                }
+            }
+        },
         "controller.PersonalPage": {
             "type": "object",
             "properties": {
@@ -808,10 +911,19 @@ var doc = `{
                 "avatar": {
                     "type": "string"
                 },
+                "background": {
+                    "type": "string"
+                },
+                "hide_number": {
+                    "type": "integer"
+                },
                 "more": {
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "phone": {
                     "type": "string"
                 },
                 "requestSongs": {
@@ -832,7 +944,7 @@ var doc = `{
                 "setting3": {
                     "type": "integer"
                 },
-                "userother": {
+                "truename": {
                     "type": "string"
                 }
             }
@@ -854,6 +966,9 @@ var doc = `{
                 "name": {
                     "type": "string"
                 },
+                "phone": {
+                    "type": "string"
+                },
                 "setting1": {
                     "type": "integer"
                 },
@@ -864,6 +979,9 @@ var doc = `{
                     "type": "integer"
                 },
                 "signature": {
+                    "type": "string"
+                },
+                "truename": {
                     "type": "string"
                 }
             }
@@ -1072,6 +1190,9 @@ var doc = `{
                 "avatar": {
                     "type": "string"
                 },
+                "id": {
+                    "type": "integer"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -1133,8 +1254,17 @@ var doc = `{
                 "name": {
                     "type": "string"
                 },
+                "senduser": {
+                    "type": "string"
+                },
                 "sex": {
                     "type": "integer"
+                },
+                "singer": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
                 },
                 "style": {
                     "type": "string"
@@ -1184,7 +1314,7 @@ var doc = `{
                 "content": {
                     "type": "string"
                 },
-                "fromUserID gorm:": {
+                "fromUserID": {
                     "type": "integer"
                 },
                 "id": {
