@@ -5,6 +5,7 @@ import (
     "healing2020/pkg/setting"
     "healing2020/pkg/tools"
     "healing2020/models/statements"
+    "errors"
 )
 
 func GetPhone(info tools.RedisUser) string{
@@ -43,7 +44,7 @@ func CreateRecord(id string,source string,uid uint) error{
     var vod statements.Vod
     result1 := tx.Model(&statements.Vod{}).Where("ID=?",vodId).First(&vod)
     if result1.Error != nil {
-        return nil
+        return errors.New("vod_id is unvalid")
     }
     var song statements.Song
     song.VodId = vodId
