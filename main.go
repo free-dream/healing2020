@@ -1,12 +1,12 @@
 package main
 
 import (
-    "healing2020/router"
-    "healing2020/models"
-    "healing2020/pkg/setting"
-    "healing2020/pkg/tools"
-    //"healing2020/controller"
-    "healing2020/cron"
+	"healing2020/models"
+	"healing2020/pkg/setting"
+	"healing2020/pkg/tools"
+	"healing2020/router"
+	//"healing2020/controller"
+	"healing2020/cron"
 )
 
 // @Title healing2020
@@ -14,21 +14,21 @@ import (
 // @Description 2020治愈系
 
 func main() {
-    setting.MysqlConnTest()
-    setting.RedisConnTest()
-    //models.TableInit()
-    if tools.IsDebug() {
-        //controller.LoadTestData()
-        models.SendDeliverRank()
-        models.SendUserRank()
-        models.SendSongRank()
-    }
+	setting.MysqlConnTest()
+	setting.RedisConnTest()
+	models.TableInit()
+	if tools.IsDebug() {
+		//controller.LoadTestData()
+		models.SendDeliverRank()
+		models.SendUserRank()
+		models.SendSongRank()
+	}
 
-    c := cron.CronInit()
-    go c.Start()
-    defer c.Stop()
-    
-    routersInit := router.InitRouter()
+	c := cron.CronInit()
+	go c.Start()
+	defer c.Stop()
 
-    routersInit.Run(":8001")
+	routersInit := router.InitRouter()
+
+	routersInit.Run(":8001")
 }
