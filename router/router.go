@@ -31,7 +31,7 @@ func InitRouter() *gin.Engine {
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
 
-	// 注册sessions组件，使用redis作为驱动，顺便注册User结构体的解码
+	// 注册sessions组件，使用redis作为驱动
 	gob.Register(tools.RedisUser{})
 	var err error
 	store, err = redis.NewStore(30, "tcp", tools.GetConfig("redis", "addr"), "", []byte("100steps__"))
@@ -62,6 +62,7 @@ func InitRouter() *gin.Engine {
 	api.PUT("/user", controller.PutUser)                           //修改个人信息
 	api.GET("/user", controller.ResponseMyPerponalPage)            //自己个人页
 	api.GET("/user/others", controller.ResponseOthersPerponalPage) //他人个人页
+	api.GET("/usermodel/:id", controller.GetUser)                  // 获取已登录用户信息
 	api.GET("/usermodel", controller.GetUser)                      // 获取已登录用户信息
 	api.POST("/user/background", controller.ChangeBackground)      //修改用户个人背景
 	api.PUT("/vod/hide_name", controller.HideName)                 //匿名
@@ -84,7 +85,7 @@ func InitRouter() *gin.Engine {
 	api.GET("/lottery/allprize", controller.ALLPrize)
 	api.GET("/lottery/mylottery", controller.UserLottery)
 	api.GET("/lottery/money", controller.GetMoney)
-	api.PUT("/lottery/usemoney", controller.UseMoney) //抽奖减少积分
+	api.PUT("/lottery/usemoney", controller.UseMoney)   //抽奖减少积分
 	api.PUT("/lottery/earnmoney", controller.EarnMoney) //完成每日任务增加积分
 
 	//评论

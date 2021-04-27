@@ -14,6 +14,7 @@ import (
 	"healing2020/pkg/tools"
 
 	"encoding/base64"
+	"encoding/gob"
 	"encoding/json"
 
 	//"fmt"
@@ -23,6 +24,8 @@ import (
 var loginToken map[string]string
 
 func init() {
+	gob.Register(tools.RedisUser{})
+	gob.Register(statements.User{})
 	loginToken = make(map[string]string)
 }
 
@@ -108,8 +111,12 @@ func FakeLogin(c *gin.Context) {
 	json.Unmarshal(tmp, &redisUser)
 
 	session := sessions.Default(c)
+	session.Clear()
 	session.Set("user", redisUser)
-	session.Save()
+	if err := session.Save(); err != nil {
+		c.JSON(500, e.ErrMsgResponse{Message: err.Error()})
+		return
+	}
 
 	loginStatus := LoginStatus{
 		Message: "ok",
@@ -190,6 +197,7 @@ func DisposableLogin(ctx *gin.Context) {
 	json.Unmarshal(tmp, &redisUser)
 
 	session := sessions.Default(ctx)
+	session.Clear()
 	session.Set("user", redisUser)
 	session.Save()
 

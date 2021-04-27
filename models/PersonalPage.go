@@ -97,7 +97,7 @@ func ResponseUser(userID uint) (statements.User, error) {
 	defer db.Close()
 
 	var user statements.User
-	err := db.Select("nick_name, campus, more, setting1, setting2, setting3, avatar").Where("id=?", userID).First(&user).Error
+	err := db.Select("id, sex, phone, hobby, nick_name, campus, more, setting1, setting2, setting3, avatar").Where("id=?", userID).First(&user).Error
 	return user, err
 }
 
