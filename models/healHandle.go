@@ -13,6 +13,8 @@ func GetPhone(info tools.RedisUser) string{
 }
 
 type RecordResp struct {
+    Song string `json:"song"`
+    User string `json:"user"`
     Source string `json:"source"`
     Err error `json:"err"`
 }
@@ -24,10 +26,15 @@ func GetRecord(id string) RecordResp{
     db := setting.MysqlConn()
     defer db.Close()
 
-    result := db.Model(&statements.Song{}).Where("ID=?",songId).First(&song)
+    result := db.Model(&statements.Song{}).Where("id=?",songId).First(&song)
     var recordResp RecordResp
+    recordResp.Song = song.Name
     recordResp.Source = song.Source 
     recordResp.Err = result.Error
+
+    var user statements.User
+    result = db.Model(&statements.User{}).Where("id = ?",song.UserId).First(&user)
+    recordResp.User = user.NickName
     return recordResp
 }
 
