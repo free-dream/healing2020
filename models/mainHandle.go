@@ -8,7 +8,7 @@ import (
     //"strconv"
     //"fmt"
 
-    //"github.com/jinzhu/gorm"
+    "github.com/jinzhu/gorm"
     _ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
@@ -59,15 +59,23 @@ func LoadSongMsg(sort string,key string) []SongMsg{
     i := 0
 
     var rows *sql.Rows
+    var result *gorm.DB
     if key == ""{
-        rows,_ = db.Raw("select id,user_id,vod_send,name,praise,source,style,created_at from song order by rand() limit 10").Rows()
+        result = db.Raw("select id,user_id,vod_send,name,praise,source,style,created_at from song order by rand() limit 10")
+        rows,_ = result.Rows()
     }else {
         if sort == "1" {
-            rows,_ = db.Raw("select id,user_id,vod_send,name,praise,source,style,created_at from song where style=? or language=? order by rand() limit 10",key,key).Rows()
+            result = db.Raw("select id,user_id,vod_send,name,praise,source,style,created_at from song where style=? or language=? order by rand() limit 10",key,key)
+            rows,_ = result.Rows()
         }else {
-            rows,_ = db.Raw("select id,user_id,vod_send,name,praise,source,style,created_at from song where style=? or language=? order by created_at,praise desc limit 10",key,key).Rows()
+            result = db.Raw("select id,user_id,vod_send,name,praise,source,style,created_at from song where style=? or language=? order by created_at,praise desc limit 10",key,key)
+            rows,_ = result.Rows()
         }
     } 
+    count := result.RowsAffected
+    if count == 0 {
+        return songList
+    }
     defer rows.Close()
 
     for rows.Next() {
@@ -104,16 +112,24 @@ func LoadVodMsg(sort string,key string) []SongMsg{
     i := 0
 
     var rows *sql.Rows
+    var result *gorm.DB
     if key == ""{
-        rows,_ = db.Raw("select id,user_id,name,singer,more,created_at from vod order by rand() limit 10").Rows()
+        result = db.Raw("select id,user_id,name,singer,more,created_at from vod order by rand() limit 10")
+        rows,_ = result.Rows()
     }else {
         if sort == "1" {
-            rows,_ = db.Raw("select id,user_id,name,singer,more,created_at from vod where style=? or language=? order by rand() limit 10",key,key).Rows()
+            result = db.Raw("select id,user_id,name,singer,more,created_at from vod where style=? or language=? order by rand() limit 10",key,key)
+            rows,_ = result.Rows()
         }else {
-            rows,_ = db.Raw("select id,user_id,name,singer,more,created_at from vod where style=? or language=? order by created_at,praise desc limit 10",key,key).Rows()
+            result = db.Raw("select id,user_id,name,singer,more,created_at from vod where style=? or language=? order by created_at,praise desc limit 10",key,key)
+            rows,_ = result.Rows()
         }
     } 
+    count := result.RowsAffected
     defer rows.Close()
+    if count == 0 {
+        return vodList
+    }
 
     for rows.Next() {
         var vod statements.Vod
