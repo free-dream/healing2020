@@ -48,7 +48,7 @@ func SendMainMsg() {
 
             keyname := "healing2020:Main:"+key+"ListenMsg"+sort
             client.Set(keyname,listen,0)
-            keyname = "healing2020:Main:"+key+"Sing"+sort
+            keyname = "healing2020:Main:"+key+"SingMsg"+sort
             client.Set(keyname,sing,0)
             //fmt.Println(result.Err())
         }
@@ -169,8 +169,10 @@ func GetMainMsg(sort string,key string) (MainMsg,error){
     client := setting.RedisConn()
     defer client.Close()
     data1,err1 := client.Get("healing2020:Main:"+key+"SingMsg"+sort).Bytes()
+    if data1==nil {return MainMsg{},nil}
     if err1!=nil {return MainMsg{},err1}
     data2,err2 := client.Get("healing2020:Main:"+key+"ListenMsg"+sort).Bytes()
+    if data2==nil {return MainMsg{},nil}
     if err2!=nil {return MainMsg{},err2}
 
     var sing []SongMsg
