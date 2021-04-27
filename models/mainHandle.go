@@ -38,16 +38,19 @@ func SendMainMsg() {
     defer client.Close()
     
     var sortArr = []string{"0","1"}
-    var keyArr = []string{"","ACG","流行","古风","民谣","摇滚","抖音热搜","国语","英语","日语","粤语"}
+    var keyArr = []string{"","ACG","流行","古风","民谣","摇滚","抖音热歌","其他","国语","英语","日语","粤语"}
     for _,sort := range sortArr {
         for _,key :=  range keyArr {
-            listen := LoadSongMsg(sort,key)
-            sing := LoadVodMsg(sort,key)
+            listenRaw := LoadSongMsg(sort,key)
+            singRaw := LoadVodMsg(sort,key)
+            listen,_ := json.Marshal(listenRaw)
+            sing,_ := json.Marshal(singRaw)
 
             keyname := "healing2020:Main:"+key+"ListenMsg"+sort
             client.Set(keyname,listen,0)
             keyname = "healing2020:Main:"+key+"Sing"+sort
             client.Set(keyname,sing,0)
+            //fmt.Println(result.Err())
         }
     }
 }

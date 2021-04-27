@@ -55,7 +55,7 @@ type SongType struct {
 
 func LoadType() SongType {
 	language := []string{"国语", "英语", "日语", "粤语"}
-	style := []string{"ACG", "流行", "古风", "民谣", "摇滚", "抖音热搜"}
+    style := []string{"ACG", "流行", "古风", "民谣", "摇滚", "抖音热歌","其他"}
 	var songType SongType
 	songType.Language = language
 	songType.Style = style
