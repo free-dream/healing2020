@@ -1,11 +1,6 @@
 package tools
 
 import (
-	"encoding/json"
-	"fmt"
-	"log"
-
-	"github.com/garyburd/redigo/redis"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
@@ -29,28 +24,7 @@ type RedisUser struct {
 }
 
 func GetUser(c *gin.Context) RedisUser {
-	addr := GetConfig("redis", "addr")
-	//连接redis
-	r, err := redis.Dial("tcp", addr)
-	if err != nil {
-		fmt.Println("Connect to redis error", err)
-	}
-	defer r.Close()
-
-	//session
 	session := sessions.Default(c)
-	sessionToken := session.Get("token")
-	keyname := fmt.Sprintf("healing2020:token:%s", sessionToken.(string))
-
-	//redis获取数据并绑定json
-	var userInf RedisUser
-	value, err := redis.Bytes(r.Do("GET", keyname))
-	if err != nil {
-		log.Println(err)
-	}
-	errShal := json.Unmarshal(value, &userInf)
-	if errShal != nil {
-		log.Println(errShal)
-	}
-	return userInf
+	data := session.Get("user")
+	return data.(RedisUser)
 }

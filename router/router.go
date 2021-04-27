@@ -2,6 +2,7 @@ package router
 
 import (
 	"encoding/base64"
+	"encoding/gob"
 	"encoding/json"
 	"fmt"
 	"healing2020/controller"
@@ -13,11 +14,13 @@ import (
 	"healing2020/pkg/e"
 	"healing2020/pkg/setting"
 	"healing2020/pkg/tools"
+	"log"
 	"net/url"
-	"time"
+
+	// "time"
 
 	"github.com/gin-contrib/sessions"
-	"github.com/gin-contrib/sessions/cookie"
+	"github.com/gin-contrib/sessions/redis"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -27,7 +30,7 @@ import (
 )
 
 var loginToken map[string]string
-var store cookie.Store
+var store redis.Store
 
 func InitRouter() *gin.Engine {
 	loginToken = make(map[string]string)
@@ -37,8 +40,16 @@ func InitRouter() *gin.Engine {
 	gin.DefaultWriter = io.MultiWriter(f)
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
-	store = cookie.NewStore([]byte("healing2020"))
-	r.Use(sessions.Sessions("session", store))
+
+	// 注册sessions组件，使用redis作为驱动，顺便注册User结构体的解码
+	gob.Register(tools.RedisUser{})
+	var err error
+	store, err = redis.NewStore(30, "tcp", tools.GetConfig("redis", "addr"), "", []byte("100steps__"))
+	if err != nil {
+		log.Panicln(err.Error())
+	}
+	r.Use(sessions.Sessions("healing2020_session", store))
+
 	if tools.IsDebug() {
 		r.Use(middleware.Cors())
 	}
@@ -148,6 +159,7 @@ func wechatOAuth(ctx *gin.Context) {
 	}
 	loginToken[user.OpenID] = body
 	ctx.String(200, fmt.Sprintf("https://healing2020.100steps.top/wx/login?token=%s&redirect=%s", user.OpenID, ctx.Param("redirect")[1:]))
+	ctx.String(200, fmt.Sprintf("http://test.scut18pie1.top/wx/login?token=%s&redirect=%s", user.OpenID, ctx.Param("redirect")[1:]))
 }
 
 // apiv3通过一次性登陆地址重定向到此处，完成登录流程
@@ -162,25 +174,18 @@ func disposableLogin(ctx *gin.Context) {
 	models.UpdateOrCreate(wechatUser.OpenID, wechatUser.Nickname, wechatUser.Sex, wechatUser.HeadImgUrl)
 	db := setting.MysqlConn()
 	defer db.Close()
+	var redisUser tools.RedisUser
 	var user statements.User
 	result := db.Model(&statements.User{}).Where("open_id=?", wechatUser.OpenID).First(&user)
 	if result.Error != nil {
 		ctx.JSON(404, e.ErrMsgResponse{Message: "user not exists"})
 		return
 	}
-
-	dataByte, _ := json.Marshal(user)
-	data := string(dataByte)
-	random := tools.GetRandomString(16)
-	sessionToken := base64.StdEncoding.EncodeToString(random)
-
-	client := setting.RedisConn()
-	defer client.Close()
-	keyname := "healing2020:token:" + sessionToken
-	client.Set(keyname, data, time.Minute*30)
+	tmp, _ := json.Marshal(user)
+	json.Unmarshal(tmp, &redisUser)
 
 	session := sessions.Default(ctx)
-	session.Set("token", sessionToken)
+	session.Set("user", redisUser)
 	session.Save()
 
 	redirectUrl := ctx.Query("redirect")

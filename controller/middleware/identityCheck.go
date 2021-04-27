@@ -11,7 +11,7 @@ func IdentityCheck() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		rUrl := c.Request.URL.Path
 		session := sessions.Default(c)
-		token := session.Get("token")
+		token := session.Get("user")
 
 		if startWith(rUrl, "/auth") || startWith(rUrl, "/wx") {
 			c.Next()
