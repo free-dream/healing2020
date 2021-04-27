@@ -115,7 +115,8 @@ type GetUserResp struct {
 // @Description 获取用户模型，如果path不给id将获取自己的信息
 // @Tags user
 // @Produce json
-// @Router /api/usermodel [get]
+// @Router /api/usermodel/{id} [get]
+// @Param id path string true "id"
 // @Success 200 {object} GetUserResp
 // @Failure 401 {object} e.ErrMsgResponse
 func GetUser(ctx *gin.Context) {
@@ -136,4 +137,15 @@ func GetUser(ctx *gin.Context) {
 		}
 		ctx.JSON(200, &user)
 	}
+}
+
+// @Title GetUser
+// @Description 获取用户模型，如果path不给id将获取自己的信息
+// @Tags user
+// @Produce json
+// @Router /api/usermodel [get]
+// @Success 200 {object} GetUserResp
+// @Failure 401 {object} e.ErrMsgResponse
+func GetUserExample() {
+
 }
