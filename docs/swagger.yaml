@@ -125,20 +125,10 @@ definitions:
     type: object
   controller.Tag:
     properties:
-      tag1:
-        type: integer
-      tag2:
-        type: integer
-      tag3:
-        type: integer
-      tag4:
-        type: integer
-      tag5:
-        type: integer
-      tag6:
-        type: integer
-      tag7:
-        type: integer
+      tagInf:
+        items:
+          type: string
+        type: array
     type: object
   controller.ToSaveBackground:
     properties:

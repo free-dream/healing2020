@@ -1018,26 +1018,11 @@ var doc = `{
         "controller.Tag": {
             "type": "object",
             "properties": {
-                "tag1": {
-                    "type": "integer"
-                },
-                "tag2": {
-                    "type": "integer"
-                },
-                "tag3": {
-                    "type": "integer"
-                },
-                "tag4": {
-                    "type": "integer"
-                },
-                "tag5": {
-                    "type": "integer"
-                },
-                "tag6": {
-                    "type": "integer"
-                },
-                "tag7": {
-                    "type": "integer"
+                "tagInf": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
