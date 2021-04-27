@@ -50,9 +50,9 @@ func Record(c *gin.Context) {
 		c.JSON(403, e.ErrMsgResponse{Message: "Fail to get record"})
 		return
 	}
-	var realResp RealResp
-	realResp.Source = data.Source
-	c.JSON(200, realResp)
+	// var realResp RealResp
+	// realResp.Source = data.Source
+	c.JSON(200, data)
 	return
 }
 
