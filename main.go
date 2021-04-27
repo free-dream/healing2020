@@ -22,6 +22,7 @@ func main() {
 		models.SendDeliverRank()
 		models.SendUserRank()
 		models.SendSongRank()
+        models.SendMainMsg()
 	}
 
 	c := cron.CronInit()

@@ -62,20 +62,25 @@ func LoadSongMsg(sort string,key string) []SongMsg{
     var result *gorm.DB
     if key == ""{
         result = db.Raw("select id,user_id,vod_send,name,praise,source,style,created_at from song order by rand() limit 10")
+        if isListNil(result) {
+            return nil
+        }
         rows,_ = result.Rows()
     }else {
         if sort == "1" {
             result = db.Raw("select id,user_id,vod_send,name,praise,source,style,created_at from song where style=? or language=? order by rand() limit 10",key,key)
+            if isListNil(result) {
+                return nil
+            }
             rows,_ = result.Rows()
         }else {
             result = db.Raw("select id,user_id,vod_send,name,praise,source,style,created_at from song where style=? or language=? order by created_at,praise desc limit 10",key,key)
+            if isListNil(result) {
+                return nil
+            }
             rows,_ = result.Rows()
         }
     } 
-    count := result.RowsAffected
-    if count == 0 {
-        return songList
-    }
     defer rows.Close()
 
     for rows.Next() {
@@ -119,17 +124,19 @@ func LoadVodMsg(sort string,key string) []SongMsg{
     }else {
         if sort == "1" {
             result = db.Raw("select id,user_id,name,singer,more,created_at from vod where style=? or language=? order by rand() limit 10",key,key)
+            if isListNil(result) {
+                return nil
+            }
             rows,_ = result.Rows()
         }else {
             result = db.Raw("select id,user_id,name,singer,more,created_at from vod where style=? or language=? order by created_at,praise desc limit 10",key,key)
+            if isListNil(result) {
+                return nil
+            }
             rows,_ = result.Rows()
         }
     } 
-    count := result.RowsAffected
     defer rows.Close()
-    if count == 0 {
-        return vodList
-    }
 
     for rows.Next() {
         var vod statements.Vod
@@ -171,4 +178,12 @@ func GetMainMsg(sort string,key string) (MainMsg,error){
     result.Listen = listen
 
     return result,nil
+}
+
+func isListNil(result *gorm.DB) bool{
+    count := result.RowsAffected
+    if count == 0 {
+        return true
+    }
+    return false
 }
