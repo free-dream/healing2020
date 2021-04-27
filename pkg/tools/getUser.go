@@ -3,6 +3,7 @@ package tools
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 
 	"github.com/garyburd/redigo/redis"
 	"github.com/gin-contrib/sessions"
@@ -39,17 +40,17 @@ func GetUser(c *gin.Context) RedisUser {
 	//session
 	session := sessions.Default(c)
 	sessionToken := session.Get("token")
-	keyname := "healing2020:token:" + sessionToken.(string)
+	keyname := fmt.Sprintf("healing2020:token:%s", sessionToken.(string))
 
 	//redis获取数据并绑定json
 	var userInf RedisUser
 	value, err := redis.Bytes(r.Do("GET", keyname))
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 	errShal := json.Unmarshal(value, &userInf)
 	if errShal != nil {
-		fmt.Println(errShal)
+		log.Println(errShal)
 	}
 	return userInf
 }
