@@ -3,12 +3,14 @@ package models
 import (
 	"healing2020/models/statements"
 	"healing2020/pkg/setting"
+	"time"
 
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
 type User struct {
 	UserID    int    `json:"user_id" `
+	CreatedAt time.Time `json:"created_at"` 
 	Type      int    `json:"Type"`
 	TextField string `json:"text_field"`
 	Photo     string `json:"photo"`
@@ -38,7 +40,7 @@ func DeliverHome(Type string) ([]AllDeliver, error) {
 	}
 	//随机排序
 	if Type == "1" {
-		err := db.Table("deliver").Select("user_id, type, text_field, photo, record, praise").Order("rand()").Scan(&deliverHome).Error
+		err := db.Table("deliver").Select("user_id, created_at, type, text_field, photo, record, praise").Order("rand()").Scan(&deliverHome).Error
 		if err != nil {
 			return nil, err
 		}
