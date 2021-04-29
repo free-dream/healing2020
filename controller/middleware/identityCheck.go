@@ -16,7 +16,7 @@ func IdentityCheck() gin.HandlerFunc {
 		if startWith(rUrl, "/auth") || startWith(rUrl, "/wx") {
 			c.Next()
 		}
-		if token == nil || token == "" {
+		if token == nil {
 			if startWith(rUrl, "/api") {
 				c.JSON(401, e.ErrMsgResponse{Message: "fail to authenticate"})
 				c.Abort()

@@ -167,8 +167,6 @@ definitions:
         type: string
     required:
     - language
-    - more
-    - singer
     - songs
     - style
     type: object
@@ -717,7 +715,29 @@ paths:
       - rank
   /api/usermodel:
     get:
-      description: 获取已登录用户模型
+      description: 获取用户模型，如果path不给id将获取自己的信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.GetUserResp'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - user
+  /api/usermodel/{id}:
+    get:
+      description: 获取用户模型，如果path不给id将获取自己的信息
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -744,13 +764,11 @@ paths:
       - description: singer
         in: body
         name: singer
-        required: true
         schema:
           $ref: '#/definitions/controller.VodParams'
       - description: 备注
         in: body
         name: more
-        required: true
         schema:
           $ref: '#/definitions/controller.VodParams'
       - description: style

@@ -6,6 +6,7 @@ import (
 	"healing2020/models/statements"
 	"healing2020/pkg/e"
 	"healing2020/pkg/tools"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -111,14 +112,40 @@ type GetUserResp struct {
 }
 
 // @Title GetUser
-// @Description 获取已登录用户模型
+// @Description 获取用户模型，如果path不给id将获取自己的信息
+// @Tags user
+// @Produce json
+// @Router /api/usermodel/{id} [get]
+// @Param id path string true "id"
+// @Success 200 {object} GetUserResp
+// @Failure 401 {object} e.ErrMsgResponse
+func GetUser(ctx *gin.Context) {
+	if idstr := ctx.Param("id"); idstr == "" {
+		user := tools.GetUser(ctx)
+		ctx.JSON(200, &user)
+		return
+	} else {
+		id, err := strconv.Atoi(idstr)
+		if err != nil {
+			ctx.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
+			return
+		}
+		user, err := models.ResponseUser(uint(id))
+		if err != nil {
+			ctx.JSON(404, e.ErrMsgResponse{Message: e.GetMsg(e.NOT_FOUND)})
+			return
+		}
+		ctx.JSON(200, &user)
+	}
+}
+
+// @Title GetUser
+// @Description 获取用户模型，如果path不给id将获取自己的信息
 // @Tags user
 // @Produce json
 // @Router /api/usermodel [get]
 // @Success 200 {object} GetUserResp
 // @Failure 401 {object} e.ErrMsgResponse
-func GetUser(ctx *gin.Context) {
-	user := tools.GetUser(ctx)
-	ctx.JSON(200, &user)
-	return
+func GetUserExample() {
+
 }

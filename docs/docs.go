@@ -603,12 +603,46 @@ var doc = `{
         },
         "/api/usermodel": {
             "get": {
-                "description": "获取已登录用户模型",
+                "description": "获取用户模型，如果path不给id将获取自己的信息",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "user"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.GetUserResp"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/usermodel/{id}": {
+            "get": {
+                "description": "获取用户模型，如果path不给id将获取自己的信息",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
                 ],
                 "responses": {
                     "200": {
@@ -649,7 +683,6 @@ var doc = `{
                         "description": "singer",
                         "name": "singer",
                         "in": "body",
-                        "required": true,
                         "schema": {
                             "$ref": "#/definitions/controller.VodParams"
                         }
@@ -658,7 +691,6 @@ var doc = `{
                         "description": "备注",
                         "name": "more",
                         "in": "body",
-                        "required": true,
                         "schema": {
                             "$ref": "#/definitions/controller.VodParams"
                         }
@@ -1066,8 +1098,6 @@ var doc = `{
             "type": "object",
             "required": [
                 "language",
-                "more",
-                "singer",
                 "songs",
                 "style"
             ],
