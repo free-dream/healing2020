@@ -112,8 +112,8 @@ func RecordHeal(c *gin.Context) {
 
 type VodParams struct {
 	Songs    string `json:"songs" binding:"required"`
-	Singer   string `json:"singer" binding:"required"`
-	More     string `json:"more" binding:"required"`
+	Singer   string `json:"singer"`
+	More     string `json:"more"`
 	Style    string `json:"style" binding:"required"`
 	Language string `json:"language" binding:"required"`
 }
@@ -124,8 +124,8 @@ type VodParams struct {
 // @Produce json
 // @Router /api/vod [post]
 // @Param songs body VodParams true "song's name"
-// @Param singer body VodParams true "singer"
-// @Param more body VodParams true "备注"
+// @Param singer body VodParams false "singer"
+// @Param more body VodParams false "备注"
 // @Param style body VodParams true "style"
 // @Param language body VodParams true "language"
 // @Success 200 {object} e.ErrMsgResponse
