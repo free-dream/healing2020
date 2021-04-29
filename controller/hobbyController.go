@@ -42,7 +42,7 @@ func NewHobby(c *gin.Context) {
 	hobby := hobbyJoin(json.TagInf)
 	//获取redis用户信息
 	userInf := tools.GetUser(c)
-	err := models.UpdateUser(statements.User{Hobby: hobby}, userInf.ID)
+	err := models.UpdateUser(c, statements.User{Hobby: hobby}, userInf.ID)
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.ERROR_USER_SAVE_FAIL)})
 	} else {

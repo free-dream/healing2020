@@ -51,7 +51,7 @@ func Register(c *gin.Context) {
 		Phone:    json.Phone,
 		Campus:   json.Campus,
 	}
-	err := models.UpdateUser(user, userInf.ID)
+	err := models.UpdateUser(c, user, userInf.ID)
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.ERROR_USER_CREATE_FAIL)})
@@ -85,7 +85,7 @@ func PutUser(c *gin.Context) {
 		Phone:    json.Phone,
 		TrueName: json.TrueName,
 	}
-	err := models.UpdateUser(user, userInf.ID)
+	err := models.UpdateUser(c, user, userInf.ID)
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.ERROR_USER_SAVE_FAIL)})
 	} else {

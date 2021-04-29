@@ -1,9 +1,13 @@
 package models
 
 import (
+	"encoding/json"
 	"healing2020/models/statements"
 	"healing2020/pkg/setting"
+	"healing2020/pkg/tools"
 
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 
@@ -49,8 +53,23 @@ func SelectUserHobby(userID uint) (string, error) {
 	return userHobby.Hobby, err
 }
 
+func updateSession(c *gin.Context, db *gorm.DB) {
+	var redisUser tools.RedisUser
+	var user statements.User
+
+	userID := tools.GetUser(c).ID
+	db.Where("id=?", userID).First(&user)
+
+	tmp, _ := json.Marshal(user)
+	json.Unmarshal(tmp, &redisUser)
+
+	session := sessions.Default(c)
+	session.Set("user", redisUser)
+	session.Save()
+}
+
 //更新user表
-func UpdateUser(user statements.User, userID uint) error {
+func UpdateUser(c *gin.Context, user statements.User, userID uint) error {
 	//连接mysql
 	db := setting.MysqlConn()
 	defer db.Close()
@@ -62,5 +81,7 @@ func UpdateUser(user statements.User, userID uint) error {
 		tx.Rollback()
 		return err
 	}
-	return tx.Commit().Error
+	com := tx.Commit()
+	updateSession(c, db)
+	return com.Error
 }

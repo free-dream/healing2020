@@ -89,14 +89,7 @@ func responsePage(c *gin.Context, user statements.User, userID uint) {
 //@Failure 403 {object} e.ErrMsgResponse
 func ResponseMyPerponalPage(c *gin.Context) {
 	rUser := tools.GetUser(c)
-	//查询id对应用户信息
-	user, err := models.ResponseUser(rUser.ID)
-	if err != nil {
-		fmt.Println(err)
-		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
-		return
-	}
-	responsePage(c, user, rUser.ID)
+	responsePage(c, statements.User(rUser), rUser.ID)
 }
 
 //@Title ResponseOthersPerponalPage

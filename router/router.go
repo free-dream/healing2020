@@ -62,7 +62,7 @@ func InitRouter() *gin.Engine {
 	api.PUT("/user", controller.PutUser)                           //修改个人信息
 	api.GET("/user", controller.ResponseMyPerponalPage)            //自己个人页
 	api.GET("/user/others", controller.ResponseOthersPerponalPage) //他人个人页
-	api.GET("/usermodel", controller.GetUser)                      // 获取已登录用户信息
+	api.GET("/usermodel", controller.GetUser)                      //获取已登录用户信息
 	api.POST("/user/background", controller.ChangeBackground)      //修改用户个人背景
 	api.PUT("/vod/hide_name", controller.HideName)                 //匿名
 
@@ -84,7 +84,7 @@ func InitRouter() *gin.Engine {
 	api.GET("/lottery/allprize", controller.ALLPrize)
 	api.GET("/lottery/mylottery", controller.UserLottery)
 	api.GET("/lottery/money", controller.GetMoney)
-	api.PUT("/lottery/usemoney", controller.UseMoney) //抽奖减少积分
+	api.PUT("/lottery/usemoney", controller.UseMoney)   //抽奖减少积分
 	api.PUT("/lottery/earnmoney", controller.EarnMoney) //完成每日任务增加积分
 
 	//评论
