@@ -12,6 +12,7 @@ type Subject struct {
 	gorm.Model
 	Name  string `gorm:"default: ''"`
 	Intro string `gorm:"default: ''"`
+	Photo string `gorm:"default: ''"`
 }
 
 func SubjectInit() {
