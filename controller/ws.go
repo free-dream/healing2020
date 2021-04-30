@@ -16,6 +16,10 @@ import (
 	"healing2020/pkg/tools"
 )
 
+type ACK struct {
+	ACKInf int `json:"ack"`
+}
+
 type BroadcastContent struct {
 	Text string `json:"message"`
 	Time string `json:"time"`
@@ -192,13 +196,20 @@ func (wsConn *WsConnection) readWs() {
 	for {
 		_, rawData, err := wsConn.ws.ReadMessage()
 		if err != nil {
+			log.Println("read ws fail, ws close")
+			log.Println(err)
 			wsConn.close()
 			return
 		}
+
+		//若收到信息返回{"ack"：1}
+		ack, _ := json.Marshal(ACK{ACKInf: 1})
+		wsConn.ws.WriteMessage(websocket.TextMessage, []byte(ack))
 		data := Message{
 			Type:       2,
 			FromUserID: wsConn.userID,
 		}
+
 		err = json.Unmarshal(rawData, &data)
 		if err != nil {
 			log.Println("json.unmarshal failed")
@@ -208,6 +219,7 @@ func (wsConn *WsConnection) readWs() {
 		if _, ok := MessageQueue[int(data.ToUserID)]; !ok {
 			MessageQueue[int(data.ToUserID)] = make(chan *Message, 1000)
 		}
+
 		select {
 		case MessageQueue[int(data.ToUserID)] <- &data:
 		case <-wsConn.closeChan:
