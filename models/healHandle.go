@@ -13,12 +13,15 @@ func GetPhone(info tools.RedisUser) string{
 }
 
 type RecordResp struct {
-    Song string `json:"song"`
+    Praise int `json:"praise"`
     User string `json:"user"`
     Source string `json:"source"`
+}
+type ResultResp struct {
+    AllSongs []RecordResp 
     Err error `json:"err"`
 }
-func GetRecord(id string) RecordResp{
+func GetRecord(id string) ResultResp{
     intId,_ := strconv.Atoi(id) 
     songId := uint(intId)
     var song statements.Song
@@ -26,16 +29,37 @@ func GetRecord(id string) RecordResp{
     db := setting.MysqlConn()
     defer db.Close()
 
-    result := db.Model(&statements.Song{}).Where("id=?",songId).First(&song)
-    var recordResp RecordResp
-    recordResp.Song = song.Name
-    recordResp.Source = song.Source 
-    recordResp.Err = result.Error
+    var resultResp ResultResp
 
+    result := db.Model(&statements.Song{}).Select("vod_id,name,source,praise,user_id").Where("id=?",songId).First(&song)
+    resultResp.Err = result.Error
+    if result.Error != nil {
+        return resultResp
+    }
+    vodId := song.VodId
+
+    recordsToVod := db.Model(&statements.Song{}).Where("vod_id = ?",vodId).Find(&song)
+    count := recordsToVod.RowsAffected
+    var recordResp []RecordResp = make([]RecordResp,count)
+
+    rows,_ := recordsToVod.Rows()
+    defer rows.Close()
+
+    i := 0
     var user statements.User
-    result = db.Model(&statements.User{}).Where("id = ?",song.UserId).First(&user)
-    recordResp.User = user.NickName
-    return recordResp
+    for rows.Next() {
+        db.ScanRows(rows,&song)
+        recordResp[i].Praise = song.Praise
+        recordResp[i].Source = song.Source
+
+        db.Model(&statements.User{}).Select("nick_name").Where("id = ?",song.UserId).First(&user)
+        recordResp[i].User = user.NickName
+
+        i++
+    }
+    resultResp.AllSongs = recordResp
+
+    return resultResp
 }
 
 func CreateRecord(id string,source string,uid uint) error{
