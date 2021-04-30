@@ -14,7 +14,7 @@ func CreateMailBox(message string) error {
 	defer db.Close()
 
 	tx := db.Begin()
-	err := tx.Model(&statements.Mailbox{}).Create(statements.Mailbox{Message: message}).Error
+	err := tx.Model(&statements.Mailbox{}).Create(&statements.Mailbox{Message: message}).Error
 	if err != nil {
 		fmt.Println(err)
 		tx.Rollback()

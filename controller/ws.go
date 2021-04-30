@@ -17,7 +17,7 @@ import (
 )
 
 type ACK struct {
-	ACKInf int `json:"ack"`
+	ACKID string `json:"ack"`
 }
 
 type BroadcastContent struct {
@@ -27,6 +27,7 @@ type BroadcastContent struct {
 }
 
 type Message struct {
+	ID         string `json:"id"`
 	Type       int    `josn:"type"`
 	Time       string `json:"time"`
 	FromUserID uint   `json:"fromUserID"`
@@ -66,9 +67,12 @@ func Broadcast(c *gin.Context) {
 	}
 	c.BindJSON(&json)
 
-	broadcastChan <- &json
+	userCount, err := models.GetUserNum()
+	for i := 0; i < userCount; i++ {
+		broadcastChan <- &json
+	}
 
-	err := models.CreateMailBox(json.Text)
+	err = models.CreateMailBox(json.Text)
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: "存储广播信息失败"})
 		return
@@ -159,12 +163,12 @@ func (wsConn *WsConnection) writeWs(c *gin.Context) {
 			if wsConn.userID != userID {
 				continue
 			}
+			//发送message队列里的信息
 			responseMsg, _ := json.Marshal(msg)
 			if err := wsConn.ws.WriteMessage(websocket.TextMessage, []byte(responseMsg)); err != nil {
 				log.Println("write websocket fail")
 				wsConn.close()
 				return
-
 			}
 		case <-wsConn.closeChan:
 			return
@@ -181,10 +185,9 @@ func (wsConn *WsConnection) writeBroadCast() {
 				log.Println("write websocket fail")
 				wsConn.close()
 				return
-
 			}
 			if models.CreateMailBox(msg.Text) != nil {
-
+				log.Println("creat mailbox in mysql fail")
 			}
 		case <-wsConn.closeChan:
 			return
@@ -202,24 +205,23 @@ func (wsConn *WsConnection) readWs() {
 			return
 		}
 
-		//若收到信息返回{"ack"：1}
-		ack, _ := json.Marshal(ACK{ACKInf: 1})
-		wsConn.ws.WriteMessage(websocket.TextMessage, []byte(ack))
-		data := Message{
-			Type:       2,
-			FromUserID: wsConn.userID,
-		}
+		data := Message{}
 
 		err = json.Unmarshal(rawData, &data)
 		if err != nil {
 			log.Println("json.unmarshal failed")
+			wsConn.ws.WriteMessage(websocket.TextMessage, []byte("json.unmarshal failed"))
 			log.Println("rawData: " + string(rawData))
 			continue
 		}
+
+		//若收到信息返回ACK
+		ack, _ := json.Marshal(ACK{ACKID: data.ID})
+		wsConn.ws.WriteMessage(websocket.TextMessage, []byte(ack))
+
 		if _, ok := MessageQueue[int(data.ToUserID)]; !ok {
 			MessageQueue[int(data.ToUserID)] = make(chan *Message, 1000)
 		}
-
 		select {
 		case MessageQueue[int(data.ToUserID)] <- &data:
 		case <-wsConn.closeChan:

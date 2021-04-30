@@ -197,21 +197,6 @@ definitions:
       time:
         type: string
     type: object
-  models.Last:
-    properties:
-      content:
-        type: string
-      id:
-        type: integer
-      stringtime:
-        type: string
-      time:
-        type: string
-      type:
-        type: integer
-      url:
-        type: string
-    type: object
   models.MainMsg:
     properties:
       listen:
@@ -294,41 +279,6 @@ definitions:
         type: string
       time:
         type: string
-    type: object
-  models.Target:
-    properties:
-      avatar:
-        type: string
-      id:
-        type: integer
-      name:
-        type: string
-    type: object
-  models.ToMessageCell:
-    properties:
-      content:
-        type: string
-      fromUserID:
-        type: integer
-      id:
-        type: integer
-      stringtime:
-        type: string
-      time:
-        type: string
-      toUserID:
-        type: integer
-      type:
-        type: integer
-      url:
-        type: string
-    type: object
-  models.ToMessagePage:
-    properties:
-      last:
-        $ref: '#/definitions/models.Last'
-      target:
-        $ref: '#/definitions/models.Target'
     type: object
   models.UserRank:
     properties:
@@ -416,44 +366,6 @@ paths:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
       - main
-  /api/message:
-    get:
-      description: 消息首页
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.ToMessagePage'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/e.ErrMsgResponse'
-      tags:
-      - message
-  /api/message/cell:
-    get:
-      description: 用户与另一用户聊天室的具体信息
-      parameters:
-      - description: id
-        in: query
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/models.ToMessageCell'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/e.ErrMsgResponse'
-      tags:
-      - message
   /api/qiniu/token:
     get:
       description: 获取七牛的upToken

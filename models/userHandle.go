@@ -85,3 +85,14 @@ func UpdateUser(c *gin.Context, user statements.User, userID uint) error {
 	updateSession(c, db)
 	return com.Error
 }
+
+//获取用户数
+func GetUserNum() (int, error) {
+	//连接mysql
+	db := setting.MysqlConn()
+	defer db.Close()
+
+	var count int
+	err := db.Table("user").Count(&count).Error
+	return count, err
+}
