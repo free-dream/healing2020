@@ -2,6 +2,7 @@ package router
 
 import (
 	"encoding/gob"
+    //"healing2020/models"
 	"healing2020/controller"
 	"healing2020/controller/auth"
 	"healing2020/controller/middleware"
@@ -19,6 +20,7 @@ import (
 
 	"io"
 	"os"
+    //"fmt"
 )
 
 var store redis.Store
@@ -96,6 +98,14 @@ func InitRouter() *gin.Engine {
 	api.GET("/deliver/rank", controller.DeliverRank)
 	api.GET("/songs/rank", controller.SongRank)
 	api.GET("/user/rank", controller.UserRank)
+    // api.GET("/rank/update",func (c *gin.Context){
+    //     err := models.SendSongRank()
+    //     fmt.Println(err)
+    //     err = models.SendUserRank()
+    //     fmt.Println(err)
+    //     err = models.SendDeliverRank()
+    //     fmt.Println(err)
+    // })
 
 	//main
 	api.GET("/main/page", controller.MainMsg)

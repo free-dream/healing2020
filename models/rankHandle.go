@@ -87,6 +87,12 @@ func SendDeliverRank() error{
     }
     rows := result.RowsAffected
     if rows == 0 {
+        client := setting.RedisConn()
+        defer client.Close()
+
+        count,_ := client.Get("healing2020:rankCount").Float64()
+        keyName := "healing2020:Deliver." + strconv.FormatFloat(count/100+4.20,'f',2,64)
+        client.Set(keyName,"",0)
         return errors.New("no data")
     }
     var rank []Rank = make([]Rank,10)
@@ -174,6 +180,12 @@ func SendSongRank() error{
     }
     rows := result.RowsAffected
     if rows == 0 {
+        client := setting.RedisConn()
+        defer client.Close()
+
+        count,_ := client.Get("healing2020:rankCount").Float64()
+        keyName := "healing2020:Song." + strconv.FormatFloat(count/100+4.20,'f',2,64)
+        client.Set(keyName,"",0)
         return errors.New("no data")
     }
     var rank []Rank = make([]Rank,10)
