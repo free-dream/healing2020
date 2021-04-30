@@ -2,7 +2,7 @@ package controller
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 	"net/http"
 	"sync"
 	"time"
@@ -107,7 +107,7 @@ func WsHandle(c *gin.Context) {
 
 	ws, err := upGrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		fmt.Println("ws init failed")
+		log.Println("ws init failed")
 		return
 	}
 
@@ -157,7 +157,7 @@ func (wsConn *WsConnection) writeWs(c *gin.Context) {
 			}
 			responseMsg, _ := json.Marshal(msg)
 			if err := wsConn.ws.WriteMessage(websocket.TextMessage, []byte(responseMsg)); err != nil {
-				fmt.Println("write websocket fail")
+				log.Println("write websocket fail")
 				wsConn.close()
 				return
 
@@ -174,7 +174,7 @@ func (wsConn *WsConnection) writeBroadCast() {
 		case msg := <-broadcastChan:
 			responseMsg, _ := json.Marshal(msg)
 			if err := wsConn.ws.WriteMessage(websocket.TextMessage, []byte(responseMsg)); err != nil {
-				fmt.Println("write websocket fail")
+				log.Println("write websocket fail")
 				wsConn.close()
 				return
 
@@ -201,8 +201,8 @@ func (wsConn *WsConnection) readWs() {
 		}
 		err = json.Unmarshal(rawData, &data)
 		if err != nil {
-			fmt.Println("json.unmarshal failed")
-			fmt.Println("rawData: " + string(rawData))
+			log.Println("json.unmarshal failed")
+			log.Println("rawData: " + string(rawData))
 			continue
 		}
 		if _, ok := MessageQueue[int(data.ToUserID)]; !ok {
