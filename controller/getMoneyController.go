@@ -40,3 +40,14 @@ func EarnMoney(c *gin.Context) {
 	}
 	c.JSON(200, "提交任务成功")
 }
+
+func GetTask(c *gin.Context) {
+	userInf := tools.GetUser(c)
+
+	Task, err := models.GetTask(userInf.ID)
+	if err != nil {
+		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
+		return
+	}
+	c.JSON(200, Task)
+}

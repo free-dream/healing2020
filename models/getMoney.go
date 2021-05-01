@@ -12,6 +12,14 @@ type Money struct {
 	Money int `json:"money"`
 }
 
+type Task struct {
+	Lo1 int `json:"login"`
+	Lo2 int `json:"chooseSong"`
+	Lo3 int `json:"healing"`
+	Lo4 int `json:"singHome"`
+	Lo5 int `json:"praise"`
+	Lo6 int `json:"share"`
+}
 //查询当前积分
 func GetMoney(userID uint) ([]Money, error) {
 	//连接mysql
@@ -84,4 +92,27 @@ func EarnMoney(userID uint) error {
 		return err
 	}
 	return tx.Commit().Error
+}
+
+//返回任务列表
+func GetTask(userID uint) ([]Task, error) {
+	//连接mysql
+	db := setting.MysqlConn()
+	defer db.Close()
+
+	//获取个人积分信息
+	var user []Task
+	err := db.Table("user_other").Select("lo1, lo2, lo3, lo4, lo5, lo6").Where("user_id= ? ", userID).First(&user).Error
+	return user, err
+}
+
+//更新每日任务
+func UpdateTask() error {
+	//连接mysql
+	db := setting.MysqlConn()
+	defer db.Close()
+
+	//更新每日任务
+	err := db.Table("userother").Update("LoY1 = ? and LoY2 = ? and LoY3 = ? and LoY4 = ? and LoY5 = ? and LoY6 = ?", 1, 1, 1, 1, 1, 1).Error
+	return err
 }

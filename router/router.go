@@ -87,6 +87,7 @@ func InitRouter() *gin.Engine {
 	api.GET("/lottery/money", controller.GetMoney)
 	api.PUT("/lottery/usemoney", controller.UseMoney)   //抽奖减少积分
 	api.PUT("/lottery/earnmoney", controller.EarnMoney) //完成每日任务增加积分
+	api.GET("/lottery/gettask", controller.GetTask)     //获取每日任务
 
 	//评论
 	api.GET("/getcomment", controller.GetComment)
@@ -107,7 +108,7 @@ func InitRouter() *gin.Engine {
 
 	//main
 	api.GET("/main/page", controller.MainMsg)
-    api.GET("/main/search",controller.MainSearch)
+	api.GET("/main/search", controller.MainSearch)
 
 	//heal
 	api.GET("/user/phone", controller.PhoneHeal)

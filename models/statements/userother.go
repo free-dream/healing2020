@@ -19,6 +19,12 @@ type UserOther struct {
 	B5             int  `gorm:"default: 0"`
 	RemainSing     int  `gorm:"default: 0"`
 	RemainHideName int  `gorm:"default: 0"`
+	Lo1            int  `gorm:"default: 0"`
+	Lo2            int  `gorm:"default: 0"`
+	Lo3            int  `gorm:"default: 0"`
+	Lo4            int  `gorm:"default: 0"`
+	Lo5            int  `gorm:"default: 0"`
+	Lo6            int  `gorm:"default: 0"`
 }
 
 func UserOtherInit() {
