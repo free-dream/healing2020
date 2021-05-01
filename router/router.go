@@ -109,6 +109,7 @@ func InitRouter() *gin.Engine {
 
 	//main
 	api.GET("/main/page", controller.MainMsg)
+    api.GET("/main/search",controller.MainSearch)
 
 	//heal
 	api.GET("/user/phone", controller.PhoneHeal)

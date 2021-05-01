@@ -24,7 +24,7 @@ func QiniuToken(c *gin.Context) {
 	//设置七牛基本信息
 	accessKey := tools.GetConfig("qiniu", "accessKey")
 	secretKey := tools.GetConfig("qiniu", "secretKey")
-	bucket := "offcial-site"
+	bucket := "healing2020"
 	//获取token
 	mac := qbox.NewMac(accessKey, secretKey)
 	putPolicy := storage.PutPolicy{

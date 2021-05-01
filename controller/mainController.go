@@ -7,6 +7,30 @@ import (
 	"healing2020/pkg/tools"
 )
 
+
+// @Title Search
+// @Description 首页搜索
+// @Tags main
+// @Produce json
+// @Router /api/main/search [get]
+// @Param search query string true "search form"
+// @Success 200 {object} models.SearchResp
+// @Failure 403 {object} e.ErrMsgResponse
+func MainSearch(c *gin.Context) {
+    search := c.Query("search")
+    if !tools.Valid(search,"^[0-9A-Za-z\u4e00-\u9fa5]+$") {
+        c.JSON(400,e.ErrMsgResponse{Message:"unexpected params"})
+        return
+    }
+    result := models.GetSearchResult(search)
+    if result.Err != nil {
+        c.JSON(500,e.ErrMsgResponse{Message:"internal error"})
+        return
+    }
+    c.JSON(200,result)
+    return
+}
+
 // @Title GetMainMsg
 // @Description 首页数据
 // @Tags main

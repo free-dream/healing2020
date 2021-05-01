@@ -7,9 +7,12 @@ import (
     "database/sql"
     //"strconv"
     //"fmt"
+    "errors"
 
     "github.com/jinzhu/gorm"
     _ "github.com/jinzhu/gorm/dialects/mysql"
+
+    "time"
 )
 
 type MainMsg struct {
@@ -64,20 +67,20 @@ func LoadSongMsg(sort string,key string) []SongMsg{
     var rows *sql.Rows
     var result *gorm.DB
     if key == ""{
-        result = db.Raw("select id,user_id,vod_send,name,praise,source,style,created_at from song order by rand() limit 10")
+        result = db.Raw("select id,user_id,vod_send,name,praise,source,style,created_at from song order by rand() limit 30")
         if isListNil(result) {
             return nil
         }
         rows,_ = result.Rows()
     }else {
         if sort == "1" {
-            result = db.Raw("select id,user_id,vod_send,name,praise,source,style,created_at from song where style=? or language=? order by rand() limit 10",key,key)
+            result = db.Raw("select id,user_id,vod_send,name,praise,source,style,created_at from song where style=? or language=? order by rand() limit 30",key,key)
             if isListNil(result) {
                 return nil
             }
             rows,_ = result.Rows()
         }else {
-            result = db.Raw("select id,user_id,vod_send,name,praise,source,style,created_at from song where style=? or language=? order by created_at,praise desc limit 10",key,key)
+            result = db.Raw("select id,user_id,vod_send,name,praise,source,style,created_at from song where style=? or language=? order by created_at,praise desc limit 30",key,key)
             if isListNil(result) {
                 return nil
             }
@@ -122,17 +125,17 @@ func LoadVodMsg(sort string,key string) []SongMsg{
     var rows *sql.Rows
     var result *gorm.DB
     if key == ""{
-        result = db.Raw("select id,user_id,name,singer,more,created_at from vod order by rand() limit 10")
+        result = db.Raw("select id,user_id,name,singer,more,created_at from vod order by rand() limit 30")
         rows,_ = result.Rows()
     }else {
         if sort == "1" {
-            result = db.Raw("select id,user_id,name,singer,more,created_at from vod where style=? or language=? order by rand() limit 10",key,key)
+            result = db.Raw("select id,user_id,name,singer,more,created_at from vod where style=? or language=? order by rand() limit 30",key,key)
             if isListNil(result) {
                 return nil
             }
             rows,_ = result.Rows()
         }else {
-            result = db.Raw("select id,user_id,name,singer,more,created_at from vod where style=? or language=? order by created_at,praise desc limit 10",key,key)
+            result = db.Raw("select id,user_id,name,singer,more,created_at from vod where style=? or language=? order by created_at,praise desc limit 30",key,key)
             if isListNil(result) {
                 return nil
             }
@@ -191,4 +194,138 @@ func isListNil(result *gorm.DB) bool{
         return true
     }
     return false
+}
+
+type SearchResp struct {
+    User []UserResp 
+    Song []SongResp 
+    Vod []VodResp 
+    Err error 
+}
+
+type UserResp struct {
+    UserId uint `json:"userid"`
+    UserName string `json:"userName"`
+    Avatar string `json:"avatar"`
+    More string `json:"more"`
+}
+
+type SongResp struct {
+    SongId uint `json:"songid"`
+    SongName string `json:"songName"`
+    Praise int `json:"praise"` 
+    Source string `json:"source"`
+    Singer string `json:"singer"`
+    Time time.Time `json:"time"`
+}
+
+type VodResp struct {
+    VodId uint `vodid`
+    VodName string `json:"vodName"`
+    VodUser string `json:"vodUser"`
+    Time time.Time `json:"time"`
+}
+
+func GetSearchResult(search string) SearchResp{
+    db := setting.MysqlConn()
+    defer db.Close()
+
+    var searchResp SearchResp
+    var songResp []SongResp
+    var userResp []UserResp
+    var vodResp []VodResp
+
+
+    var song statements.Song
+    //result := db.Raw("select id,praise,source,created_at,user_id from song where name = ?",search)
+    result := db.Model(&statements.Song{}).Where("name = ?",search).Select("id,praise,source,created_at,user_id").Find(&song)
+    if result.RowsAffected != 0 && result.Error == nil {
+        rows,_ := result.Rows()
+        defer rows.Close()
+
+        songResp = make([]SongResp,result.RowsAffected)
+
+        i := 0
+        for rows.Next() {
+            db.ScanRows(rows,&song)
+            songResp[i].SongId = song.ID
+            songResp[i].Praise = song.Praise
+            songResp[i].Source = song.Source
+            songResp[i].SongName = search
+            songResp[i].Time = song.CreatedAt
+
+            var user statements.User
+            db.Model(&statements.User{}).Select("nick_name").Where("id = ?",song.UserId).First(&user)
+            songResp[i].Singer = user.NickName
+
+            i++
+        }    
+    }else {
+        searchResp.Err = result.Error
+        if errors.Is(result.Error,gorm.ErrRecordNotFound) {
+            searchResp.Err = nil
+        }
+    }
+
+    var vod statements.Vod
+    //result = db.Raw("select id,created_at,user_id from vod where name = ?",search)
+    result = db.Model(&statements.Vod{}).Where("name = ?",search).Select("id,created_at,user_id").Find(&vod)
+
+    if result.RowsAffected != 0 && result.Error == nil {
+        rows,_ := result.Rows()
+        defer rows.Close()
+
+        var vodResp []VodResp = make([]VodResp,result.RowsAffected)
+
+        i := 0
+        for rows.Next() {
+            db.ScanRows(rows,&vod)
+            vodResp[i].VodId = vod.ID
+            vodResp[i].VodName = search
+            vodResp[i].Time = vod.CreatedAt
+
+            var user statements.User
+            db.Model(&statements.User{}).Select("nick_name").Where("id = ?",vod.UserId).First(&user)
+            vodResp[i].VodUser = user.NickName
+
+            i++
+        }    
+    }else {
+        searchResp.Err = result.Error
+        if errors.Is(result.Error,gorm.ErrRecordNotFound) {
+            searchResp.Err = nil
+        }
+    }
+
+    //result = db.Raw("select id,more,avatar from user where nick_name = ?",search)
+    var user statements.User
+    result = db.Model(&statements.User{}).Where("nick_name=?",search).Select("id,more,avatar").Find(&user)
+    if result.RowsAffected != 0 && result.Error == nil {
+        rows,_ := result.Rows()
+        defer rows.Close()
+
+        userResp = make([]UserResp,result.RowsAffected)
+
+        i := 0
+        for rows.Next() {
+            db.ScanRows(rows,&user)
+            userResp[i].UserId = user.ID
+            userResp[i].More = user.More
+            userResp[i].Avatar = user.Avatar
+            userResp[i].UserName = search
+
+            i++
+        }    
+    }else {
+        searchResp.Err = result.Error
+        if errors.Is(result.Error,gorm.ErrRecordNotFound) {
+            searchResp.Err = nil
+        }
+    }
+
+    searchResp.User = userResp
+    searchResp.Song = songResp
+    searchResp.Vod = vodResp
+
+    return searchResp
 }
