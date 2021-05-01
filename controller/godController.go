@@ -2,6 +2,9 @@ package controller
 
 import (
 	"healing2020/models"
+	"healing2020/pkg/e"
+
+	"github.com/gin-gonic/gin"
 )
 
 func autoCreate() {
