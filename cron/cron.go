@@ -28,9 +28,9 @@ func CronInit() *cron.Cron{
         models.SendMainMsg()
     })
     
-    c.AddFunc("0 0 0 * *", func() {
-        models.UpdateTask()
-    })
+    // c.AddFunc("0 0 0 * *", func() {
+    //     models.UpdateTask()
+    // })
 
     return c
 }
