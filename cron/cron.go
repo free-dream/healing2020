@@ -23,10 +23,15 @@ func CronInit() *cron.Cron{
     c.AddFunc("0 0 0 * *", func() {
         models.UpdateRankCount()
     })
-
-    c.AddFunc("0 0 1 * *",func() {
+    
+    c.AddFunc("0 0 1 * *", func() {
         models.SendMainMsg()
     })
+    
+    // c.AddFunc("0 0 0 * *", func() {
+    //     models.UpdateTask()
+    // })
+
     return c
 }
 

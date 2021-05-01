@@ -258,3 +258,64 @@ func TableCleanUp() {
 	db.Exec("TRUNCATE TABLE user")
 	db.Exec("TRUNCATE TABLE vod")
 }
+
+//歌房数据
+func PostSubject(ID string, Name string, Photo string, Intro string) error {
+	intId, _ := strconv.Atoi(ID)
+	subject_id := uint(intId)
+	db := setting.MysqlConn()
+	defer db.Close()
+	
+	status := 0
+	tx := db.Begin()
+	if Name != "" {
+		//发送
+		var dev statements.Subject
+		dev.ID = subject_id
+		dev.Name = Name
+		dev.Photo = Photo
+		dev.Intro = Intro
+		err := tx.Model(&statements.Subject{}).Create(&dev).Error
+		if err != nil {
+			if status < 5 {
+				status++
+				tx.Rollback()
+			} else {
+				return err
+			}
+		}
+	}
+		return tx.Commit().Error
+}
+
+//歌房歌曲数据
+func PostSpecial(Subject_id string, Song string, User_id string) error {
+	intId, _ := strconv.Atoi(Subject_id)
+	subject_id := uint(intId)
+
+	int2Id, _ := strconv.Atoi(User_id)
+	user_id := uint(int2Id)
+
+	db := setting.MysqlConn()
+	defer db.Close()
+	
+	status := 0
+	tx := db.Begin()
+	if Song != "" {
+		//发送
+		var dev statements.Special
+		dev.SubjectId = subject_id
+		dev.Song = Song
+		dev.UserId = user_id
+		err := tx.Model(&statements.Special{}).Create(&dev).Error
+		if err != nil {
+			if status < 5 {
+				status++
+				tx.Rollback()
+			} else {
+				return err
+			}
+		}
+	}
+		return tx.Commit().Error
+}

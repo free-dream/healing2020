@@ -139,65 +139,6 @@ var doc = `{
                 }
             }
         },
-        "/api/message": {
-            "get": {
-                "description": "消息首页",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "message"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.ToMessagePage"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/e.ErrMsgResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/message/cell": {
-            "get": {
-                "description": "用户与另一用户聊天室的具体信息",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "message"
-                ],
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "id",
-                        "name": "id",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/models.ToMessageCell"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/e.ErrMsgResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/api/qiniu/token": {
             "get": {
                 "description": "获取七牛的upToken",
@@ -1161,29 +1102,6 @@ var doc = `{
                 }
             }
         },
-        "models.Last": {
-            "type": "object",
-            "properties": {
-                "content": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "stringtime": {
-                    "type": "string"
-                },
-                "time": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "integer"
-                },
-                "url": {
-                    "type": "string"
-                }
-            }
-        },
         "models.MainMsg": {
             "type": "object",
             "properties": {
@@ -1308,60 +1226,6 @@ var doc = `{
                 },
                 "time": {
                     "type": "string"
-                }
-            }
-        },
-        "models.Target": {
-            "type": "object",
-            "properties": {
-                "avatar": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.ToMessageCell": {
-            "type": "object",
-            "properties": {
-                "content": {
-                    "type": "string"
-                },
-                "fromUserID": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "stringtime": {
-                    "type": "string"
-                },
-                "time": {
-                    "type": "string"
-                },
-                "toUserID": {
-                    "type": "integer"
-                },
-                "type": {
-                    "type": "integer"
-                },
-                "url": {
-                    "type": "string"
-                }
-            }
-        },
-        "models.ToMessagePage": {
-            "type": "object",
-            "properties": {
-                "last": {
-                    "$ref": "#/definitions/models.Last"
-                },
-                "target": {
-                    "$ref": "#/definitions/models.Target"
                 }
             }
         },

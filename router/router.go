@@ -2,7 +2,7 @@ package router
 
 import (
 	"encoding/gob"
-    //"healing2020/models"
+	//"healing2020/models"
 	"healing2020/controller"
 	"healing2020/controller/auth"
 	"healing2020/controller/middleware"
@@ -20,7 +20,7 @@ import (
 
 	"io"
 	"os"
-    //"fmt"
+	//"fmt"
 )
 
 var store redis.Store
@@ -72,8 +72,6 @@ func InitRouter() *gin.Engine {
 	//消息
 	api.GET("/ws", controller.WsHandle)          //websocket服务
 	api.POST("/broadcast", controller.Broadcast) //广播
-	api.GET("/message", controller.MessagePage)  //消息首页
-	api.POST("/message", controller.SendMessage) //发送消息
 
 	//投递箱
 	api.GET("/deliver/home", controller.AllDeliver)
@@ -98,14 +96,14 @@ func InitRouter() *gin.Engine {
 	api.GET("/deliver/rank", controller.DeliverRank)
 	api.GET("/songs/rank", controller.SongRank)
 	api.GET("/user/rank", controller.UserRank)
-    // api.GET("/rank/update",func (c *gin.Context){
-    //     err := models.SendSongRank()
-    //     fmt.Println(err)
-    //     err = models.SendUserRank()
-    //     fmt.Println(err)
-    //     err = models.SendDeliverRank()
-    //     fmt.Println(err)
-    // })
+	// api.GET("/rank/update",func (c *gin.Context){
+	//     err := models.SendSongRank()
+	//     fmt.Println(err)
+	//     err = models.SendUserRank()
+	//     fmt.Println(err)
+	//     err = models.SendDeliverRank()
+	//     fmt.Println(err)
+	// })
 
 	//main
 	api.GET("/main/page", controller.MainMsg)
@@ -123,7 +121,8 @@ func InitRouter() *gin.Engine {
 
 	//test
 	api.GET("/initest", controller.Test)
-
+	api.POST("/god/postsubject", controller.PostSubject)
+	api.POST("/god/postspecial", controller.PostSpecial)
 	//god view
 
 	//login
