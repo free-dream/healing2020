@@ -11,7 +11,6 @@ import (
 	"github.com/gorilla/websocket"
 
 	"healing2020/models"
-	"healing2020/models/statements"
 	"healing2020/pkg/e"
 	"healing2020/pkg/tools"
 )
@@ -20,10 +19,11 @@ type ACK struct {
 	ACKID string `json:"ack"`
 }
 
-type BroadcastContent struct {
-	Text string `json:"message"`
-	Time string `json:"time"`
-	Type int    `json:"type"`
+type ServerMsg struct {
+	Text     string `json:"message"`
+	Time     string `json:"time"`
+	Type     int    `json:"type"`
+	ToUserID int    `json:"toUserID"`
 }
 
 type Message struct {
@@ -51,25 +51,26 @@ var upGrader = websocket.Upgrader{
 }
 
 var MessageQueue = make(map[int](chan *Message))
-var broadcastChan = make(chan *BroadcastContent)
+var ServerMsgChan = make(chan *ServerMsg)
 
 //@Title Broadcast
 //@Description 广播
 //@Tags message
 //@Produce json
-//@Param json body BroadcastContent true "广播信息"
+//@Param json body ServerMsg true "广播信息"
 //@Router /broadcast [post]
 //@Success 200 {object} e.ErrMsgResponse
 //@Failure 403 {object} e.ErrMsgResponse
 func Broadcast(c *gin.Context) {
-	json := BroadcastContent{
-		Type: 0,
+	json := ServerMsg{
+		ToUserID: 0,
+		Type:     0,
 	}
 	c.BindJSON(&json)
 
 	userCount, err := models.GetUserNum()
 	for i := 0; i < userCount; i++ {
-		broadcastChan <- &json
+		ServerMsgChan <- &json
 	}
 
 	err = models.CreateMailBox(json.Text)
@@ -77,35 +78,6 @@ func Broadcast(c *gin.Context) {
 		c.JSON(403, e.ErrMsgResponse{Message: "存储广播信息失败"})
 		return
 	}
-	c.JSON(200, e.ErrMsgResponse{Message: e.GetMsg(e.SUCCESS)})
-}
-
-//@Title SendMessage
-//@Description 发送消息并保存于数据库
-//@Tags message
-//@Produce json
-//@Router /message [post]
-//@Success 200 {object} e.ErrMsgResponse
-//@Failure 403 {object} e.ErrMsgResponse
-func SendMessage(c *gin.Context) {
-	var msg Message
-	c.BindJSON(&msg)
-	msg.Type = 2 //此接口只用于发送文本信息
-	msgDB := statements.Message{
-		Send:    msg.FromUserID,
-		Receive: msg.FromUserID,
-		Content: msg.Content,
-		Type:    msg.Type,
-	}
-
-	MessageQueue[int(msg.ToUserID)] <- &msg
-
-	err := models.CreateMessage(msgDB)
-	if err != nil {
-		c.JSON(403, e.ErrMsgResponse{Message: "保存信息失败！"})
-		return
-	}
-
 	c.JSON(200, e.ErrMsgResponse{Message: e.GetMsg(e.SUCCESS)})
 }
 
@@ -129,7 +101,7 @@ func WsHandle(c *gin.Context) {
 	go wsConn.heartbeat()
 	go wsConn.readWs()
 	go wsConn.writeWs(c)
-	go wsConn.writeBroadCast()
+	go wsConn.writeServerMsg(c)
 }
 
 func (wsConn *WsConnection) close() {
@@ -142,6 +114,7 @@ func (wsConn *WsConnection) close() {
 	}
 }
 
+//心跳
 func (wsConn *WsConnection) heartbeat() {
 	for {
 		time.Sleep(2 * time.Second)
@@ -152,6 +125,7 @@ func (wsConn *WsConnection) heartbeat() {
 	}
 }
 
+//向客户端发送用户消息
 func (wsConn *WsConnection) writeWs(c *gin.Context) {
 	if _, ok := MessageQueue[int(wsConn.userID)]; !ok {
 		MessageQueue[int(wsConn.userID)] = make(chan *Message, 1000)
@@ -176,18 +150,27 @@ func (wsConn *WsConnection) writeWs(c *gin.Context) {
 	}
 }
 
-func (wsConn *WsConnection) writeBroadCast() {
+//向客户端发送系统消息
+func (wsConn *WsConnection) writeServerMsg(c *gin.Context) {
 	for {
 		select {
-		case msg := <-broadcastChan:
+		case msg := <-ServerMsgChan:
+			userID := tools.GetUser(c).ID
+			if wsConn.userID != userID && wsConn.userID != 0 {
+				continue
+			}
+			//发送消息
 			responseMsg, _ := json.Marshal(msg)
 			if err := wsConn.ws.WriteMessage(websocket.TextMessage, []byte(responseMsg)); err != nil {
 				log.Println("write websocket fail")
 				wsConn.close()
 				return
 			}
-			if models.CreateMailBox(msg.Text) != nil {
-				log.Println("creat mailbox in mysql fail")
+			//将广播消息存到mysql
+			if wsConn.userID == 0 {
+				if models.CreateMailBox(msg.Text) != nil {
+					log.Println("creat mailbox in mysql fail")
+				}
 			}
 		case <-wsConn.closeChan:
 			return
@@ -195,6 +178,7 @@ func (wsConn *WsConnection) writeBroadCast() {
 	}
 }
 
+//接收客户端发送的消息
 func (wsConn *WsConnection) readWs() {
 	for {
 		_, rawData, err := wsConn.ws.ReadMessage()

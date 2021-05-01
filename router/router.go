@@ -73,8 +73,6 @@ func InitRouter() *gin.Engine {
 	api.GET("/ws", controller.WsHandle)          //websocket服务
 	api.POST("/broadcast", controller.Broadcast) //广播
 
-	api.POST("/message", controller.SendMessage) //发送消息
-
 	//投递箱
 	api.GET("/deliver/home", controller.AllDeliver)
 	api.POST("/deliver/postdeliver", controller.PostDeliver)
