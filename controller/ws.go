@@ -11,6 +11,7 @@ import (
 	"github.com/gorilla/websocket"
 
 	"healing2020/models"
+	"healing2020/models/statements"
 	"healing2020/pkg/e"
 	"healing2020/pkg/tools"
 )
@@ -52,6 +53,21 @@ var upGrader = websocket.Upgrader{
 var MessageQueue = make(map[int](chan *Message))
 var ServerMsgChan = make(chan *ServerMsg)
 var ACKchan = make(map[string](chan *ACK))
+var MysqlCreate = make(chan *Message, 1000)
+var MysqlDelete = make(chan *Message, 1000)
+
+func msgToSMessage(msg *Message) statements.Message {
+	message := statements.Message{
+		MsgID:   msg.ID,
+		Send:    msg.FromUserID,
+		Receive: msg.ToUserID,
+		Type:    msg.Type,
+		Content: msg.Content,
+		Url:     msg.URL,
+		Time:    msg.Time,
+	}
+	return message
+}
 
 //@Title Broadcast
 //@Description 广播
@@ -101,6 +117,7 @@ func WsHandle(c *gin.Context) {
 	go wsConn.readWs()
 	go wsConn.writeWs(c)
 	go wsConn.writeServerMsg(c)
+	go wsConn.MsgMysql()
 }
 
 func (wsConn *WsConnection) close() {
@@ -168,6 +185,7 @@ func (wsConn *WsConnection) writeWs(c *gin.Context) {
 				//judge ack
 				if ack.ACKID == msg.ID {
 					//log.Println("he get it")
+					MysqlDelete <- msg
 					continue
 				} else {
 					log.Println("塞进该消息ack通道的ackID与消息不符合！")
@@ -201,6 +219,7 @@ func (wsConn *WsConnection) readWs() {
 		if receiveACK != (ACK{}) {
 			if _, ok := ACKchan[receiveACK.ACKID]; !ok {
 				log.Println("未知的ack报文")
+				wsConn.ws.WriteMessage(websocket.TextMessage, []byte("未知的ack报文"))
 				continue
 			}
 			ACKchan[receiveACK.ACKID] <- &receiveACK
@@ -208,8 +227,10 @@ func (wsConn *WsConnection) readWs() {
 			//if get message, response ack
 			responseACK, _ := json.Marshal(ACK{ACKID: data.ID})
 			wsConn.ws.WriteMessage(websocket.TextMessage, []byte(responseACK))
+			//ready to response msg
 			select {
 			case MessageQueue[int(data.ToUserID)] <- &data:
+				MysqlCreate <- &data
 			case <-wsConn.closeChan:
 				return
 			}
@@ -218,6 +239,36 @@ func (wsConn *WsConnection) readWs() {
 			wsConn.ws.WriteMessage(websocket.TextMessage, []byte("json.unmarshal failed"))
 			log.Println("rawData: " + string(rawData))
 			continue
+		}
+	}
+}
+
+//持久化存储
+func (wsConn *WsConnection) MsgMysql() {
+	mysqlError := 0
+	for {
+		select {
+		case msg := <-MysqlCreate:
+			message := msgToSMessage(msg)
+			if models.SaveMessage(message) != nil {
+				MysqlCreate <- msg
+				mysqlError += 1
+			} else {
+				mysqlError = 0
+			}
+		case msg := <-MysqlDelete:
+			message := msgToSMessage(msg)
+			if models.DeleteMessage(message) != nil {
+				MysqlDelete <- msg
+				mysqlError += 1
+			} else {
+				mysqlError = 0
+			}
+		}
+		//if try to save or create mant times, close ws
+		if mysqlError > 10 {
+			log.Println("can not connect to the mysql, ws close")
+			wsConn.close()
 		}
 	}
 }
