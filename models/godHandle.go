@@ -10,6 +10,8 @@ import (
 	"strconv"
 )
 
+//废弃
+
 func CreateDelivers(id string, types int, textfield string, photo string, record string, praise int) error {
 	intId, _ := strconv.Atoi(id)
 	userid := uint(intId)
