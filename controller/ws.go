@@ -20,15 +20,14 @@ type ACK struct {
 }
 
 type ServerMsg struct {
-	Text     string `json:"message"`
-	Time     string `json:"time"`
-	Type     int    `json:"type"`
-	ToUserID int    `json:"toUserID"`
+	Text string `json:"message"`
+	Time string `json:"time"`
+	Type int    `json:"type"`
 }
 
 type Message struct {
 	ID         string `json:"id"`
-	Type       int    `josn:"type"`
+	Type       int    `json:"type"`
 	Time       string `json:"time"`
 	FromUserID uint   `json:"fromUserID"`
 	ToUserID   uint   `json:"toUserID" validate:"required"`
@@ -52,6 +51,7 @@ var upGrader = websocket.Upgrader{
 
 var MessageQueue = make(map[int](chan *Message))
 var ServerMsgChan = make(chan *ServerMsg)
+var ACKchan = make(map[string](chan *ACK))
 
 //@Title Broadcast
 //@Description 广播
@@ -63,8 +63,7 @@ var ServerMsgChan = make(chan *ServerMsg)
 //@Failure 403 {object} e.ErrMsgResponse
 func Broadcast(c *gin.Context) {
 	json := ServerMsg{
-		ToUserID: 0,
-		Type:     0,
+		Type: 0,
 	}
 	c.BindJSON(&json)
 
@@ -127,90 +126,117 @@ func (wsConn *WsConnection) heartbeat() {
 
 //向客户端发送用户消息
 func (wsConn *WsConnection) writeWs(c *gin.Context) {
+	userID := tools.GetUser(c).ID
 	if _, ok := MessageQueue[int(wsConn.userID)]; !ok {
 		MessageQueue[int(wsConn.userID)] = make(chan *Message, 1000)
 	}
 	for {
 		select {
 		case msg := <-MessageQueue[int(wsConn.userID)]:
-			userID := tools.GetUser(c).ID
 			if wsConn.userID != userID {
 				continue
 			}
-			//发送message队列里的信息
+			//wait 0.5s to response ack to front-end
+			time.Sleep(time.Duration(500) * time.Millisecond)
+			//send message
 			responseMsg, _ := json.Marshal(msg)
 			if err := wsConn.ws.WriteMessage(websocket.TextMessage, []byte(responseMsg)); err != nil {
 				log.Println("write websocket fail")
 				wsConn.close()
 				return
 			}
-		case <-wsConn.closeChan:
-			return
-		}
-	}
-}
-
-//向客户端发送系统消息
-func (wsConn *WsConnection) writeServerMsg(c *gin.Context) {
-	for {
-		select {
-		case msg := <-ServerMsgChan:
-			userID := tools.GetUser(c).ID
-			if wsConn.userID != userID && wsConn.userID != 0 {
-				continue
+			//judge ack
+			if _, ok := ACKchan[msg.ID]; !ok {
+				ACKchan[msg.ID] = make(chan *ACK)
 			}
-			//发送消息
-			responseMsg, _ := json.Marshal(msg)
-			if err := wsConn.ws.WriteMessage(websocket.TextMessage, []byte(responseMsg)); err != nil {
-				log.Println("write websocket fail")
-				wsConn.close()
-				return
-			}
-			//将广播消息存到mysql
-			if wsConn.userID == 0 {
-				if models.CreateMailBox(msg.Text) != nil {
-					log.Println("creat mailbox in mysql fail")
+			//wait 0.5s to make front-end response ack
+			time.Sleep(time.Duration(500) * time.Millisecond)
+		WaitACK:
+			for {
+				select {
+				//if timeout 2s, drop msg back to the message chan
+				case <-time.After(time.Second * 2):
+					log.Println("timeout, msg is not be received")
+					MessageQueue[int(wsConn.userID)] <- msg
+					break WaitACK
+				case ack := <-ACKchan[msg.ID]:
+					//if ack is right,continue
+					if ack.ACKID == msg.ID {
+						log.Println("he get it")
+						close(ACKchan[msg.ID])
+						break WaitACK
+					} else {
+						log.Println("塞进该消息ack通道的ackID与消息不符合！")
+					}
 				}
 			}
+
 		case <-wsConn.closeChan:
 			return
 		}
 	}
 }
 
-//接收客户端发送的消息
+//接收客户端发送的消息和ack
 func (wsConn *WsConnection) readWs() {
 	for {
 		_, rawData, err := wsConn.ws.ReadMessage()
 		if err != nil {
 			log.Println("read ws fail, ws close")
-			log.Println(err)
 			wsConn.close()
 			return
 		}
 
+		receiveACK := ACK{}
 		data := Message{}
 
-		err = json.Unmarshal(rawData, &data)
-		if err != nil {
+		json.Unmarshal(rawData, &receiveACK)
+		json.Unmarshal(rawData, &data)
+		log.Println(data)
+		log.Println(receiveACK)
+
+		if receiveACK != (ACK{}) {
+			if _, ok := ACKchan[receiveACK.ACKID]; !ok {
+				log.Println("未知的ack报文")
+				continue
+			}
+			ACKchan[receiveACK.ACKID] <- &receiveACK
+		} else if data != (Message{}) {
+			//if get message, response ack
+			responseACK, _ := json.Marshal(ACK{ACKID: data.ID})
+			wsConn.ws.WriteMessage(websocket.TextMessage, []byte(responseACK))
+			select {
+			case MessageQueue[int(data.ToUserID)] <- &data:
+			case <-wsConn.closeChan:
+				return
+			}
+		} else {
 			log.Println("json.unmarshal failed")
 			wsConn.ws.WriteMessage(websocket.TextMessage, []byte("json.unmarshal failed"))
 			log.Println("rawData: " + string(rawData))
 			continue
 		}
+	}
+}
 
-		//若收到信息返回ACK
-		ack, _ := json.Marshal(ACK{ACKID: data.ID})
-		wsConn.ws.WriteMessage(websocket.TextMessage, []byte(ack))
-
-		if _, ok := MessageQueue[int(data.ToUserID)]; !ok {
-			MessageQueue[int(data.ToUserID)] = make(chan *Message, 1000)
-		}
+//广播
+func (wsConn *WsConnection) writeServerMsg(c *gin.Context) {
+	for {
 		select {
-		case MessageQueue[int(data.ToUserID)] <- &data:
+		case msg := <-ServerMsgChan:
+			//send broadcast msg
+			responseMsg, _ := json.Marshal(msg)
+			if err := wsConn.ws.WriteMessage(websocket.TextMessage, []byte(responseMsg)); err != nil {
+				log.Println("write websocket fail")
+				wsConn.close()
+				return
+			}
+			//save the broadcast inf
+			if models.CreateMailBox(msg.Text) != nil {
+				log.Println("create mailbox in mysql fail")
+			}
 		case <-wsConn.closeChan:
 			return
 		}
-		//TODO: 确认接收
 	}
 }
