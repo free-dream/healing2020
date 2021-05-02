@@ -6,6 +6,7 @@ import (
     "healing2020/pkg/tools"
     "healing2020/models/statements"
     "errors"
+    "time"
 )
 
 func GetPhone(info tools.RedisUser) string{
@@ -18,6 +19,12 @@ type RecordResp struct {
     Source string `json:"source"`
 }
 type ResultResp struct {
+    Time time.Time `json:"time"`
+    Singer string `json:"singer"`
+    More string `json:"more"`
+    Name string `json:"name"`
+    Style string `json:"style"`
+    Language string `json:"language"`
     AllSongs []RecordResp 
     Err error `json:"err"`
 }
@@ -31,12 +38,20 @@ func GetRecord(id string) ResultResp{
 
     var resultResp ResultResp
 
-    result := db.Model(&statements.Song{}).Select("vod_id,name,source,praise,user_id").Where("id=?",songId).First(&song)
+    result := db.Model(&statements.Song{}).Select("vod_id,source,praise,style,language,name,user_id").Where("id=?",songId).First(&song)
     resultResp.Err = result.Error
     if result.Error != nil {
         return resultResp
     }
     vodId := song.VodId
+
+    var vod statements.Vod
+    db.Model(&statements.Vod{}).Select("created_at").Where("id=?",vodId).First(&vod)
+
+    resultResp.Time = vod.CreatedAt
+    resultResp.Name = song.Name
+    resultResp.Style = song.Style 
+    resultResp.Language = song.Language
 
     recordsToVod := db.Model(&statements.Song{}).Where("vod_id = ?",vodId).Find(&song)
     count := recordsToVod.RowsAffected
