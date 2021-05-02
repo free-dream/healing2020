@@ -162,7 +162,7 @@ func (wsConn *WsConnection) writeWs(c *gin.Context) {
 				case ack := <-ACKchan[msg.ID]:
 					//if ack is right,continue
 					if ack.ACKID == msg.ID {
-						log.Println("he get it")
+						//log.Println("he get it")
 						close(ACKchan[msg.ID])
 						break WaitACK
 					} else {
@@ -192,8 +192,8 @@ func (wsConn *WsConnection) readWs() {
 
 		json.Unmarshal(rawData, &receiveACK)
 		json.Unmarshal(rawData, &data)
-		log.Println(data)
-		log.Println(receiveACK)
+		//log.Println(data)
+		//log.Println(receiveACK)
 
 		if receiveACK != (ACK{}) {
 			if _, ok := ACKchan[receiveACK.ACKID]; !ok {
