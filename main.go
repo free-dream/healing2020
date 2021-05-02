@@ -34,7 +34,7 @@ func main() {
 	defer c.Stop()
 
 	routers := router.InitRouter()
-	server := endless.NewServer(":3001", routers)
+	server := endless.NewServer(":3011", routers)
 
 	if err := server.ListenAndServe(); err != nil {
 		log.Fatalln(err.Error())
