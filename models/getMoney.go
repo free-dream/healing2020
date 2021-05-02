@@ -20,6 +20,7 @@ type Task struct {
 	Lo5 int `json:"praise"`
 	Lo6 int `json:"share"`
 }
+
 //查询当前积分
 func GetMoney(userID uint) ([]Money, error) {
 	//连接mysql
@@ -113,6 +114,6 @@ func UpdateTask() error {
 	defer db.Close()
 
 	//更新每日任务
-	err := db.Table("userother").Update("LoY1 = ? and LoY2 = ? and LoY3 = ? and LoY4 = ? and LoY5 = ? and LoY6 = ?", 1, 1, 1, 1, 1, 1).Error
+	err := db.Table("user_other").Update(map[string]interface{}{"lo1": "0", "lo2": "0", "lo3": "0", "lo4": "0", "lo5": "0", "lo6": "0"}).Error
 	return err
 }
