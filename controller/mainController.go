@@ -45,7 +45,7 @@ func MainMsg(c *gin.Context) {
 	sort := c.Query("sort")
 	language := c.Query("language")
 	style := c.Query("style")
-	if !tools.Valid(sort, `^[12]$`) {
+	if !tools.Valid(sort, `^[01]$`) {
 		c.JSON(403, e.ErrMsgResponse{Message: "Unexpected input"})
 		return
 	}
