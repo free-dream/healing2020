@@ -17,12 +17,15 @@ type RecordResp struct {
     Praise int `json:"praise"`
     User string `json:"user"`
     Source string `json:"source"`
+    SongAvatar string `json:"songAvatar"`
 }
 type ResultResp struct {
     Time time.Time `json:"time"`
     Singer string `json:"singer"`
     More string `json:"more"`
     Name string `json:"name"`
+    VodUser string `json:"vodUser"`
+    VodAvatar string `json:"vodAvatar"`
     Style string `json:"style"`
     Language string `json:"language"`
     AllSongs []RecordResp 
@@ -53,6 +56,13 @@ func GetRecord(id string) ResultResp{
     resultResp.Style = song.Style 
     resultResp.Language = song.Language
 
+    userId := vod.UserId
+    var user statements.User
+    db.Model(&statements.User{}).Select("avatar,nick_name").Where("id =?",userId).First(&user)
+
+    resultResp.VodUser = user.NickName
+    resultResp.VodAvatar = user.Avatar
+
     recordsToVod := db.Model(&statements.Song{}).Where("vod_id = ?",vodId).Find(&song)
     count := recordsToVod.RowsAffected
     var recordResp []RecordResp = make([]RecordResp,count)
@@ -61,14 +71,14 @@ func GetRecord(id string) ResultResp{
     defer rows.Close()
 
     i := 0
-    var user statements.User
     for rows.Next() {
         db.ScanRows(rows,&song)
         recordResp[i].Praise = song.Praise
         recordResp[i].Source = song.Source
 
-        db.Model(&statements.User{}).Select("nick_name").Where("id = ?",song.UserId).First(&user)
+        db.Model(&statements.User{}).Select("avatar,nick_name").Where("id = ?",song.UserId).First(&user)
         recordResp[i].User = user.NickName
+        recordResp[i].SongAvatar = user.Avatar
 
         i++
     }
