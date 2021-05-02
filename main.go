@@ -33,6 +33,7 @@ func main() {
 	go c.Start()
 	defer c.Stop()
 
+	// soft restart
 	routers := router.InitRouter()
 	server := endless.NewServer(":3011", routers)
 
