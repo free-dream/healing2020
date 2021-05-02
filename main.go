@@ -5,8 +5,12 @@ import (
 	"healing2020/pkg/setting"
 	"healing2020/pkg/tools"
 	"healing2020/router"
+	"log"
+
 	//"healing2020/controller"
 	"healing2020/cron"
+
+	"github.com/fvbock/endless"
 )
 
 // @Title healing2020
@@ -22,14 +26,17 @@ func main() {
 		models.SendDeliverRank()
 		models.SendUserRank()
 		models.SendSongRank()
-        models.SendMainMsg()
+		models.SendMainMsg()
 	}
 
 	c := cron.CronInit()
 	go c.Start()
 	defer c.Stop()
 
-	routersInit := router.InitRouter()
+	routers := router.InitRouter()
+	server := endless.NewServer(":3001", routers)
 
-	routersInit.Run(":8001")
+	if err := server.ListenAndServe(); err != nil {
+		log.Fatalln(err.Error())
+	}
 }
