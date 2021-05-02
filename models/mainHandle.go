@@ -61,32 +61,28 @@ func SendMainMsg() {
 func LoadSongMsg(sort string,key string) []SongMsg{
     db := setting.MysqlConn()
     defer db.Close()
-    var songList []SongMsg = make([]SongMsg,10)
+    var songList []SongMsg = make([]SongMsg,8)
     i := 0
 
     var rows *sql.Rows
     var result *gorm.DB
     if key == ""{
         result = db.Raw("select id,user_id,vod_send,name,praise,source,style,created_at from song order by rand() limit 30")
-        if isListNil(result) {
-            return nil
-        }
         rows,_ = result.Rows()
     }else {
         if sort == "1" {
             result = db.Raw("select id,user_id,vod_send,name,praise,source,style,created_at from song where style=? or language=? order by rand() limit 30",key,key)
-            if isListNil(result) {
-                return nil
-            }
             rows,_ = result.Rows()
         }else {
             result = db.Raw("select id,user_id,vod_send,name,praise,source,style,created_at from song where style=? or language=? order by created_at,praise desc limit 30",key,key)
-            if isListNil(result) {
-                return nil
-            }
             rows,_ = result.Rows()
         }
     } 
+
+    if rows == nil {
+        return songList
+    }
+
     defer rows.Close()
 
     for rows.Next() {
@@ -119,7 +115,7 @@ func LoadSongMsg(sort string,key string) []SongMsg{
 func LoadVodMsg(sort string,key string) []SongMsg{
     db := setting.MysqlConn()
     defer db.Close()
-    var vodList []SongMsg = make([]SongMsg,10)
+    var vodList []SongMsg = make([]SongMsg,8)
     i := 0
 
     var rows *sql.Rows
@@ -130,18 +126,17 @@ func LoadVodMsg(sort string,key string) []SongMsg{
     }else {
         if sort == "1" {
             result = db.Raw("select id,user_id,name,singer,more,created_at from vod where style=? or language=? order by rand() limit 30",key,key)
-            if isListNil(result) {
-                return nil
-            }
             rows,_ = result.Rows()
         }else {
             result = db.Raw("select id,user_id,name,singer,more,created_at from vod where style=? or language=? order by created_at,praise desc limit 30",key,key)
-            if isListNil(result) {
-                return nil
-            }
             rows,_ = result.Rows()
         }
     } 
+
+    if rows == nil {
+        return vodList
+    }
+
     defer rows.Close()
 
     for rows.Next() {
