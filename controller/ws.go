@@ -130,6 +130,7 @@ func (wsConn *WsConnection) writeWs(c *gin.Context) {
 	if _, ok := MessageQueue[int(wsConn.userID)]; !ok {
 		MessageQueue[int(wsConn.userID)] = make(chan *Message, 1000)
 	}
+	timeoutNum := 0
 	for {
 		select {
 		case msg := <-MessageQueue[int(wsConn.userID)]:
@@ -145,29 +146,31 @@ func (wsConn *WsConnection) writeWs(c *gin.Context) {
 				wsConn.close()
 				return
 			}
-			//judge ack
+			//create ack chan for every message
 			if _, ok := ACKchan[msg.ID]; !ok {
 				ACKchan[msg.ID] = make(chan *ACK)
 			}
-			//wait 0.5s to make front-end response ack
-			time.Sleep(time.Duration(500) * time.Millisecond)
-		WaitACK:
-			for {
-				select {
-				//if timeout 2s, drop msg back to the message chan
-				case <-time.After(time.Second * 2):
-					log.Println("timeout, msg is not be received")
-					MessageQueue[int(wsConn.userID)] <- msg
-					break WaitACK
-				case ack := <-ACKchan[msg.ID]:
-					//if ack is right,continue
-					if ack.ACKID == msg.ID {
-						//log.Println("he get it")
-						close(ACKchan[msg.ID])
-						break WaitACK
-					} else {
-						log.Println("塞进该消息ack通道的ackID与消息不符合！")
-					}
+
+			select {
+			//if timeout 2s, drop msg back to the message chan
+			case <-time.After(time.Second * 2):
+				log.Println("timeout, msg is not be received")
+				timeoutNum += 1
+				MessageQueue[int(wsConn.userID)] <- msg
+				//if no response from front-end for long time, close ws
+				if timeoutNum > 10 {
+					log.Println("no response from front-end for long time, ws close")
+					timeoutNum = 0
+					wsConn.close()
+					return
+				}
+			case ack := <-ACKchan[msg.ID]:
+				//judge ack
+				if ack.ACKID == msg.ID {
+					//log.Println("he get it")
+					continue
+				} else {
+					log.Println("塞进该消息ack通道的ackID与消息不符合！")
 				}
 			}
 
