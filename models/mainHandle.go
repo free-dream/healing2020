@@ -25,7 +25,7 @@ type SongMsg struct {
     SendUser string `json:"senduser"`
     Name string `json:"name"`
     Avatar string `json:"avatar"`
-    Time string `json:"time"`
+    Time time.Time `json:"time"`
     Sex int `json:"sex"`
     More string `json:"more"`
 
@@ -92,6 +92,7 @@ func LoadSongMsg(sort string,key string) []SongMsg{
         songList[i].Like = song.Praise
         songList[i].Source = song.Source
         songList[i].Style = song.Style
+        songList[i].Time = song.CreatedAt
         userid := song.UserId
         sendid := song.VodSend
 
@@ -145,7 +146,7 @@ func LoadVodMsg(sort string,key string) []SongMsg{
         vodList[i].Id = vod.ID
         vodList[i].Name = vod.Name
         vodList[i].More = vod.More
-        //vodList[i].Time = vod.CreatedAt
+        vodList[i].Time = vod.CreatedAt
         vodList[i].Singer = vod.Singer
         
         userid := vod.UserId
