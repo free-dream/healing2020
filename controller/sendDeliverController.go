@@ -7,12 +7,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type DeliverParams struct {
+	UserId    string `json:"userId" binding:"required"`
+	TextField   string `json:"textField"`
+	Photo     string `json:"photo"`
+	Record    string `json:"record"`
+}
+
 func PostDeliver(c *gin.Context) {
-	UserId := c.Query("userId")
-	TextField := c.Query("textField")
-	Photo := c.Query("photo")
-	Record := c.Query("record")
-	err := models.PostDeliver(UserId, TextField, Photo, Record)
+	var params DeliverParams
+	if err := c.ShouldBind(&params); err != nil {
+		c.JSON(400, e.ErrMsgResponse{Message: "Uncomplete params"})
+		return
+	}
+	err := models.PostDeliver(params.UserId, params.TextField, params.Photo, params.Record)
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: "Fail to add deliver"})
 	}
