@@ -132,6 +132,7 @@ func GetUser(ctx *gin.Context) {
 			return
 		}
 		user, err := models.ResponseUser(uint(id))
+		user.TrueName = ""
 		if err != nil {
 			ctx.JSON(404, e.ErrMsgResponse{Message: e.GetMsg(e.NOT_FOUND)})
 			return
