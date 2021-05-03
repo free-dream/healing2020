@@ -302,15 +302,14 @@ func PostSpecial(Subject_id string, Song string, User_id string) error {
 	status := 0
 	tx := db.Begin()
 	if Song != "" {
-		//发送
 		var dev statements.Special
-		// var mon statements.UserOther
+		var userother statements.UserOther
+
 		dev.SubjectId = subject_id
 		dev.Song = Song
 		dev.UserId = user_id
-		// mon.Lo4 = 1
+		//发送歌曲
 		err := tx.Model(&statements.Special{}).Create(&dev).Error
-		err = tx.Model(&statements.UserOther{}).Where("user_id = ?", user_id).Update("L04 = ?", 1).Error
 		if err != nil {
 			if status < 5 {
 				status++
@@ -318,6 +317,40 @@ func PostSpecial(Subject_id string, Song string, User_id string) error {
 			} else {
 				return err
 			}
+		}
+
+		result := tx.Model(&statements.UserOther{}).Where("id= ?", user_id).First(&userother)
+		if result.Error != nil {
+			return result.Error
+		}
+		//判断完成每日任务和增加积分
+		if userother.Lo4 != 1 {
+			err2 := tx.Model(&statements.UserOther{}).Where("user_id = ?", user_id).Update("lo4", 1).Error
+			if err2 != nil {
+				if status < 5 {
+					status++
+					tx.Rollback()
+				} else {
+					return err2
+				}
+			}
+			var user statements.User
+			result := tx.Model(&statements.User{}).Where("id= ?", user_id).First(&user)
+			if result.Error != nil {
+				return result.Error
+			}
+			if user.Money >= 0 {
+				user.Money = user.Money + 20
+				err3 := tx.Save(&user).Error
+				if err3 != nil {
+					if status < 5 {
+						status++
+						tx.Rollback()
+					} else {
+						return err3
+					}
+				}
+			} 		
 		}
 	}
 		return tx.Commit().Error
