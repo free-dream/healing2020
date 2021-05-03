@@ -77,9 +77,20 @@ func UpdateUser(c *gin.Context, user statements.User, userID uint) error {
 	db := setting.MysqlConn()
 	defer db.Close()
 
+	userMap := map[string]interface{}{
+		"nick_name": user.NickName,
+		"more":      user.More,
+		"setting1":  user.Setting1,
+		"setting2":  user.Setting2,
+		"setting3":  user.Setting3,
+		"avatar":    user.Avatar,
+		"phone":     user.Phone,
+		"true_name": user.TrueName,
+	}
+
 	//开启事务
 	tx := db.Begin()
-	err := tx.Model(&statements.User{}).Where("id=?", userID).Update(user).Error
+	err := tx.Model(&statements.User{}).Where("id=?", userID).Update(userMap).Error
 	if err != nil {
 		tx.Rollback()
 		return err
