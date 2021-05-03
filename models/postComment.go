@@ -18,7 +18,7 @@ func PostComment(UserId string, Id string, Type string, Content string) error {
 	db := setting.MysqlConn()
 	defer db.Close()
 
-	status := 0
+	// status := 0
 	tx := db.Begin()
 	//投递评论
 	if Type == "2" {
@@ -27,14 +27,8 @@ func PostComment(UserId string, Id string, Type string, Content string) error {
 		com.DeliverId = ID
 		com.Type = Typeid
 		com.Content = Content
-		err := tx.Model(&statements.Comment{}).Create(&com).Error
-		if err != nil {
-			if status < 5 {
-				status++
-				tx.Rollback()
-			} else {
-				return err
-			}
+		if err := tx.Model(&statements.Comment{}).Create(&com).Error; err != nil {
+			return err
 		}
 	}
 
@@ -45,14 +39,8 @@ func PostComment(UserId string, Id string, Type string, Content string) error {
 		com.SongId = ID
 		com.Type = Typeid
 		com.Content = Content
-		err := tx.Model(&statements.Comment{}).Create(&com).Error
-		if err != nil {
-			if status < 5 {
-				status++
-				tx.Rollback()
-			} else {
-				return err
-			}
+		if err := tx.Model(&statements.Comment{}).Create(&com).Error; err != nil {
+			return err
 		}
 	}
 	return tx.Commit().Error

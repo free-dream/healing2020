@@ -10,8 +10,6 @@ import (
 	"strconv"
 )
 
-//废弃
-
 func CreateDelivers(id string, types int, textfield string, photo string, record string, praise int) error {
 	intId, _ := strconv.Atoi(id)
 	userid := uint(intId)
@@ -245,18 +243,18 @@ func TableCleanUp() {
 	db := setting.MysqlConn()
 	defer db.Close()
 
-	//db.Exec("TRUNCATE TABLE background")
+	db.Exec("TRUNCATE TABLE background")
 	db.Exec("TRUNCATE TABLE comment")
 	db.Exec("TRUNCATE TABLE deliver")
 	db.Exec("TRUNCATE TABLE lottery")
 	db.Exec("TRUNCATE TABLE mailbox")
-	//db.Exec("TRUNCATE TABLE message")
+	db.Exec("TRUNCATE TABLE message")
 	db.Exec("TRUNCATE TABLE praise")
 	db.Exec("TRUNCATE TABLE prize")
-	//db.Exec("TRUNCATE TABLE rank")
+	db.Exec("TRUNCATE TABLE rank")
 	db.Exec("TRUNCATE TABLE song")
-	db.Exec("TRUNCATE TABLE special")
-	db.Exec("TRUNCATE TABLE subject")
+	// db.Exec("TRUNCATE TABLE special")
+	// db.Exec("TRUNCATE TABLE subject")
 	db.Exec("TRUNCATE TABLE user")
 	db.Exec("TRUNCATE TABLE vod")
 }
@@ -306,10 +304,13 @@ func PostSpecial(Subject_id string, Song string, User_id string) error {
 	if Song != "" {
 		//发送
 		var dev statements.Special
+		// var mon statements.UserOther
 		dev.SubjectId = subject_id
 		dev.Song = Song
 		dev.UserId = user_id
+		// mon.Lo4 = 1
 		err := tx.Model(&statements.Special{}).Create(&dev).Error
+		err = tx.Model(&statements.UserOther{}).Where("user_id = ?", user_id).Update("L04 = ?", 1).Error
 		if err != nil {
 			if status < 5 {
 				status++

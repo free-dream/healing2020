@@ -14,7 +14,7 @@ func PostDeliver(UserId string, TextField string, Photo string, Record string) e
 	db := setting.MysqlConn()
 	defer db.Close()
 
-	status := 0
+	// status := 0
 	tx := db.Begin()
 
 	if TextField != "" {
@@ -24,17 +24,12 @@ func PostDeliver(UserId string, TextField string, Photo string, Record string) e
 			dev.UserId = userid
 			dev.TextField = TextField
 			dev.Type = 1
-			err := tx.Model(&statements.Deliver{}).Create(&dev).Error
-			if err != nil {
-				if status < 5 {
-					status++
-					tx.Rollback()
-				} else {
-					return err
-				}
+			if err := tx.Model(&statements.Deliver{}).Create(&dev).Error; err != nil {
+				tx.Rollback()
+				return err
 			}
 		}
-	
+
 		//发送图文投递
 		if Photo != "" && Record == "" {
 			var dev statements.Deliver
@@ -42,17 +37,12 @@ func PostDeliver(UserId string, TextField string, Photo string, Record string) e
 			dev.TextField = TextField
 			dev.Photo = Photo
 			dev.Type = 2
-			err := tx.Model(&statements.Deliver{}).Create(&dev).Error
-			if err != nil {
-				if status < 5 {
-					status++
-					tx.Rollback()
-				} else {
-					return err
-				}
+			if err := tx.Model(&statements.Deliver{}).Create(&dev).Error; err != nil {
+				tx.Rollback()
+				return err
 			}
 		}
-			//发送带录音投递
+		//发送带录音投递
 		if Record != "" {
 			var dev statements.Deliver
 			dev.UserId = userid
@@ -60,16 +50,11 @@ func PostDeliver(UserId string, TextField string, Photo string, Record string) e
 			dev.Type = 3
 			dev.Photo = Photo
 			dev.Record = Record
-			err := tx.Model(&statements.Deliver{}).Create(&dev).Error
-			if err != nil {
-				if status < 5 {
-					status++
-					tx.Rollback()
-				} else {
-					return err
-				}
+			if err := tx.Model(&statements.Deliver{}).Create(&dev).Error; err != nil {
+				tx.Rollback()
+				return err
 			}
 		}
 	}
-		return tx.Commit().Error
+	return tx.Commit().Error
 }

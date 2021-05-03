@@ -31,9 +31,6 @@ func UpdateOrCreate(openId string, nickName string, sex int, avatar string) {
 		} else {
 			result2 = tx.Model(&statements.User{}).Where("open_id=?", openId).Update(&user)
 		}
-        var userOther statements.UserOther
-        userOther.UserId = user.ID
-        db.Model(&statements.UserOther{}).Create(&userOther)
 		// client := setting.RedisConn()
 		// defer client.Close()
 		// dataByte,_ := json.Marshal(user)

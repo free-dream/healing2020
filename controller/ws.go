@@ -51,7 +51,7 @@ var upGrader = websocket.Upgrader{
 }
 
 var MessageQueue = make(map[int](chan *Message))
-var ServerMsgChan = make(chan *ServerMsg)
+var ServerMsgChan = make(map[int](chan *ServerMsg))
 var ACKchan = make(map[string](chan *ACK))
 var MysqlCreate = make(chan *Message, 1000)
 var MysqlDelete = make(chan *Message, 1000)
@@ -79,13 +79,17 @@ func msgToSMessage(msg *Message) statements.Message {
 //@Failure 403 {object} e.ErrMsgResponse
 func Broadcast(c *gin.Context) {
 	json := ServerMsg{
+		Time: time.Now().Format("2006-01-02 15:04:05"),
 		Type: 0,
 	}
 	c.BindJSON(&json)
 
 	userCount, err := models.GetUserNum()
-	for i := 0; i < userCount; i++ {
-		ServerMsgChan <- &json
+	for i := 1; i <= userCount; i++ {
+		if _, ok := ServerMsgChan[i]; !ok {
+			ServerMsgChan[i] = make(chan *ServerMsg)
+		}
+		ServerMsgChan[i] <- &json
 	}
 
 	err = models.CreateMailBox(json.Text)
@@ -275,19 +279,16 @@ func (wsConn *WsConnection) MsgMysql() {
 
 //广播
 func (wsConn *WsConnection) writeServerMsg(c *gin.Context) {
+	userID := tools.GetUser(c).ID
 	for {
 		select {
-		case msg := <-ServerMsgChan:
+		case msg := <-ServerMsgChan[int(userID)]:
 			//send broadcast msg
 			responseMsg, _ := json.Marshal(msg)
 			if err := wsConn.ws.WriteMessage(websocket.TextMessage, []byte(responseMsg)); err != nil {
 				log.Println("write websocket fail")
 				wsConn.close()
 				return
-			}
-			//save the broadcast inf
-			if models.CreateMailBox(msg.Text) != nil {
-				log.Println("create mailbox in mysql fail")
 			}
 		case <-wsConn.closeChan:
 			return
