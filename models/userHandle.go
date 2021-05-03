@@ -27,13 +27,13 @@ func UpdateOrCreate(openId string, nickName string, sex int, avatar string) {
 		user.Sex = sex
 		var result2 *gorm.DB
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			var userOther statements.UserOther
+			userOther.UserId = user.ID
+			tx.Model(&statements.UserOther{}).Create(&userOther)
 			result2 = tx.Model(&statements.User{}).Create(&user)
 		} else {
 			result2 = tx.Model(&statements.User{}).Where("open_id=?", openId).Update(&user)
 		}
-		var userOther statements.UserOther
-		userOther.UserId = user.ID
-		db.Model(&statements.UserOther{}).Create(&userOther)
 		// client := setting.RedisConn()
 		// defer client.Close()
 		// dataByte,_ := json.Marshal(user)
