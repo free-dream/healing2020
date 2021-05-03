@@ -30,7 +30,7 @@ type UserOther struct {
 func UserOtherInit() {
 	db := setting.MysqlConn()
 	if !db.HasTable(&UserOther{}) {
-		if err := db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8").CreateTable(&UserOther{}).Error; err != nil {
+		if err := db.CreateTable(&UserOther{}).Error; err != nil {
 			panic(err)
 		}
 		fmt.Println("Table UserOther has been created")

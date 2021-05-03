@@ -18,7 +18,7 @@ type Lottery struct {
 func LotteryInit() {
 	db := setting.MysqlConn()
 	if !db.HasTable(&Lottery{}) {
-		if err := db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8").CreateTable(&Lottery{}).Error; err != nil {
+		if err := db.CreateTable(&Lottery{}).Error; err != nil {
 			panic(err)
 		}
 		fmt.Println("Table Lottery has been created")

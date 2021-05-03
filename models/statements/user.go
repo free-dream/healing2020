@@ -28,7 +28,7 @@ type User struct {
 func UserInit() {
 	db := setting.MysqlConn()
 	if !db.HasTable(&User{}) {
-		if err := db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8").CreateTable(&User{}).Error; err != nil {
+		if err := db.CreateTable(&User{}).Error; err != nil {
 			panic(err)
 		}
 		fmt.Println("Table User has been created")

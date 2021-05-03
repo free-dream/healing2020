@@ -22,7 +22,7 @@ type Message struct {
 func MessageInit() {
 	db := setting.MysqlConn()
 	if !db.HasTable(&Message{}) {
-		if err := db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8").CreateTable(&Message{}).Error; err != nil {
+		if err := db.CreateTable(&Message{}).Error; err != nil {
 			panic(err)
 		}
 		fmt.Println("Table Message has been created")

@@ -18,7 +18,7 @@ type Subject struct {
 func SubjectInit() {
 	db := setting.MysqlConn()
 	if !db.HasTable(&Subject{}) {
-		if err := db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8").CreateTable(&Subject{}).Error; err != nil {
+		if err := db.CreateTable(&Subject{}).Error; err != nil {
 			panic(err)
 		}
 		fmt.Println("Table Subject has been created")

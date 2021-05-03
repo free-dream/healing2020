@@ -21,7 +21,7 @@ type Deliver struct {
 func DeliverInit() {
 	db := setting.MysqlConn()
 	if !db.HasTable(&Deliver{}) {
-		if err := db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8").CreateTable(&Deliver{}).Error; err != nil {
+		if err := db.CreateTable(&Deliver{}).Error; err != nil {
 			panic(err)
 		}
 		fmt.Println("Table Deliver has been created")

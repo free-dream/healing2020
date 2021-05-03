@@ -18,7 +18,7 @@ type Praise struct {
 func PraiseInit() {
 	db := setting.MysqlConn()
 	if !db.HasTable(&Praise{}) {
-		if err := db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8").CreateTable(&Praise{}).Error; err != nil {
+		if err := db.CreateTable(&Praise{}).Error; err != nil {
 			panic(err)
 		}
 		fmt.Println("Table Praise has been created")

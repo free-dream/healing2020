@@ -18,7 +18,7 @@ type Rank struct {
 func RankInit() {
 	db := setting.MysqlConn()
 	if !db.HasTable(&Rank{}) {
-		if err := db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8").CreateTable(&Rank{}).Error; err != nil {
+		if err := db.CreateTable(&Rank{}).Error; err != nil {
 			panic(err)
 		}
 		fmt.Println("Table Rank has been created")

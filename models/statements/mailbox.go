@@ -16,7 +16,7 @@ type Mailbox struct {
 func MailboxInit() {
 	db := setting.MysqlConn()
 	if !db.HasTable(&Mailbox{}) {
-		if err := db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8").CreateTable(&Mailbox{}).Error; err != nil {
+		if err := db.CreateTable(&Mailbox{}).Error; err != nil {
 			panic(err)
 		}
 		fmt.Println("Table Mailbox has been created")

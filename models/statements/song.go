@@ -23,7 +23,7 @@ type Song struct {
 func SongInit() {
 	db := setting.MysqlConn()
 	if !db.HasTable(&Song{}) {
-		if err := db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8").CreateTable(&Song{}).Error; err != nil {
+		if err := db.CreateTable(&Song{}).Error; err != nil {
 			panic(err)
 		}
 		fmt.Println("Table Song has been created")

@@ -22,7 +22,7 @@ type Vod struct {
 func VodInit() {
 	db := setting.MysqlConn()
 	if !db.HasTable(&Vod{}) {
-		if err := db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8").CreateTable(&Vod{}).Error; err != nil {
+		if err := db.CreateTable(&Vod{}).Error; err != nil {
 			panic(err)
 		}
 		fmt.Println("Table Vod has been created")

@@ -20,7 +20,7 @@ type Special struct {
 func SpecialInit() {
 	db := setting.MysqlConn()
 	if !db.HasTable(&Special{}) {
-		if err := db.Set("gorm:table_options", "ENGINE=InnoDB DEFAULT CHARSET=utf8").CreateTable(&Special{}).Error; err != nil {
+		if err := db.CreateTable(&Special{}).Error; err != nil {
 			panic(err)
 		}
 		fmt.Println("Table Special has been created")
