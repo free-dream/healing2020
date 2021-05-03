@@ -23,10 +23,10 @@ type ToSaveBackground struct {
 func ChangeBackground(c *gin.Context) {
 	userInf := tools.GetUser(c)
 
-	json := ToSaveBackground{}
-	c.BindJSON(&json)
+	jsonInf := ToSaveBackground{}
+	c.BindJSON(&jsonInf)
 
-	err := models.UpdateUserOtherNow(userInf.ID, json.Background)
+	err := models.UpdateUserOtherNow(userInf.ID, jsonInf.Background)
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.ERROR_USER_SAVE_FAIL)})
 		return

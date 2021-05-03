@@ -43,15 +43,15 @@ func Register(c *gin.Context) {
 	//获取redis用户信息
 	userInf := tools.GetUser(c)
 	//获取json
-	json := UserRegister{}
-	c.BindJSON(&json)
+	jsonInf := UserRegister{}
+	c.BindJSON(&jsonInf)
 	//构建模型
 	user := statements.User{
-		NickName: json.NickName,
-		TrueName: json.TrueName,
-		Sex:      json.Sex,
-		Phone:    json.Phone,
-		Campus:   json.Campus,
+		NickName: jsonInf.NickName,
+		TrueName: jsonInf.TrueName,
+		Sex:      jsonInf.Sex,
+		Phone:    jsonInf.Phone,
+		Campus:   jsonInf.Campus,
 	}
 	err := models.UpdateUser(c, user, userInf.ID)
 	if err != nil {
@@ -72,20 +72,20 @@ func Register(c *gin.Context) {
 //@Failure 403 {object} e.ErrMsgResponse
 func PutUser(c *gin.Context) {
 	//接受json
-	json := PutUserInf{}
-	c.BindJSON(&json)
+	jsonInf := PutUserInf{}
+	c.BindJSON(&jsonInf)
 	//获取用户信息
 	userInf := tools.GetUser(c)
 	//构建模型
 	user := statements.User{
-		NickName: json.NickName,
-		More:     json.More,
-		Setting1: json.Setting1,
-		Setting2: json.Setting2,
-		Setting3: json.Setting3,
-		Avatar:   json.Avatar,
-		Phone:    json.Phone,
-		TrueName: json.TrueName,
+		NickName: jsonInf.NickName,
+		More:     jsonInf.More,
+		Setting1: jsonInf.Setting1,
+		Setting2: jsonInf.Setting2,
+		Setting3: jsonInf.Setting3,
+		Avatar:   jsonInf.Avatar,
+		Phone:    jsonInf.Phone,
+		TrueName: jsonInf.TrueName,
 	}
 	err := models.UpdateUser(c, user, userInf.ID)
 	if err != nil {
@@ -178,9 +178,9 @@ func hobbyJoin(tag []string) string {
 //@Failure 403 {object} e.ErrMsgResponse
 func NewHobby(c *gin.Context) {
 	//获取json
-	var json Tag
-	c.BindJSON(&json)
-	hobby := hobbyJoin(json.TagInf)
+	var jsonInf Tag
+	c.BindJSON(&jsonInf)
+	hobby := hobbyJoin(jsonInf.TagInf)
 	//获取redis用户信息
 	userInf := tools.GetUser(c)
 	err := models.UpdateUser(c, statements.User{Hobby: hobby}, userInf.ID)

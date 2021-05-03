@@ -127,8 +127,8 @@ func ResponseOthersPerponalPage(c *gin.Context) {
 //@Success 200 {object} e.ErrMsgResponse
 //@Failure 403 {object} e.ErrMsgResponse
 func HideName(c *gin.Context) {
-	json := VodID{}
-	c.BindJSON(&json)
+	jsonInf := VodID{}
+	c.BindJSON(&jsonInf)
 
 	userID := tools.GetUser(c).ID
 	_, remainHideName, err := models.ResponseUserOther(userID)
@@ -142,7 +142,7 @@ func HideName(c *gin.Context) {
 		return
 	}
 
-	err = models.HideName(json.VodID, userID)
+	err = models.HideName(jsonInf.VodID, userID)
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
