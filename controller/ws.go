@@ -56,6 +56,7 @@ var ACKchan = make(map[string](chan *ACK))
 var MysqlCreate = make(chan *Message, 1000)
 var MysqlDelete = make(chan *Message, 1000)
 
+//turn Message to statements.Message
 func msgToSMessage(msg *Message) statements.Message {
 	message := statements.Message{
 		MsgID:   msg.ID,
@@ -67,6 +68,40 @@ func msgToSMessage(msg *Message) statements.Message {
 		Time:    msg.Time,
 	}
 	return message
+}
+
+//create msg chan for user
+func createUserMsgChan(userID uint) {
+	if _, ok := MessageQueue[int(userID)]; !ok {
+		MessageQueue[int(userID)] = make(chan *Message, 1000)
+	}
+}
+
+//run in main.go
+//turn message in mysql to chan
+func MysqltoChan() {
+	allMessage, err := models.SelectAllMessage()
+	if err != nil {
+		log.Println("get message from mysql fail!")
+		return
+	}
+	for _, value := range allMessage {
+		msg := Message{
+			ID:         value.MsgID,
+			FromUserID: value.Send,
+			ToUserID:   value.Receive,
+			Type:       value.Type,
+			Content:    value.Content,
+			URL:        value.Url,
+			Time:       value.Time,
+		}
+		createUserMsgChan(msg.ToUserID)
+		MessageQueue[int(msg.ToUserID)] <- &msg
+		if msg.Type == 3 {
+			createUserMsgChan(msg.FromUserID)
+			MessageQueue[int(msg.FromUserID)] <- &msg
+		}
+	}
 }
 
 //@Title Broadcast
@@ -148,9 +183,7 @@ func (wsConn *WsConnection) heartbeat() {
 //向客户端发送用户消息
 func (wsConn *WsConnection) writeWs(c *gin.Context) {
 	userID := tools.GetUser(c).ID
-	if _, ok := MessageQueue[int(wsConn.userID)]; !ok {
-		MessageQueue[int(wsConn.userID)] = make(chan *Message, 1000)
-	}
+	createUserMsgChan(userID)
 	timeoutNum := 0
 	for {
 		select {
@@ -171,7 +204,6 @@ func (wsConn *WsConnection) writeWs(c *gin.Context) {
 			if _, ok := ACKchan[msg.ID]; !ok {
 				ACKchan[msg.ID] = make(chan *ACK)
 			}
-
 			select {
 			//if timeout 2s, drop msg back to the message chan
 			case <-time.After(time.Second * 2):
@@ -190,6 +222,8 @@ func (wsConn *WsConnection) writeWs(c *gin.Context) {
 				if ack.ACKID == msg.ID {
 					//log.Println("he get it")
 					MysqlDelete <- msg
+					//if get ack, resetting timeoutNum
+					timeoutNum = 0
 					continue
 				} else {
 					log.Println("塞进该消息ack通道的ackID与消息不符合！")
@@ -232,6 +266,7 @@ func (wsConn *WsConnection) readWs() {
 			responseACK, _ := json.Marshal(ACK{ACKID: data.ID})
 			wsConn.ws.WriteMessage(websocket.TextMessage, []byte(responseACK))
 			//ready to response msg
+			createUserMsgChan(data.ToUserID)
 			select {
 			case MessageQueue[int(data.ToUserID)] <- &data:
 				MysqlCreate <- &data

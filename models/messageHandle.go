@@ -4,6 +4,8 @@ import (
 	"healing2020/models/statements"
 	"healing2020/pkg/setting"
 	"log"
+
+	"github.com/jinzhu/gorm"
 )
 
 //保存用户聊天的消息
@@ -34,4 +36,17 @@ func DeleteMessage(msg statements.Message) error {
 		return err
 	}
 	return tx.Commit().Error
+}
+
+//获取message里的所有信息
+func SelectAllMessage() ([]statements.Message, error) {
+	db := setting.MysqlConn()
+	defer db.Close()
+
+	var allMessage []statements.Message
+	err := db.Find(&allMessage).Error
+	if err != nil && !gorm.IsRecordNotFoundError(err) {
+		return nil, err
+	}
+	return allMessage, nil
 }

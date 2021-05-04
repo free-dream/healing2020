@@ -1,6 +1,7 @@
 package main
 
 import (
+	"healing2020/controller"
 	"healing2020/models"
 	"healing2020/pkg/setting"
 	"healing2020/pkg/tools"
@@ -21,6 +22,7 @@ func main() {
 	setting.MysqlConnTest()
 	setting.RedisConnTest()
 	models.TableInit()
+	controller.MysqltoChan()
 	if tools.IsDebug() {
 		//controller.LoadTestData()
 		models.SendDeliverRank()
