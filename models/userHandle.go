@@ -86,6 +86,7 @@ func UpdateUser(c *gin.Context, user statements.User, userID uint) error {
 		"avatar":    user.Avatar,
 		"phone":     user.Phone,
 		"true_name": user.TrueName,
+		"campus":    user.Campus,
 	}
 
 	//开启事务
