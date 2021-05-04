@@ -44,9 +44,12 @@ func songsFrom(someSongs []Songs, from string) []Songs {
 //ResponseSongs使用
 //对deliver的返回进行处理，将deliver的textfield截至5个字
 func handleDeliver(someSongs []Songs) []Songs {
-	splitDeliver := make([]string, 6)
+	splitDeliver := make([]string, 5)
 	for i := 0; i < len(someSongs); i++ {
-		splitDeliver = strings.SplitN(someSongs[i].Name, "", 6)
+		splitDeliver = strings.Split(someSongs[i].Name, "")
+		if len(splitDeliver) <= 5 {
+			continue
+		}
 		someSongs[i].Name = strings.Join(splitDeliver[:5], "")
 	}
 	return someSongs
@@ -109,7 +112,7 @@ func ResponseUserOther(userID uint) (string, int, error) {
 
 	//查询
 	var nowUserOther statements.UserOther
-	err := db.Select("now, remain_hide_name").Where("user_id=?", userID).Find(&nowUserOther).Error
+	err := db.Select("now, remain_hide_name").Where("user_id=?", userID).First(&nowUserOther).Error
 	return tools.GetBackgroundUrl(nowUserOther.Now), nowUserOther.RemainHideName, err
 }
 
