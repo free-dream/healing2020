@@ -108,7 +108,7 @@ func RegisterUpdate(c *gin.Context, user statements.User, userID uint) error {
 
 	//开启事务
 	tx := db.Begin()
-	err := tx.Model(&statements.User{}).Where("id=?", userID).Update(user).Error
+	err := tx.Model(&statements.User{}).Where("id=?", userID).Update(&user).Error
 	if err != nil {
 		tx.Rollback()
 		return err
