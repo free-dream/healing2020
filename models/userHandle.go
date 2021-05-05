@@ -72,8 +72,9 @@ func updateSession(c *gin.Context, db *gorm.DB) {
 	session.Save()
 }
 
+//踩坑：不要用0值作为状态值
 //更新user表
-func UpdateUser(c *gin.Context, user statements.User, userID uint) error {
+func PutUser(c *gin.Context, user statements.User, userID uint) error {
 	//连接mysql
 	db := setting.MysqlConn()
 	defer db.Close()
@@ -101,18 +102,10 @@ func UpdateUser(c *gin.Context, user statements.User, userID uint) error {
 }
 
 //更新user表
-func RegisterUpdate(c *gin.Context, user statements.User, userID uint) error {
+func UpdateUser(c *gin.Context, userMap map[string]interface{}, userID uint) error {
 	//连接mysql
 	db := setting.MysqlConn()
 	defer db.Close()
-
-	userMap := map[string]interface{}{
-		"nick_name": user.NickName,
-		"phone":     user.Phone,
-		"true_name": user.TrueName,
-		"sex":       user.Sex,
-		"campus":    user.Campus,
-	}
 
 	//开启事务
 	tx := db.Begin()

@@ -3,7 +3,6 @@ package controller
 import (
 	"fmt"
 	"healing2020/models"
-	"healing2020/models/statements"
 	"healing2020/pkg/e"
 	"healing2020/pkg/tools"
 	"strconv"
@@ -46,14 +45,14 @@ func Register(c *gin.Context) {
 	jsonInf := UserRegister{}
 	c.BindJSON(&jsonInf)
 	//构建模型
-	user := statements.User{
-		NickName: jsonInf.NickName,
-		TrueName: jsonInf.TrueName,
-		Sex:      jsonInf.Sex,
-		Phone:    jsonInf.Phone,
-		Campus:   jsonInf.Campus,
+	userMap := map[string]interface{}{
+		"NickName": jsonInf.NickName,
+		"TrueName": jsonInf.TrueName,
+		"Sex":      jsonInf.Sex,
+		"Phone":    jsonInf.Phone,
+		"Campus":   jsonInf.Campus,
 	}
-	err := models.RegisterUpdate(c, user, userID)
+	err := models.UpdateUser(c, userMap, userID)
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.ERROR_USER_CREATE_FAIL)})
@@ -77,16 +76,16 @@ func PutUser(c *gin.Context) {
 	//获取用户信息
 	userID := tools.GetUser(c).ID
 	//构建模型
-	user := statements.User{
-		NickName: jsonInf.NickName,
-		More:     jsonInf.More,
-		Setting1: jsonInf.Setting1,
-		Setting2: jsonInf.Setting2,
-		Setting3: jsonInf.Setting3,
-		Phone:    jsonInf.Phone,
-		TrueName: jsonInf.TrueName,
+	userMap := map[string]interface{}{
+		"NickName": jsonInf.NickName,
+		"More":     jsonInf.More,
+		"Setting1": jsonInf.Setting1,
+		"Setting2": jsonInf.Setting2,
+		"Setting3": jsonInf.Setting3,
+		"Phone":    jsonInf.Phone,
+		"TrueName": jsonInf.TrueName,
 	}
-	err := models.UpdateUser(c, user, userID)
+	err := models.UpdateUser(c, userMap, userID)
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.ERROR_USER_SAVE_FAIL)})
 	} else {
@@ -181,8 +180,8 @@ func NewHobby(c *gin.Context) {
 	c.BindJSON(&jsonInf)
 	hobby := hobbyJoin(jsonInf.TagInf)
 	//获取redis用户信息
-	userInf := tools.GetUser(c)
-	err := models.UpdateUser(c, statements.User{Hobby: hobby}, userInf.ID)
+	userID := tools.GetUser(c).ID
+	err := models.UpdateUser(c, map[string]interface{}{"Hobby": hobby}, userID)
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.ERROR_USER_SAVE_FAIL)})
 	} else {
