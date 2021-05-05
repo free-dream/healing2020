@@ -16,7 +16,6 @@ func PostComment(UserId string, Id string, Type string, Content string) error {
 	TypeId, _ := strconv.Atoi(Type)
 	Typeid := int(TypeId)
 	db := setting.MysqlConn()
-	defer db.Close()
 
 	// status := 0
 	tx := db.Begin()

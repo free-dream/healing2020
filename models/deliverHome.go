@@ -29,7 +29,6 @@ func DeliverHome(Type string) ([]AllDeliver, error) {
 	var err error
 	//连接mysql
 	db := setting.MysqlConn()
-	defer db.Close()
 
 	var deliverHome []User
 	//最新排序

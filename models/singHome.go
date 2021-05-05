@@ -36,7 +36,6 @@ type UserMessage struct {
 func SingHome(subjectID uint) (AllSpecial, error) {
 	//连接mysql
 	db := setting.MysqlConn()
-	defer db.Close()
 
 	//获取歌房信息
 	var singSubject statements.Subject

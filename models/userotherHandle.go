@@ -10,7 +10,6 @@ import (
 //更新用户使用的背景
 func UpdateUserOtherNow(userID uint, toSaveUserOther int) error {
 	db := setting.MysqlConn()
-	defer db.Close()
 
 	tx := db.Begin()
 	err := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).Update(statements.UserOther{Now: toSaveUserOther}).Error

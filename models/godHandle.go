@@ -21,7 +21,6 @@ func CreateDelivers(id string, types int, textfield string, photo string, record
 	deliver.Record = record
 	deliver.Praise = praise
 	db := setting.MysqlConn()
-	defer db.Close()
 	result := db.Model(&statements.Deliver{}).Create(&deliver)
 	return result.Error
 }
@@ -38,7 +37,6 @@ func CreateDelivers(id string, types int, textfield string, photo string, record
 //	bg.B4 = b4
 //	bg.B5 = b5
 //	db := setting.MysqlConn()
-//	defer db.Close()
 //	result := db.Model(&statements.Background{}).Create(&bg)
 //	return result.Error
 //}
@@ -57,7 +55,6 @@ func CreateComments(id string, types int, id1 string, id2 string, content string
 	comment.Type = types
 	comment.Content = content
 	db := setting.MysqlConn()
-	defer db.Close()
 	result := db.Model(&statements.Comment{}).Create(&comment)
 	return result.Error
 }
@@ -70,7 +67,6 @@ func CreateLotterys(pid int, uid int, weight int) error {
 	lottery.UserId = userId
 	lottery.Weight = weight
 	db := setting.MysqlConn()
-	defer db.Close()
 	result := db.Model(&statements.Lottery{}).Create(&lottery)
 	return result.Error
 }
@@ -79,7 +75,6 @@ func CreateMailboxs(message string) error {
 	var mailbox statements.Mailbox
 	mailbox.Message = message
 	db := setting.MysqlConn()
-	defer db.Close()
 	result := db.Model(&statements.Mailbox{}).Create(&mailbox)
 	return result.Error
 }
@@ -96,7 +91,6 @@ func CreateMessages(id1 string, id2 string, types int, content string, url strin
 	message.Content = content
 	message.Url = url
 	db := setting.MysqlConn()
-	defer db.Close()
 	result := db.Model(&statements.Message{}).Create(&message)
 	return result.Error
 }
@@ -111,7 +105,6 @@ func CreatePraises(id1 string, types int, id2 string) error {
 	praise.Type = types
 	praise.PraiseId = praiseid
 	db := setting.MysqlConn()
-	defer db.Close()
 	result := db.Model(&statements.Praise{}).Create(&praise)
 	return result.Error
 }
@@ -123,7 +116,6 @@ func CreatePrizes(name string, intro string, photo string, weight int) error {
 	prize.Photo = photo
 	prize.Weight = weight
 	db := setting.MysqlConn()
-	defer db.Close()
 	result := db.Model(&statements.Prize{}).Create(&prize)
 	return result.Error
 }
@@ -134,7 +126,6 @@ func CreateRanks(campus string, allrank string, partrank string) error {
 	rank.AllRank = allrank
 	rank.PartRank = partrank
 	db := setting.MysqlConn()
-	defer db.Close()
 	result := db.Model(&statements.Rank{}).Create(&rank)
 	return result.Error
 }
@@ -156,7 +147,6 @@ func CreateSongs(id1 string, id2 string, id3 string, name string, praise int, so
 	song.Style = style
 	song.Language = language
 	db := setting.MysqlConn()
-	defer db.Close()
 	result := db.Model(&statements.Song{}).Create(&song)
 	return result.Error
 }
@@ -173,7 +163,6 @@ func CreateSpecials(id1 string, id2 string, name string, praise int, song string
 	special.Praise = praise
 	special.Song = song
 	db := setting.MysqlConn()
-	defer db.Close()
 	result := db.Model(&statements.Special{}).Create(&special)
 	return result.Error
 }
@@ -183,7 +172,6 @@ func CreateSubjects(name string, intro string) error {
 	subject.Name = name
 	subject.Intro = intro
 	db := setting.MysqlConn()
-	defer db.Close()
 	result := db.Model(&statements.Subject{}).Create(&subject)
 	return result.Error
 }
@@ -204,7 +192,6 @@ func CreateUsers(openid string, nick string, name string, more string, avatar st
 	user.Setting2 = setting2
 	user.Setting3 = setting3
 	db := setting.MysqlConn()
-	defer db.Close()
 	result := db.Model(&statements.User{}).Create(&user)
 	return result.Error
 }
@@ -220,7 +207,6 @@ func CreateVods(id string, more string, name string, singer string, style string
 	vod.Style = style
 	vod.Language = language
 	db := setting.MysqlConn()
-	defer db.Close()
 	result := db.Model(&statements.Vod{}).Create(&vod)
 	return result.Error
 }
@@ -234,14 +220,12 @@ func CreateFakeUserOther(id string, user_id uint, remainHideName int, remainVod 
 	user_other.RemainHideName = remainHideName
 	user_other.RemainSing = remainVod
 	db := setting.MysqlConn()
-	defer db.Close()
 	result := db.Model(&statements.UserOther{}).Create(&user_other)
 	return result.Error
 }
 
 func TableCleanUp() {
 	db := setting.MysqlConn()
-	defer db.Close()
 
 	db.Exec("TRUNCATE TABLE background")
 	db.Exec("TRUNCATE TABLE comment")
@@ -264,8 +248,7 @@ func PostSubject(ID string, Name string, Photo string, Intro string) error {
 	intId, _ := strconv.Atoi(ID)
 	subject_id := uint(intId)
 	db := setting.MysqlConn()
-	defer db.Close()
-	
+
 	status := 0
 	tx := db.Begin()
 	if Name != "" {
@@ -285,7 +268,7 @@ func PostSubject(ID string, Name string, Photo string, Intro string) error {
 			}
 		}
 	}
-		return tx.Commit().Error
+	return tx.Commit().Error
 }
 
 //歌房歌曲数据
@@ -297,8 +280,7 @@ func PostSpecial(Subject_id string, Song string, User_id string) error {
 	user_id := uint(int2Id)
 
 	db := setting.MysqlConn()
-	defer db.Close()
-	
+
 	status := 0
 	tx := db.Begin()
 	if Song != "" {
@@ -350,8 +332,8 @@ func PostSpecial(Subject_id string, Song string, User_id string) error {
 						return err3
 					}
 				}
-			} 		
+			}
 		}
 	}
-		return tx.Commit().Error
+	return tx.Commit().Error
 }

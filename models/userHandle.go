@@ -16,9 +16,9 @@ import (
 	//"time"
 )
 
-func UpdateOrCreate(openId string, nickName string, sex int, avatar string) {
+func UpdateOrCreate(openId string, nickName string, sex int, avatar string) error {
 	db := setting.MysqlConn()
-	db.Transaction(func(tx *gorm.DB) error {
+	err := db.Transaction(func(tx *gorm.DB) error {
 		var user statements.User
 		result := tx.Model(&statements.User{}).Where("open_id=?", openId).First(&user)
 		user.NickName = nickName
@@ -35,7 +35,6 @@ func UpdateOrCreate(openId string, nickName string, sex int, avatar string) {
 			result2 = tx.Model(&statements.User{}).Where("open_id=?", openId).Update(&user)
 		}
 		// client := setting.RedisConn()
-		// defer client.Close()
 		// dataByte,_ := json.Marshal(user)
 		// data := string(dataByte)
 		// keyname := "healing2020:token:"+token
@@ -43,13 +42,16 @@ func UpdateOrCreate(openId string, nickName string, sex int, avatar string) {
 
 		return result2.Error
 	})
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 //SELECT hobby FROM user where id = userID
 func SelectUserHobby(userID uint) (string, error) {
 	//连接mysql
 	db := setting.MysqlConn()
-	defer db.Close()
 
 	var userHobby statements.User
 	err := db.Select("hobby").Where("id=?", userID).First(&userHobby).Error
@@ -77,7 +79,6 @@ func updateSession(c *gin.Context, db *gorm.DB) {
 func PutUser(c *gin.Context, user statements.User, userID uint) error {
 	//连接mysql
 	db := setting.MysqlConn()
-	defer db.Close()
 
 	userMap := map[string]interface{}{
 		"nick_name": user.NickName,
@@ -105,7 +106,6 @@ func PutUser(c *gin.Context, user statements.User, userID uint) error {
 func UpdateUser(c *gin.Context, userMap map[string]interface{}, userID uint) error {
 	//连接mysql
 	db := setting.MysqlConn()
-	defer db.Close()
 
 	//开启事务
 	tx := db.Begin()
@@ -123,7 +123,6 @@ func UpdateUser(c *gin.Context, userMap map[string]interface{}, userID uint) err
 func GetUserNum() (int, error) {
 	//连接mysql
 	db := setting.MysqlConn()
-	defer db.Close()
 
 	var count int
 	err := db.Table("user").Count(&count).Error

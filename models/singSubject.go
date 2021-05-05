@@ -16,7 +16,6 @@ type Subject struct {
 func SingSubject() ([]Subject, error) {
 	//连接mysql
 	db := setting.MysqlConn()
-	defer db.Close()
 
 	//获取歌房信息
 	var singSubject []Subject

@@ -11,7 +11,6 @@ import (
 //保存广播信息
 func CreateMailBox(message string) error {
 	db := setting.MysqlConn()
-	defer db.Close()
 
 	tx := db.Begin()
 	err := tx.Model(&statements.Mailbox{}).Create(&statements.Mailbox{Message: message}).Error

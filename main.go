@@ -19,7 +19,6 @@ import (
 // @Description 2020治愈系
 
 func main() {
-	setting.MysqlConnTest()
 	setting.RedisConnTest()
 	models.TableInit()
 	controller.MysqltoChan()

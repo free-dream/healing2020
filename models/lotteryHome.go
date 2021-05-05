@@ -25,7 +25,6 @@ type AllLottery struct {
 func AllPrize() ([]Prize, error) {
 	//连接mysql
 	db := setting.MysqlConn()
-	defer db.Close()
 
 	//获取所有奖品信息
 	var prizeHome []Prize
@@ -36,12 +35,11 @@ func AllPrize() ([]Prize, error) {
 func MyLottery(userID uint) ([]AllLottery, error) {
 	//连接mysql
 	db := setting.MysqlConn()
-	defer db.Close()
 
 	//获取用户抽奖奖品id
 	var UserLotteryId []LotteryId
 	err := db.Table("lottery").Select("prize_id").Where("user_id = ?", userID).Scan(&UserLotteryId).Error
-	
+
 	//通过奖品id获取奖品内容
 	UserLottery := make([]statements.Prize, len(UserLotteryId))
 	for i := 0; i < len(UserLotteryId); i++ {
@@ -50,15 +48,15 @@ func MyLottery(userID uint) ([]AllLottery, error) {
 			return nil, err
 		}
 	}
-	
+
 	responseLottery := make([]AllLottery, len(UserLotteryId))
-	for i := 0; i<len(UserLotteryId); i++ {
+	for i := 0; i < len(UserLotteryId); i++ {
 		responseLottery[i] = AllLottery{
-			Id: UserLottery[i].ID,
-			Name: UserLottery[i].Name,
+			Id:    UserLottery[i].ID,
+			Name:  UserLottery[i].Name,
 			Photo: UserLottery[i].Photo,
 		}
 	}
-	
+
 	return responseLottery, err
 }

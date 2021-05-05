@@ -97,7 +97,6 @@ func deliverToAdmire(deliver statements.Deliver) Admire {
 func ResponseUser(userID uint) (statements.User, error) {
 	//连接mysql
 	db := setting.MysqlConn()
-	defer db.Close()
 
 	var user statements.User
 	err := db.Select("id, sex, phone, hobby, nick_name, campus, more, setting1, setting2, setting3, avatar").Where("id=?", userID).First(&user).Error
@@ -108,7 +107,6 @@ func ResponseUser(userID uint) (statements.User, error) {
 func ResponseUserOther(userID uint) (string, int, error) {
 	//连接mysql
 	db := setting.MysqlConn()
-	defer db.Close()
 
 	//查询
 	var nowUserOther statements.UserOther
@@ -120,7 +118,6 @@ func ResponseUserOther(userID uint) (string, int, error) {
 func ResponseVod(userID uint) ([]RequestSongs, error) {
 	//连接mysql
 	db := setting.MysqlConn()
-	defer db.Close()
 
 	//获取点歌信息
 	var allVod []RequestSongs
@@ -134,7 +131,6 @@ func ResponseSongs(userID uint) ([]Songs, error) {
 
 	//连接mysql
 	db := setting.MysqlConn()
-	defer db.Close()
 
 	//获取唱歌信息
 	var singSongs []Songs
@@ -176,7 +172,6 @@ func ResponsePraise(userID uint) ([]Admire, error) {
 
 	//连接mysql
 	db := setting.MysqlConn()
-	defer db.Close()
 
 	//获取点赞对应条目
 	var praise []statements.Praise
@@ -216,7 +211,6 @@ func ResponsePraise(userID uint) ([]Admire, error) {
 //给对应点歌匿名
 func HideName(vodID uint, userID uint) error {
 	db := setting.MysqlConn()
-	defer db.Close()
 
 	//开始更新事务
 	tx := db.Begin()

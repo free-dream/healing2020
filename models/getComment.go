@@ -28,7 +28,6 @@ func GetComment(strID string, Type string) ([]AllComment, error) {
 	id := uint(intID)
 	//连接mysql
 	db := setting.MysqlConn()
-	defer db.Close()
 
 	//获取评论其他信息
 	var commentElse []Comment

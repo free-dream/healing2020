@@ -11,7 +11,6 @@ import (
 //保存用户聊天的消息
 func SaveMessage(msg statements.Message) error {
 	db := setting.MysqlConn()
-	defer db.Close()
 
 	tx := db.Begin()
 	err := tx.Model(&statements.Message{}).Create(&msg).Error
@@ -26,7 +25,6 @@ func SaveMessage(msg statements.Message) error {
 //删除用户聊天消息
 func DeleteMessage(msg statements.Message) error {
 	db := setting.MysqlConn()
-	defer db.Close()
 
 	tx := db.Begin()
 	err := tx.Model(&statements.Message{}).Where("msg_id=?", msg.MsgID).Delete(&statements.Message{}).Error
@@ -41,7 +39,6 @@ func DeleteMessage(msg statements.Message) error {
 //获取message里的所有信息
 func SelectAllMessage() ([]statements.Message, error) {
 	db := setting.MysqlConn()
-	defer db.Close()
 
 	var allMessage []statements.Message
 	err := db.Find(&allMessage).Error

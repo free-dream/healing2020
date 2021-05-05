@@ -12,7 +12,6 @@ func PostDeliver(UserId string, TextField string, Photo string, Record string) e
 	intId, _ := strconv.Atoi(UserId)
 	userid := uint(intId)
 	db := setting.MysqlConn()
-	defer db.Close()
 
 	// status := 0
 	tx := db.Begin()

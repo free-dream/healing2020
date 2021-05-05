@@ -25,7 +25,6 @@ type Task struct {
 func GetMoney(userID uint) ([]Money, error) {
 	//连接mysql
 	db := setting.MysqlConn()
-	defer db.Close()
 
 	//获取个人积分信息
 	var user []Money
@@ -37,7 +36,6 @@ func GetMoney(userID uint) ([]Money, error) {
 func UseMoney(userID uint) error {
 	//连接mysql
 	db := setting.MysqlConn()
-	defer db.Close()
 	//进行抽奖
 	status := 0
 	tx := db.Begin()
@@ -68,7 +66,6 @@ func UseMoney(userID uint) error {
 func EarnMoney(userID uint) error {
 	//连接mysql
 	db := setting.MysqlConn()
-	defer db.Close()
 	//每日任务获取积分
 	status := 0
 	tx := db.Begin()
@@ -99,7 +96,6 @@ func EarnMoney(userID uint) error {
 func GetTask(userID uint) ([]Task, error) {
 	//连接mysql
 	db := setting.MysqlConn()
-	defer db.Close()
 
 	//获取个人积分信息
 	var user []Task
@@ -111,7 +107,6 @@ func GetTask(userID uint) ([]Task, error) {
 func UpdateTask() error {
 	//连接mysql
 	db := setting.MysqlConn()
-	defer db.Close()
 
 	//更新每日任务
 	err := db.Table("user_other").Update(map[string]interface{}{"lo1": "0", "lo2": "0", "lo3": "0", "lo4": "0", "lo5": "0", "lo6": "0"}).Error
