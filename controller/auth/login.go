@@ -59,7 +59,6 @@ func Login(c *gin.Context) {
 	random := tools.GetRandomString(16)
 	token := base64.StdEncoding.EncodeToString(random)
 	client := setting.RedisConn()
-	defer client.Close()
 	keyname := "healing2020:token:" + token
 	client.Set(keyname, data, time.Minute*30)
 	models.UpdateOrCreate(loginForm.OpenId, loginForm.NickName, loginForm.Sex, loginForm.Avatar)
@@ -98,7 +97,6 @@ func FakeLogin(c *gin.Context) {
 	redirect := c.Query("redirect")
 
 	db := setting.MysqlConn()
-	defer db.Close()
 	var user statements.User
 	var redisUser tools.RedisUser
 	result := db.Model(&statements.User{}).Where("id=?", id).First(&user)
@@ -185,7 +183,6 @@ func DisposableLogin(ctx *gin.Context) {
 	json.Unmarshal([]byte(loginToken[token]), wechatUser)
 	models.UpdateOrCreate(wechatUser.OpenID, wechatUser.Nickname, wechatUser.Sex, wechatUser.HeadImgUrl)
 	db := setting.MysqlConn()
-	defer db.Close()
 	var redisUser tools.RedisUser
 	var user statements.User
 	result := db.Model(&statements.User{}).Where("open_id=?", wechatUser.OpenID).First(&user)

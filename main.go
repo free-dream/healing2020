@@ -3,6 +3,7 @@ package main
 import (
 	"healing2020/controller"
 	"healing2020/models"
+	"healing2020/pkg/setting"
 	"healing2020/pkg/tools"
 	"healing2020/router"
 	"log"
@@ -18,6 +19,8 @@ import (
 // @Description 2020治愈系
 
 func main() {
+	defer setting.DB.Close()
+	defer setting.RedisClient.Close()
 	models.TableInit()
 	controller.MysqltoChan()
 	if tools.IsDebug() {
