@@ -75,7 +75,7 @@ func PutUser(c *gin.Context) {
 	jsonInf := PutUserInf{}
 	c.BindJSON(&jsonInf)
 	//获取用户信息
-	userInf := tools.GetUser(c)
+	userID := tools.GetUser(c).ID
 	//构建模型
 	user := statements.User{
 		NickName: jsonInf.NickName,
@@ -86,7 +86,7 @@ func PutUser(c *gin.Context) {
 		Phone:    jsonInf.Phone,
 		TrueName: jsonInf.TrueName,
 	}
-	err := models.UpdateUser(c, user, userInf.ID)
+	err := models.UpdateUser(c, user, userID)
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.ERROR_USER_SAVE_FAIL)})
 	} else {
