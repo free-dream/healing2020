@@ -34,6 +34,7 @@ type SongMsg struct {
     Style string `json:"style"`
     Source string `json:"source"`
     Singer string `json:"singer"`
+    UserId uint `json:"userid"`
 }
 
 func SendMainMsg() {
@@ -101,6 +102,7 @@ func LoadSongMsg(sort string,key string) []SongMsg{
         songList[i].User = user.NickName
         songList[i].Sex = user.Sex
         songList[i].Avatar = user.Avatar
+        songList[i].UserId = userid
 
         var vod statements.Vod
         db.Model(&statements.Vod{}).Select("name,more").Where("id=?",sendid).Find(&vod)
