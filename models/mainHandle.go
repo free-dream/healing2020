@@ -166,7 +166,6 @@ func LoadVodMsg(sort string, key string) []SongMsg {
 func GetMainMsg(sort string, key string) (MainMsg, error) {
 	var result MainMsg
 	client := setting.RedisConn()
-	defer client.Close()
 	data1, err1 := client.Get("healing2020:Main:" + key + "SingMsg" + sort).Bytes()
 	if data1 == nil {
 		return MainMsg{}, nil

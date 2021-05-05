@@ -90,7 +90,6 @@ func SendDeliverRank() error {
 	rows := result.RowsAffected
 	if rows == 0 {
 		client := setting.RedisConn()
-		defer client.Close()
 
 		count, _ := client.Get("healing2020:rankCount").Float64()
 		keyName := "healing2020:Deliver." + strconv.FormatFloat(count/100+4.20, 'f', 2, 64)
@@ -121,7 +120,6 @@ func SendDeliverRank() error {
 
 	//set in redis
 	client := setting.RedisConn()
-	defer client.Close()
 	count, _ := client.Get("healing2020:rankCount").Float64()
 	keyName := "healing2020:Deliver." + strconv.FormatFloat(count/100+4.20, 'f', 2, 64)
 	client.Set(keyName, jsonRank, 0)
@@ -132,7 +130,6 @@ func SendDeliverRank() error {
 func GetDeliverRank() ([]AllRank, string) {
 	result := make([]AllRank, 10)
 	client := setting.RedisConn()
-	defer client.Close()
 	count, _ := client.Get("healing2020:rankCount").Float64()
 	var i float64 = 0
 	for j := 0; ; j++ {
@@ -182,7 +179,6 @@ func SendSongRank() error {
 	rows := result.RowsAffected
 	if rows == 0 {
 		client := setting.RedisConn()
-		defer client.Close()
 
 		count, _ := client.Get("healing2020:rankCount").Float64()
 		keyName := "healing2020:Song." + strconv.FormatFloat(count/100+4.20, 'f', 2, 64)
@@ -213,7 +209,6 @@ func SendSongRank() error {
 
 	//set in redis
 	client := setting.RedisConn()
-	defer client.Close()
 	count, _ := client.Get("healing2020:rankCount").Float64()
 	keyName := "healing2020:Song." + strconv.FormatFloat(count/100+4.20, 'f', 2, 64)
 	client.Set(keyName, jsonRank, 0)
@@ -224,7 +219,6 @@ func SendSongRank() error {
 func GetSongRank() ([]AllRank, string) {
 	result := make([]AllRank, 10)
 	client := setting.RedisConn()
-	defer client.Close()
 	count, _ := client.Get("healing2020:rankCount").Float64()
 	var i float64 = 0
 	for j := 0; ; j++ {
@@ -286,7 +280,6 @@ func SendUserRank() error {
 
 	//set in redis
 	client := setting.RedisConn()
-	defer client.Close()
 	count, _ := client.Get("healing2020:rankCount").Float64()
 	keyName := "healing2020:User." + strconv.FormatFloat(count/100+4.20, 'f', 2, 64)
 	client.Set(keyName, jsonRank, 0)
@@ -302,7 +295,6 @@ type AllUserRank struct {
 func GetAllUserRank() ([]AllUserRank, string) {
 	result := make([]AllUserRank, 10)
 	client := setting.RedisConn()
-	defer client.Close()
 	count, _ := client.Get("healing2020:rankCount").Float64()
 	var i float64 = 0
 	for j := 0; ; j++ {
@@ -358,7 +350,6 @@ func GetUserRank(id string) (UserRank, error) {
 
 func UpdateRankCount() {
 	client := setting.RedisConn()
-	defer client.Close()
 
 	count, _ := client.Get("healing2020:rankCount").Float64()
 	count++
