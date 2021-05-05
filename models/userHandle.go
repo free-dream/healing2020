@@ -56,6 +56,7 @@ func SelectUserHobby(userID uint) (string, error) {
 	return userHobby.Hobby, err
 }
 
+//更新用户数据后要引用一次该函数
 func updateSession(c *gin.Context, db *gorm.DB) {
 	var redisUser tools.RedisUser
 	var user statements.User
@@ -83,15 +84,31 @@ func UpdateUser(c *gin.Context, user statements.User, userID uint) error {
 		"setting1":  user.Setting1,
 		"setting2":  user.Setting2,
 		"setting3":  user.Setting3,
-		"avatar":    user.Avatar,
 		"phone":     user.Phone,
 		"true_name": user.TrueName,
-		"campus":    user.Campus,
 	}
 
 	//开启事务
 	tx := db.Begin()
 	err := tx.Model(&statements.User{}).Where("id=?", userID).Update(userMap).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	com := tx.Commit()
+	updateSession(c, db)
+	return com.Error
+}
+
+//更新user表
+func RegisterUpdate(c *gin.Context, user statements.User, userID uint) error {
+	//连接mysql
+	db := setting.MysqlConn()
+	defer db.Close()
+
+	//开启事务
+	tx := db.Begin()
+	err := tx.Model(&statements.User{}).Where("id=?", userID).Update(user).Error
 	if err != nil {
 		tx.Rollback()
 		return err

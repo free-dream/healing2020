@@ -41,7 +41,7 @@ type UserRegister struct {
 //@Failure 403 {object} e.ErrMsgResponse
 func Register(c *gin.Context) {
 	//获取redis用户信息
-	userInf := tools.GetUser(c)
+	userID := tools.GetUser(c).ID
 	//获取json
 	jsonInf := UserRegister{}
 	c.BindJSON(&jsonInf)
@@ -53,7 +53,7 @@ func Register(c *gin.Context) {
 		Phone:    jsonInf.Phone,
 		Campus:   jsonInf.Campus,
 	}
-	err := models.UpdateUser(c, user, userInf.ID)
+	err := models.RegisterUpdate(c, user, userID)
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.ERROR_USER_CREATE_FAIL)})
@@ -83,7 +83,6 @@ func PutUser(c *gin.Context) {
 		Setting1: jsonInf.Setting1,
 		Setting2: jsonInf.Setting2,
 		Setting3: jsonInf.Setting3,
-		Avatar:   jsonInf.Avatar,
 		Phone:    jsonInf.Phone,
 		TrueName: jsonInf.TrueName,
 	}
