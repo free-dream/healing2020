@@ -35,6 +35,9 @@ type AllRank struct {
 }
 
 func errRollBack(tx *gorm.DB,status *int) error{
+    if errors.Is(tx.Error,gorm.ErrRecordNotFound) {
+        return nil
+    }
     if tx.Error != nil {
         if *status < 5 {
             *status++
@@ -256,26 +259,33 @@ func SendUserRank() error{
     db := setting.MysqlConn()
     defer db.Close()
 
-    status := 0
-    tx := db.Begin()
-
     var user []statements.User
-    result := tx.Model(&statements.User{}).Order("money, created_at desc").Find(&user)
-    err1 := errRollBack(tx,&status) 
-    if err1 != nil {
-        return err1
-    }
-    rows := result.RowsAffected
-    if rows == 0 {
-        return errors.New("no data")
-    }
     var rank []Rank = make([]Rank,10)
-    for i:=0;i<min(int(rows),10);i++ {
-        rank[i].ID = user[i].ID
-        rank[i].User = user[i].NickName
-        rank[i].Avatar = user[i].Avatar
+    var allRank [][]Rank = make([][]Rank,3)
+    for i:=0;i<3;i++ {
+        pattern := []string{"","中大","华工"}
+        var result *gorm.DB
+        if i == 0 {
+            result = db.Model(&statements.User{}).Order("money, created_at desc").Find(&user)
+        }else {
+            result = db.Model(&statements.User{}).Where("campus=?",pattern[i]).Order("money, created_at desc").Find(&user)
+        }
+        rows := result.RowsAffected
+        if rows == 0 {
+            return nil
+        }
+        if result.Error != nil {
+            return result.Error
+        }
+        for i:=0;i<min(int(rows),10);i++ {
+            rank[i].ID = user[i].ID
+            rank[i].User = user[i].NickName
+            rank[i].Avatar = user[i].Avatar
+        }
+
+        allRank[i] = rank
     }
-    jsonRank,_ := json.Marshal(rank)
+    jsonRank,_ := json.Marshal(allRank)
 
     //set in redis
     client := setting.RedisConn()
@@ -287,14 +297,18 @@ func SendUserRank() error{
     return nil
 }
 
-func GetAllUserRank() ([]AllRank,string){
-    result := make([]AllRank,10)
+type AllUserRank struct {
+    Time string `json:"time"`
+    Data [][]Rank `json:"data"`
+}
+func GetAllUserRank() ([]AllUserRank,string){
+    result := make([]AllUserRank,10)
     client := setting.RedisConn()
     defer client.Close()
     count,_ := client.Get("healing2020:rankCount").Float64()
     var i float64 = 0
     for j:=0;;j++ {
-        var rank []Rank
+        var rank [][]Rank
         if i*100>count {
             fmt.Println(j)
             break
