@@ -23,6 +23,7 @@ func PostDeliver(c *gin.Context) {
 	err := models.PostDeliver(params.UserId, params.TextField, params.Photo, params.Record)
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: "Fail to add deliver"})
+		return
 	}
 	c.JSON(200, e.ErrMsgResponse{Message: "发送投递成功！"})
 }
