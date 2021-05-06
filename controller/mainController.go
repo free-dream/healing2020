@@ -2,7 +2,7 @@ package controller
 
 import (
     "net/url"
-    "fmt"
+    //"fmt"
 
 	"github.com/gin-gonic/gin"
 	"healing2020/models"
@@ -22,8 +22,7 @@ import (
 func MainSearch(c *gin.Context) {
     searchRaw := c.Query("search")
     search,_ := url.QueryUnescape(searchRaw) 
-    fmt.Println(search)
-    if !tools.Valid(search,"^([0-9A-Za-z\\u4e00-\\u9fa5]|\\s|(\\ud83c[\\udf00-\\udfff])|(\\ud83d[\\udc00-\\ude4f\\ude80-\\udeff])|[\\u2600-\\u2B55])*$") {
+    if !tools.Valid(search,"^([0-9A-Za-z\u4e00-\u9fa5]|\\s)*$") {
         c.JSON(400,e.ErrMsgResponse{Message:"unexpected params"})
         return
     }
