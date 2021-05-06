@@ -27,6 +27,7 @@ type Rank struct {
 	Time   string `json:"time"`
 	Praise int    `json:"praise"`
 	Name   string `json:"name"`
+    UserId uint   `json:"userid"`
 }
 
 type AllRank struct {
@@ -103,6 +104,7 @@ func SendDeliverRank() error {
 		rank[i].Text = deliver[i].TextField
 		rank[i].Photo = deliver[i].Photo
 		rank[i].Source = deliver[i].Record
+        rank[i].UserId = deliver[i].UserId
 
 		userid := deliver[i].UserId
 		var user statements.User

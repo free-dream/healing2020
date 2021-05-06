@@ -18,7 +18,7 @@ import (
 
 type MainMsg struct {
 	Sing   []SongMsg `json:"sing"`
-	Listen []SongMsg `json:"listen"`
+	Listen []SongMsg `json"listen"`
 }
 
 type SongMsg struct {
@@ -43,6 +43,8 @@ func SendMainMsg() {
 
 	var sortArr = []string{"0", "1"}
 	var keyArr = []string{"", "ACG", "流行", "古风", "民谣", "摇滚", "抖音热歌", "其他", "国语", "英语", "日语", "粤语"}
+	//var sortArr = []string{"0"}
+	//var keyArr = []string{""}
 	for _, sort := range sortArr {
 		for _, key := range keyArr {
 			listenRaw := LoadSongMsg(sort, key,"")
@@ -70,8 +72,8 @@ func LoadSongMsg(sort string, key string,userTags string) []SongMsg {
         if sort == "1" {
             result = db.Raw("select id,user_id,vod_send,name,praise,source,style,language,created_at from song order by rand()")
             rows, _ = result.Rows()
-        }else {
-            result = db.Raw("select id,user_id,vod_send,name,praise,source,style,language,created_at from song order by created_at,praise")
+        } else {
+            result = db.Raw("select id,user_id,vod_send,name,praise,source,style,language,created_at from song order by created_at,praise desc")
             rows, _ = result.Rows()
         }
 	} else {
@@ -131,10 +133,10 @@ func LoadVodMsg(sort string, key string,userTags string) []SongMsg {
 	var result *gorm.DB
 	if key == "" || key == "推荐"{
         if sort == "1" {
-            result = db.Raw("select id,user_id,name,singer,more,style,language,created_at from vod order by rand()")
+            result = db.Raw("select id,user_id,name,singer,more,style,language,created_at from vod order by rand() limit 10")
             rows, _ = result.Rows()
         }else {
-            result = db.Raw("select id,user_id,name,singer,more,style,language,created_at from vod order by created_at,praise")
+            result = db.Raw("select id,user_id,name,singer,more,style,language,created_at from vod order by created_at desc")
             rows, _ = result.Rows()
         }
 	} else {
@@ -142,7 +144,7 @@ func LoadVodMsg(sort string, key string,userTags string) []SongMsg {
 			result = db.Raw("select id,user_id,name,singer,more,created_at,style,language from vod where style=? or language=? order by rand()", key, key)
 			rows, _ = result.Rows()
 		} else {
-			result = db.Raw("select id,user_id,name,singer,more,created_at,style,language from vod where style=? or language=? order by created_at,praise desc", key, key)
+			result = db.Raw("select id,user_id,name,singer,more,created_at,style,language from vod where style=? or language=? order by created_at desc", key, key)
 			rows, _ = result.Rows()
 		}
 	}
