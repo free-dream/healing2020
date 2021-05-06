@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"fmt"
-	"net/url"
+    "net/url"
+	//"fmt"
 
 	"github.com/gin-gonic/gin"
 	"healing2020/models"
@@ -19,20 +19,19 @@ import (
 // @Success 200 {object} models.SearchResp
 // @Failure 403 {object} e.ErrMsgResponse
 func MainSearch(c *gin.Context) {
-	searchRaw := c.Query("search")
-	search, _ := url.QueryUnescape(searchRaw)
-	fmt.Println(search)
-	if !tools.Valid(search, "^([0-9A-Za-z\\u4e00-\\u9fa5]|\\s|(\\ud83c[\\udf00-\\udfff])|(\\ud83d[\\udc00-\\ude4f\\ude80-\\udeff])|[\\u2600-\\u2B55])*$") {
-		c.JSON(400, e.ErrMsgResponse{Message: "unexpected params"})
-		return
-	}
-	result := models.GetSearchResult(search)
-	if result.Err != "" {
-		c.JSON(500, e.ErrMsgResponse{Message: "internal error"})
-		return
-	}
-	c.JSON(200, result)
-	return
+    searchRaw := c.Query("search")
+    search,_ := url.QueryUnescape(searchRaw) 
+    if !tools.Valid(search,"^([0-9A-Za-z\u4e00-\u9fa5]|\\s)*$") {
+        c.JSON(400,e.ErrMsgResponse{Message:"unexpected params"})
+        return
+    }
+    result := models.GetSearchResult(search)
+    if result.Err != "" {
+        c.JSON(500,e.ErrMsgResponse{Message:"internal error"})
+        return
+    }
+    c.JSON(200,result)
+    return
 }
 
 // @Title GetMainMsg
