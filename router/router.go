@@ -88,6 +88,8 @@ func InitRouter() *gin.Engine {
 	api.PUT("/lottery/usemoney", controller.UseMoney)   //抽奖减少积分
 	api.PUT("/lottery/earnmoney", controller.EarnMoney) //完成每日任务增加积分
 	api.GET("/lottery/gettask", controller.GetTask)     //获取每日任务
+	api.GET("/lottery/shareQRcode", controller.PostQRcode) //首次分享二维码加积分
+
 
 	//评论
 	api.GET("/getcomment", controller.GetComment)

@@ -112,3 +112,51 @@ func UpdateTask() error {
 	err := db.Table("user_other").Update(map[string]interface{}{"lo1": "0", "lo2": "0", "lo3": "0", "lo4": "0", "lo5": "0", "lo6": "0"}).Error
 	return err
 }
+
+//分享二维码加积分
+func PostQRcode(User_id string) error {
+	intId, _ := strconv.Atoi(User_id)
+	user_id := uint(intId)
+
+	db := setting.MysqlConn()
+	defer db.Close()
+
+	status := 0
+	tx := db.Begin()
+
+	var userother statements.UserOther
+	result := tx.Model(&statements.UserOther{}).Where("id= ?", user_id).First(&userother)
+	if result.Error != nil {
+		return result.Error
+	}
+	//判断完成每日任务和增加积分
+	if userother.Lo6 != 1 {
+		err2 := tx.Model(&statements.UserOther{}).Where("user_id = ?", user_id).Update("lo6", 1).Error
+		if err2 != nil {
+			if status < 5 {
+				status++
+				tx.Rollback()
+			} else {
+				return err2
+			}
+		}
+		var user statements.User
+		result := tx.Model(&statements.User{}).Where("id= ?", user_id).First(&user)
+		if result.Error != nil {
+			return result.Error
+		}
+		if user.Money >= 0 {
+			user.Money = user.Money + 10
+			err3 := tx.Save(&user).Error
+			if err3 != nil {
+				if status < 5 {
+					status++
+					tx.Rollback()
+				} else {
+					return err3
+				}
+			}
+		}
+	}
+	return tx.Commit().Error
+}
