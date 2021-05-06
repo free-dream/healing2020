@@ -88,7 +88,7 @@ func LoadType() SongType {
 
 func typeValid(language string, style string) int {
 	songType := LoadType()
-	if language == "" && style == "" {
+	if language == "" || style == "" {
 		return -1
 	}
 	var status int = 0
