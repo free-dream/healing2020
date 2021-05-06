@@ -14,6 +14,7 @@ require (
 	github.com/onsi/ginkgo v1.15.1 // indirect
 	github.com/onsi/gomega v1.11.0 // indirect
 	github.com/qiniu/api.v7/v7 v7.8.1
+	github.com/qiniu/go-sdk/v7 v7.9.5
 	github.com/robfig/cron v1.2.0
 	github.com/smartystreets/goconvey v1.6.4 // indirect
 	github.com/swaggo/files v0.0.0-20190704085106-630677cd5c14

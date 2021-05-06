@@ -7,7 +7,6 @@ import (
 	"healing2020/pkg/tools"
 )
 
-
 // @Title Search
 // @Description 首页搜索
 // @Tags main
@@ -17,18 +16,18 @@ import (
 // @Success 200 {object} models.SearchResp
 // @Failure 403 {object} e.ErrMsgResponse
 func MainSearch(c *gin.Context) {
-    search := c.Query("search")
-    if !tools.Valid(search,"^[0-9A-Za-z\u4e00-\u9fa5]+$") {
-        c.JSON(400,e.ErrMsgResponse{Message:"unexpected params"})
-        return
-    }
-    result := models.GetSearchResult(search)
-    if result.Err != nil {
-        c.JSON(500,e.ErrMsgResponse{Message:"internal error"})
-        return
-    }
-    c.JSON(200,result)
-    return
+	search := c.Query("search")
+	if !tools.Valid(search, "^[0-9A-Za-z\u4e00-\u9fa5]+$") {
+		c.JSON(400, e.ErrMsgResponse{Message: "unexpected params"})
+		return
+	}
+	result := models.GetSearchResult(search)
+	if result.Err != nil {
+		c.JSON(500, e.ErrMsgResponse{Message: "internal error"})
+		return
+	}
+	c.JSON(200, result)
+	return
 }
 
 // @Title GetMainMsg
@@ -50,7 +49,7 @@ func MainMsg(c *gin.Context) {
 		return
 	}
 	status := typeValid(language, style)
-	if status == 0 && status == 3 {
+	if status == 0 || status == 3 {
 		c.JSON(403, e.ErrMsgResponse{Message: "Unexpected input"})
 	}
 	var key string
@@ -79,7 +78,7 @@ type SongType struct {
 
 func LoadType() SongType {
 	language := []string{"国语", "英语", "日语", "粤语"}
-    style := []string{"ACG", "流行", "古风", "民谣", "摇滚", "抖音热歌","其他"}
+	style := []string{"ACG", "流行", "古风", "民谣", "摇滚", "抖音热歌", "其他"}
 	var songType SongType
 	songType.Language = language
 	songType.Style = style
