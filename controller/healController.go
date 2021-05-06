@@ -82,9 +82,9 @@ func Praise(c *gin.Context) {
 }
 
 type RecordParams struct {
-	Id       string   `json:"id" binding:"required"`
-	Name     string   `json:"name" binding:"required"`
-	ServerID []string `json:"server_id" binding:"required"`
+	Id       string   `form:"id" binding:"required"`
+	Name     string   `form:"name" binding:"required"`
+	ServerID []string `form:"server_id" binding:"required"`
 }
 
 // @Title AddRecord
