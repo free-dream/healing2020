@@ -82,9 +82,9 @@ func Praise(c *gin.Context) {
 }
 
 type RecordParams struct {
-	Id   string `json:"id" binding:"required"`
-	Name string `json:"name" binding:"required"`
-	Url  string `json:"url" binding:"required"`
+	Id       string   `json:"id" binding:"required"`
+	Name     string   `json:"name" binding:"required"`
+	ServerID []string `json:"server_id" binding:"required"`
 }
 
 // @Title AddRecord
@@ -92,9 +92,9 @@ type RecordParams struct {
 // @Tags heal
 // @Produce json
 // @Router /api/record [post]
-// @Param id body RecordParams true "点歌单id"
-// @Param name body RecordParams false "user name"
-// @Param url body RecordParams true "url"
+// @Param id formData string true "点歌单id"
+// @Param name formData string false "user name"
+// @Param server_id formData []string true "server_id"
 // @Success 200 {object} e.ErrMsgResponse
 // @Failure 403 {object} e.ErrMsgResponse
 func RecordHeal(c *gin.Context) {
@@ -103,7 +103,8 @@ func RecordHeal(c *gin.Context) {
 		c.JSON(400, e.ErrMsgResponse{Message: "Uncomplete params"})
 		return
 	}
-	err := models.CreateRecord(params.Id, params.Url, tools.GetUser(c).ID)
+	url, err := convertMediaIdArrToQiniuUrl(params.ServerID)
+	err = models.CreateRecord(params.Id, url, tools.GetUser(c).ID)
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: "Fail to add praise"})
 	}

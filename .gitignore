@@ -9,3 +9,4 @@ healing2020.exe
 healing.log
 gin-bin
 *_test.go
+*.test

@@ -139,6 +139,40 @@ var doc = `{
                 }
             }
         },
+        "/api/main/search": {
+            "get": {
+                "description": "首页搜索",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "main"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "search form",
+                        "name": "search",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.SearchResp"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/qiniu/token": {
             "get": {
                 "description": "获取七牛的upToken",
@@ -207,30 +241,27 @@ var doc = `{
                 ],
                 "parameters": [
                     {
+                        "type": "string",
                         "description": "点歌单id",
                         "name": "id",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/controller.RecordParams"
-                        }
+                        "in": "formData",
+                        "required": true
                     },
                     {
+                        "type": "string",
                         "description": "user name",
                         "name": "name",
-                        "in": "body",
-                        "schema": {
-                            "$ref": "#/definitions/controller.RecordParams"
-                        }
+                        "in": "formData"
                     },
                     {
-                        "description": "url",
-                        "name": "url",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/controller.RecordParams"
-                        }
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "server_id",
+                        "name": "server_id",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -712,7 +743,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controller.BroadcastContent"
+                            "$ref": "#/definitions/controller.ServerMsg"
                         }
                     }
                 ],
@@ -771,31 +802,6 @@ var doc = `{
                     }
                 }
             }
-        },
-        "/message": {
-            "post": {
-                "description": "发送消息并保存于数据库",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "message"
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/e.ErrMsgResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/e.ErrMsgResponse"
-                        }
-                    }
-                }
-            }
         }
     },
     "definitions": {
@@ -804,20 +810,6 @@ var doc = `{
             "properties": {
                 "message": {
                     "type": "string"
-                }
-            }
-        },
-        "controller.BroadcastContent": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                },
-                "time": {
-                    "type": "string"
-                },
-                "type": {
-                    "type": "integer"
                 }
             }
         },
@@ -944,6 +936,9 @@ var doc = `{
                 "phone": {
                     "type": "string"
                 },
+                "postbox": {
+                    "type": "string"
+                },
                 "setting1": {
                     "type": "integer"
                 },
@@ -969,22 +964,17 @@ var doc = `{
                 }
             }
         },
-        "controller.RecordParams": {
+        "controller.ServerMsg": {
             "type": "object",
-            "required": [
-                "id",
-                "name",
-                "url"
-            ],
             "properties": {
-                "id": {
+                "message": {
                     "type": "string"
                 },
-                "name": {
+                "time": {
                     "type": "string"
                 },
-                "url": {
-                    "type": "string"
+                "type": {
+                    "type": "integer"
                 }
             }
         },
@@ -1171,6 +1161,32 @@ var doc = `{
                 }
             }
         },
+        "models.SearchResp": {
+            "type": "object",
+            "properties": {
+                "err": {
+                    "type": "string"
+                },
+                "song": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.SongResp"
+                    }
+                },
+                "user": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.UserResp"
+                    }
+                },
+                "vod": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.VodResp"
+                    }
+                }
+            }
+        },
         "models.SongMsg": {
             "type": "object",
             "properties": {
@@ -1209,6 +1225,32 @@ var doc = `{
                 },
                 "user": {
                     "type": "string"
+                },
+                "userid": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.SongResp": {
+            "type": "object",
+            "properties": {
+                "praise": {
+                    "type": "integer"
+                },
+                "singer": {
+                    "type": "string"
+                },
+                "songName": {
+                    "type": "string"
+                },
+                "songid": {
+                    "type": "integer"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "time": {
+                    "type": "string"
                 }
             }
         },
@@ -1234,6 +1276,40 @@ var doc = `{
             "properties": {
                 "rank": {
                     "type": "integer"
+                }
+            }
+        },
+        "models.UserResp": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "more": {
+                    "type": "string"
+                },
+                "userName": {
+                    "type": "string"
+                },
+                "userid": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.VodResp": {
+            "type": "object",
+            "properties": {
+                "time": {
+                    "type": "string"
+                },
+                "vodId": {
+                    "type": "integer"
+                },
+                "vodName": {
+                    "type": "string"
+                },
+                "vodUser": {
+                    "type": "string"
                 }
             }
         }
