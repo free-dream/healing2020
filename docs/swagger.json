@@ -224,33 +224,27 @@
                 ],
                 "parameters": [
                     {
+                        "type": "string",
                         "description": "点歌单id",
                         "name": "id",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "in": "formData",
+                        "required": true
                     },
                     {
+                        "type": "string",
                         "description": "user name",
                         "name": "name",
-                        "in": "body",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "in": "formData"
                     },
                     {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
                         "description": "server_id",
                         "name": "server_id",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {
