@@ -17,7 +17,7 @@ import (
 
 type MainMsg struct {
 	Sing   []SongMsg `json:"sing"`
-	Listen []SongMsg `json"listen"`
+	Listen []SongMsg `json:"listen"`
 }
 
 type SongMsg struct {
