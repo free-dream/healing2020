@@ -246,7 +246,7 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controller.RecordParams"
+                            "type": "string"
                         }
                     },
                     {
@@ -254,7 +254,7 @@ var doc = `{
                         "name": "name",
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/controller.RecordParams"
+                            "type": "string"
                         }
                     },
                     {
@@ -263,7 +263,10 @@ var doc = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controller.RecordParams"
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
                         }
                     }
                 ],
@@ -964,28 +967,6 @@ var doc = `{
             "properties": {
                 "url": {
                     "type": "string"
-                }
-            }
-        },
-        "controller.RecordParams": {
-            "type": "object",
-            "required": [
-                "id",
-                "name",
-                "server_id"
-            ],
-            "properties": {
-                "id": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "server_id": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
                 }
             }
         },

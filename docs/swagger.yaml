@@ -103,21 +103,6 @@ definitions:
       url:
         type: string
     type: object
-  controller.RecordParams:
-    properties:
-      id:
-        type: string
-      name:
-        type: string
-      server_id:
-        items:
-          type: string
-        type: array
-    required:
-    - id
-    - name
-    - server_id
-    type: object
   controller.ServerMsg:
     properties:
       message:
@@ -494,18 +479,20 @@ paths:
         name: id
         required: true
         schema:
-          $ref: '#/definitions/controller.RecordParams'
+          type: string
       - description: user name
         in: body
         name: name
         schema:
-          $ref: '#/definitions/controller.RecordParams'
+          type: string
       - description: server_id
         in: body
         name: server_id
         required: true
         schema:
-          $ref: '#/definitions/controller.RecordParams'
+          items:
+            type: string
+          type: array
       produces:
       - application/json
       responses:

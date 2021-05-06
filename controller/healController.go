@@ -92,9 +92,9 @@ type RecordParams struct {
 // @Tags heal
 // @Produce json
 // @Router /api/record [post]
-// @Param id body RecordParams true "点歌单id"
-// @Param name body RecordParams false "user name"
-// @Param server_id body RecordParams true "server_id"
+// @Param id body string true "点歌单id"
+// @Param name body string false "user name"
+// @Param server_id body []string true "server_id"
 // @Success 200 {object} e.ErrMsgResponse
 // @Failure 403 {object} e.ErrMsgResponse
 func RecordHeal(c *gin.Context) {
