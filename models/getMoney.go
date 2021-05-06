@@ -125,7 +125,7 @@ func PostQRcode(User_id string) error {
 	tx := db.Begin()
 
 	var userother statements.UserOther
-	result := tx.Model(&statements.UserOther{}).Where("id= ?", user_id).First(&userother)
+	result := tx.Model(&statements.UserOther{}).Where("user_id= ?", user_id).First(&userother)
 	if result.Error != nil {
 		return result.Error
 	}

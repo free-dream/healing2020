@@ -57,6 +57,7 @@ func PostQRcode (c *gin.Context) {
 	err := models.PostQRcode(User_id)
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: "Fail to add money"})
+		return
 	}
-	c.JSON(200, e.ErrMsgResponse{Message: "分享二维码成功！"})
+	c.JSON(200, e.ErrMsgResponse{Message: "ok"})
 }
