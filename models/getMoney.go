@@ -120,7 +120,6 @@ func PostQRcode(User_id string) error {
 	user_id := uint(intId)
 
 	db := setting.MysqlConn()
-	defer db.Close()
 
 	status := 0
 	tx := db.Begin()
