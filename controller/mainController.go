@@ -1,6 +1,9 @@
 package controller
 
 import (
+	"fmt"
+	"net/url"
+
 	"github.com/gin-gonic/gin"
 	"healing2020/models"
 	"healing2020/pkg/e"
@@ -16,13 +19,15 @@ import (
 // @Success 200 {object} models.SearchResp
 // @Failure 403 {object} e.ErrMsgResponse
 func MainSearch(c *gin.Context) {
-	search := c.Query("search")
-	if !tools.Valid(search, "^[0-9A-Za-z\u4e00-\u9fa5]+$") {
+	searchRaw := c.Query("search")
+	search, _ := url.QueryUnescape(searchRaw)
+	fmt.Println(search)
+	if !tools.Valid(search, "^([0-9A-Za-z\\u4e00-\\u9fa5]|\\s|(\\ud83c[\\udf00-\\udfff])|(\\ud83d[\\udc00-\\ude4f\\ude80-\\udeff])|[\\u2600-\\u2B55])*$") {
 		c.JSON(400, e.ErrMsgResponse{Message: "unexpected params"})
 		return
 	}
 	result := models.GetSearchResult(search)
-	if result.Err != nil {
+	if result.Err != "" {
 		c.JSON(500, e.ErrMsgResponse{Message: "internal error"})
 		return
 	}
@@ -87,7 +92,7 @@ func LoadType() SongType {
 
 func typeValid(language string, style string) int {
 	songType := LoadType()
-	if language == "" || style == "" {
+	if language == "" && style == "" {
 		return -1
 	}
 	var status int = 0

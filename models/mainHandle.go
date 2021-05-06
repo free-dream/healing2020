@@ -3,16 +3,17 @@ package models
 import (
 	"database/sql"
 	"encoding/json"
-	"healing2020/models/statements"
-	"healing2020/pkg/setting"
 	//"strconv"
 	//"fmt"
+	"time"
 	"errors"
+    "strings"
+
+	"healing2020/models/statements"
+	"healing2020/pkg/setting"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-
-	"time"
 )
 
 type MainMsg struct {
@@ -44,8 +45,8 @@ func SendMainMsg() {
 	var keyArr = []string{"", "ACG", "流行", "古风", "民谣", "摇滚", "抖音热歌", "其他", "国语", "英语", "日语", "粤语"}
 	for _, sort := range sortArr {
 		for _, key := range keyArr {
-			listenRaw := LoadSongMsg(sort, key)
-			singRaw := LoadVodMsg(sort, key)
+			listenRaw := LoadSongMsg(sort, key,"")
+			singRaw := LoadVodMsg(sort, key,"")
 			listen, _ := json.Marshal(listenRaw)
 			sing, _ := json.Marshal(singRaw)
 
@@ -58,22 +59,27 @@ func SendMainMsg() {
 	}
 }
 
-func LoadSongMsg(sort string, key string) []SongMsg {
+func LoadSongMsg(sort string, key string,userTags string) []SongMsg {
 	db := setting.MysqlConn()
 	var songList []SongMsg = make([]SongMsg, 8)
 	i := 0
 
 	var rows *sql.Rows
 	var result *gorm.DB
-	if key == "" {
-		result = db.Raw("select id,user_id,vod_send,name,praise,source,style,created_at from song order by rand() limit 30")
-		rows, _ = result.Rows()
+	if key == "" || key == "推荐" {
+        if sort == "1" {
+            result = db.Raw("select id,user_id,vod_send,name,praise,source,style,language,created_at from song order by rand()")
+            rows, _ = result.Rows()
+        }else {
+            result = db.Raw("select id,user_id,vod_send,name,praise,source,style,language,created_at from song order by created_at,praise")
+            rows, _ = result.Rows()
+        }
 	} else {
 		if sort == "1" {
-			result = db.Raw("select id,user_id,vod_send,name,praise,source,style,created_at from song where style=? or language=? order by rand() limit 30", key, key)
+			result = db.Raw("select id,user_id,vod_send,name,praise,source,style,language,created_at from song where style=? or language=? order by rand()", key, key)
 			rows, _ = result.Rows()
 		} else {
-			result = db.Raw("select id,user_id,vod_send,name,praise,source,style,created_at from song where style=? or language=? order by created_at,praise desc limit 30", key, key)
+			result = db.Raw("select id,user_id,vod_send,name,praise,source,style,language,created_at from song where style=? or language=? order by created_at,praise desc", key, key)
 			rows, _ = result.Rows()
 		}
 	}
@@ -87,6 +93,9 @@ func LoadSongMsg(sort string, key string) []SongMsg {
 	for rows.Next() {
 		var song statements.Song
 		db.ScanRows(rows, &song)
+        if key == "推荐" && !recommendFilter(song.Style,song.Language,userTags){
+            continue
+        }
 		songList[i].Id = song.ID
 		songList[i].Like = song.Praise
 		songList[i].Source = song.Source
@@ -113,22 +122,27 @@ func LoadSongMsg(sort string, key string) []SongMsg {
 	return songList
 }
 
-func LoadVodMsg(sort string, key string) []SongMsg {
+func LoadVodMsg(sort string, key string,userTags string) []SongMsg {
 	db := setting.MysqlConn()
 	var vodList []SongMsg = make([]SongMsg, 8)
 	i := 0
 
 	var rows *sql.Rows
 	var result *gorm.DB
-	if key == "" {
-		result = db.Raw("select id,user_id,name,singer,more,created_at from vod order by rand() limit 30")
-		rows, _ = result.Rows()
+	if key == "" || key == "推荐"{
+        if sort == "1" {
+            result = db.Raw("select id,user_id,name,singer,more,style,language,created_at from vod order by rand()")
+            rows, _ = result.Rows()
+        }else {
+            result = db.Raw("select id,user_id,name,singer,more,style,language,created_at from vod order by created_at,praise")
+            rows, _ = result.Rows()
+        }
 	} else {
 		if sort == "1" {
-			result = db.Raw("select id,user_id,name,singer,more,created_at from vod where style=? or language=? order by rand() limit 30", key, key)
+			result = db.Raw("select id,user_id,name,singer,more,created_at,style,language from vod where style=? or language=? order by rand()", key, key)
 			rows, _ = result.Rows()
 		} else {
-			result = db.Raw("select id,user_id,name,singer,more,created_at from vod where style=? or language=? order by created_at,praise desc limit 30", key, key)
+			result = db.Raw("select id,user_id,name,singer,more,created_at,style,language from vod where style=? or language=? order by created_at,praise desc", key, key)
 			rows, _ = result.Rows()
 		}
 	}
@@ -142,11 +156,15 @@ func LoadVodMsg(sort string, key string) []SongMsg {
 	for rows.Next() {
 		var vod statements.Vod
 		db.ScanRows(rows, &vod)
+        if key == "推荐" && !recommendFilter(vod.Style,vod.Language,userTags){
+            continue
+        }
 		vodList[i].Id = vod.ID
 		vodList[i].Name = vod.Name
 		vodList[i].More = vod.More
 		vodList[i].Time = vod.CreatedAt
 		vodList[i].Singer = vod.Singer
+        vodList[i].UserId = vod.UserId
 
 		userid := vod.UserId
 
@@ -198,11 +216,28 @@ func isListNil(result *gorm.DB) bool {
 	return false
 }
 
+func tagsSplit(tags string) []string {
+    // tags样式 "流行，国语，古风，..."
+    return strings.Split(tags,",")
+}
+
+func recommendFilter(style string,language string,userTags string) bool {
+    // 把不是用户爱好的过滤
+    tags := tagsSplit(userTags)
+    for _,tag := range tags {
+        if tag == style || tag == language{
+            return true
+        }
+    }
+
+    return false
+}
+
 type SearchResp struct {
 	User []UserResp
 	Song []SongResp
 	Vod  []VodResp
-	Err  error
+	Err  string
 }
 
 type UserResp struct {
@@ -261,9 +296,9 @@ func GetSearchResult(search string) SearchResp {
 			i++
 		}
 	} else {
-		searchResp.Err = result.Error
+		searchResp.Err = result.Error.Error()
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			searchResp.Err = nil
+			searchResp.Err = ""
 		}
 	}
 
@@ -291,9 +326,9 @@ func GetSearchResult(search string) SearchResp {
 			i++
 		}
 	} else {
-		searchResp.Err = result.Error
+		searchResp.Err = result.Error.Error()
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			searchResp.Err = nil
+			searchResp.Err = ""
 		}
 	}
 
@@ -317,9 +352,9 @@ func GetSearchResult(search string) SearchResp {
 			i++
 		}
 	} else {
-		searchResp.Err = result.Error
+		searchResp.Err = result.Error.Error()
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			searchResp.Err = nil
+			searchResp.Err = ""
 		}
 	}
 

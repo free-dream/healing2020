@@ -4,15 +4,6 @@ definitions:
       message:
         type: string
     type: object
-  controller.BroadcastContent:
-    properties:
-      message:
-        type: string
-      time:
-        type: string
-      type:
-        type: integer
-    type: object
   controller.GetUserResp:
     properties:
       avatar:
@@ -94,6 +85,8 @@ definitions:
         type: string
       phone:
         type: string
+      postbox:
+        type: string
       setting1:
         type: integer
       setting2:
@@ -116,12 +109,23 @@ definitions:
         type: string
       name:
         type: string
-      url:
-        type: string
+      server_id:
+        items:
+          type: string
+        type: array
     required:
     - id
     - name
-    - url
+    - server_id
+    type: object
+  controller.ServerMsg:
+    properties:
+      message:
+        type: string
+      time:
+        type: string
+      type:
+        type: integer
     type: object
   controller.Tag:
     properties:
@@ -242,6 +246,23 @@ definitions:
       time:
         type: string
     type: object
+  models.SearchResp:
+    properties:
+      err:
+        type: string
+      song:
+        items:
+          $ref: '#/definitions/models.SongResp'
+        type: array
+      user:
+        items:
+          $ref: '#/definitions/models.UserResp'
+        type: array
+      vod:
+        items:
+          $ref: '#/definitions/models.VodResp'
+        type: array
+    type: object
   models.SongMsg:
     properties:
       avatar:
@@ -268,6 +289,23 @@ definitions:
         type: string
       user:
         type: string
+      userid:
+        type: integer
+    type: object
+  models.SongResp:
+    properties:
+      praise:
+        type: integer
+      singer:
+        type: string
+      songName:
+        type: string
+      songid:
+        type: integer
+      source:
+        type: string
+      time:
+        type: string
     type: object
   models.Songs:
     properties:
@@ -284,6 +322,28 @@ definitions:
     properties:
       rank:
         type: integer
+    type: object
+  models.UserResp:
+    properties:
+      avatar:
+        type: string
+      more:
+        type: string
+      userName:
+        type: string
+      userid:
+        type: integer
+    type: object
+  models.VodResp:
+    properties:
+      time:
+        type: string
+      vodId:
+        type: integer
+      vodName:
+        type: string
+      vodUser:
+        type: string
     type: object
 info:
   contact: {}
@@ -366,6 +426,28 @@ paths:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
       - main
+  /api/main/search:
+    get:
+      description: 首页搜索
+      parameters:
+      - description: search form
+        in: query
+        name: search
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SearchResp'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - main
   /api/qiniu/token:
     get:
       description: 获取七牛的upToken
@@ -418,9 +500,9 @@ paths:
         name: name
         schema:
           $ref: '#/definitions/controller.RecordParams'
-      - description: url
+      - description: server_id
         in: body
-        name: url
+        name: server_id
         required: true
         schema:
           $ref: '#/definitions/controller.RecordParams'
@@ -733,7 +815,7 @@ paths:
         name: json
         required: true
         schema:
-          $ref: '#/definitions/controller.BroadcastContent'
+          $ref: '#/definitions/controller.ServerMsg'
       produces:
       - application/json
       responses:
@@ -773,20 +855,4 @@ paths:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
       - login
-  /message:
-    post:
-      description: 发送消息并保存于数据库
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/e.ErrMsgResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/e.ErrMsgResponse'
-      tags:
-      - message
 swagger: "2.0"
