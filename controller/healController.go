@@ -104,9 +104,14 @@ func RecordHeal(c *gin.Context) {
 		return
 	}
 	url, err := convertMediaIdArrToQiniuUrl(params.ServerID)
+	if err != nil {
+		c.JSON(403, e.ErrMsgResponse{Message: err.Error()})
+		return
+	}
 	err = models.CreateRecord(params.Id, url, tools.GetUser(c).ID)
 	if err != nil {
-		c.JSON(403, e.ErrMsgResponse{Message: "Fail to add praise"})
+		c.JSON(403, e.ErrMsgResponse{Message: err.Error()})
+		return
 	}
 	c.JSON(200, e.ErrMsgResponse{Message: "ok"})
 }
