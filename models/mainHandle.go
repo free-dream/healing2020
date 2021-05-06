@@ -61,9 +61,19 @@ func SendMainMsg() {
 	}
 }
 
+func max(a int, b int) int {
+	if a < b {
+		return b
+	} else {
+		return a
+	}
+}
+
 func LoadSongMsg(sort string, key string,userTags string) []SongMsg {
 	db := setting.MysqlConn()
-	var songList []SongMsg = make([]SongMsg, 8)
+    count := 0
+    db.Raw("select count(*) from song").Row().Scan(&count)
+	var songList []SongMsg = make([]SongMsg, max(8,count))
 	i := 0
 
 	var rows *sql.Rows
@@ -126,7 +136,9 @@ func LoadSongMsg(sort string, key string,userTags string) []SongMsg {
 
 func LoadVodMsg(sort string, key string,userTags string) []SongMsg {
 	db := setting.MysqlConn()
-	var vodList []SongMsg = make([]SongMsg, 8)
+    count := 0
+    db.Raw("select count(*) from vod").Row().Scan(&count)
+	var vodList []SongMsg = make([]SongMsg, max(8,count))
 	i := 0
 
 	var rows *sql.Rows
