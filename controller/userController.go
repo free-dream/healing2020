@@ -20,6 +20,7 @@ type PutUserInf struct {
 	Avatar   string `json:"avatar"`
 	Phone    string `json:"phone"`
 	TrueName string `json:"truename"`
+	Postbox  string `json:"postbox"`
 }
 
 type UserRegister struct {
@@ -84,6 +85,7 @@ func PutUser(c *gin.Context) {
 		"Setting3": jsonInf.Setting3,
 		"Phone":    jsonInf.Phone,
 		"TrueName": jsonInf.TrueName,
+		"Postbox":  jsonInf.Postbox,
 	}
 	err := models.UpdateUser(c, userMap, userID)
 	if err != nil {

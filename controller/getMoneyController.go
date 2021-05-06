@@ -51,3 +51,12 @@ func GetTask(c *gin.Context) {
 	}
 	c.JSON(200, Task)
 }
+
+func PostQRcode (c *gin.Context) {
+	User_id := c.Query("user_id")
+	err := models.PostQRcode(User_id)
+	if err != nil {
+		c.JSON(403, e.ErrMsgResponse{Message: "Fail to add money"})
+	}
+	c.JSON(200, e.ErrMsgResponse{Message: "分享二维码成功！"})
+}

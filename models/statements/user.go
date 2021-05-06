@@ -23,6 +23,7 @@ type User struct {
 	Setting1 int    `gorm:"default: 1"`
 	Setting2 int    `gorm:"default: 1"`
 	Setting3 int    `gorm:"default: 1"`
+	Postbox  string `gorm:"default: ''"`
 }
 
 func UserInit() {

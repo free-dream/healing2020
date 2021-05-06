@@ -74,34 +74,7 @@ func updateSession(c *gin.Context, db *gorm.DB) {
 	session.Save()
 }
 
-//踩坑：不要用0值作为状态值
-//更新user表
-func PutUser(c *gin.Context, user statements.User, userID uint) error {
-	//连接mysql
-	db := setting.MysqlConn()
-
-	userMap := map[string]interface{}{
-		"nick_name": user.NickName,
-		"more":      user.More,
-		"setting1":  user.Setting1,
-		"setting2":  user.Setting2,
-		"setting3":  user.Setting3,
-		"phone":     user.Phone,
-		"true_name": user.TrueName,
-	}
-
-	//开启事务
-	tx := db.Begin()
-	err := tx.Model(&statements.User{}).Where("id=?", userID).Update(userMap).Error
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-	com := tx.Commit()
-	updateSession(c, db)
-	return com.Error
-}
-
+//踩坑：不要用0值作为状态值, gorm模型不更新0和""，要用map
 //更新user表
 func UpdateUser(c *gin.Context, userMap map[string]interface{}, userID uint) error {
 	//连接mysql

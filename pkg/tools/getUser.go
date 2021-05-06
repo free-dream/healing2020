@@ -23,6 +23,7 @@ type RedisUser struct {
 	Setting1 int
 	Setting2 int
 	Setting3 int
+	Postbox  string
 }
 
 func GetUser(c *gin.Context) RedisUser {
