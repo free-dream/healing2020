@@ -82,9 +82,9 @@ func Praise(c *gin.Context) {
 }
 
 type RecordParams struct {
-	Id       string   `form:"id" binding:"required"`
-	Name     string   `form:"name" binding:"required"`
-	ServerID []string `form:"server_id" binding:"required"`
+	Id       string   `json:"id" binding:"required"`
+	Name     string   `json:"name" binding:"required"`
+	ServerID []string `json:"server_id" binding:"required"`
 }
 
 // @Title AddRecord
@@ -92,9 +92,9 @@ type RecordParams struct {
 // @Tags heal
 // @Produce json
 // @Router /api/record [post]
-// @Param id formData string true "点歌单id"
-// @Param name formData string false "user name"
-// @Param server_id formData []string true "server_id"
+// @Param id body string true "点歌单id"
+// @Param name body string false "user name"
+// @Param server_id body []string true "server_id"
 // @Success 200 {object} e.ErrMsgResponse
 // @Failure 403 {object} e.ErrMsgResponse
 func RecordHeal(c *gin.Context) {

@@ -10,3 +10,4 @@ healing.log
 gin-bin
 *_test.go
 *.test
+media

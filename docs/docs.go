@@ -241,27 +241,33 @@ var doc = `{
                 ],
                 "parameters": [
                     {
-                        "type": "string",
                         "description": "点歌单id",
                         "name": "id",
-                        "in": "formData",
-                        "required": true
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
                     },
                     {
-                        "type": "string",
                         "description": "user name",
                         "name": "name",
-                        "in": "formData"
+                        "in": "body",
+                        "schema": {
+                            "type": "string"
+                        }
                     },
                     {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        },
                         "description": "server_id",
                         "name": "server_id",
-                        "in": "formData",
-                        "required": true
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
                     }
                 ],
                 "responses": {

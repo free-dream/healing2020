@@ -475,21 +475,24 @@ paths:
       description: 录音治愈发布
       parameters:
       - description: 点歌单id
-        in: formData
+        in: body
         name: id
         required: true
-        type: string
-      - description: user name
-        in: formData
-        name: name
-        type: string
-      - description: server_id
-        in: formData
-        items:
+        schema:
           type: string
+      - description: user name
+        in: body
+        name: name
+        schema:
+          type: string
+      - description: server_id
+        in: body
         name: server_id
         required: true
-        type: array
+        schema:
+          items:
+            type: string
+          type: array
       produces:
       - application/json
       responses:
