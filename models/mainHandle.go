@@ -194,8 +194,16 @@ func LoadVodMsg(sort string, key string,userTags string) []SongMsg {
 	return vodList
 }
 
-func GetMainMsg(sort string, key string) (MainMsg, error) {
+func GetMainMsg(sort string, key string,tags string) (MainMsg, error) {
 	var result MainMsg
+    //推荐部分先发
+    if tags != "" {
+        result.Sing = LoadSongMsg(sort,"推荐",tags)
+        result.Listen = LoadVodMsg(sort,"推荐",tags)
+
+        return result,nil
+    }
+
 	client := setting.RedisConn()
 	data1, err1 := client.Get("healing2020:Main:" + key + "SingMsg" + sort).Bytes()
 	if data1 == nil {
