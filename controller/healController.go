@@ -56,6 +56,31 @@ func Record(c *gin.Context) {
 	return
 }
 
+// @Title CancelPraise
+// @Description 取消点赞
+// @Tags heal
+// @Produce json
+// @Router /api/unlike [get]
+// @Param id query string true "type id"
+// @Param type query string true "1 song; 2 deliver"
+// @Success 200 {object} e.ErrMsgResponse
+// @Failure 403 {object} e.ErrMsgResponse
+func NoPraise(c *gin.Context) {
+	id := c.Query("id")
+	types := c.Query("type")
+	if !tools.Valid(id, `^[0-9]+$`) || !tools.Valid(types, `^[123]$`) {
+		c.JSON(403, e.ErrMsgResponse{Message: "Unexpected Params"})
+		return
+	}
+	err := models.CancelPraise(tools.GetUser(c).ID, id, types)
+	if err != nil {
+		c.JSON(403, e.ErrMsgResponse{Message: "Fail to add praise"})
+		return
+	}
+	c.JSON(200, e.ErrMsgResponse{Message: "ok"})
+	return
+}
+
 // @Title AddPraise
 // @Description 点赞
 // @Tags heal

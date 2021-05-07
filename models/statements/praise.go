@@ -13,6 +13,7 @@ type Praise struct {
 	UserId   uint `gorm:"default: 0"`
 	Type     int  `gorm:"default: 0"` //1:"deliver"  2:"song"  3:"special"
 	PraiseId uint `gorm:"default: 0"`
+    IsCancel int  `gorm:"default: 0"` //1表示取消点赞，该项作废
 }
 
 func PraiseInit() {

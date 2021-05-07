@@ -116,6 +116,7 @@ func InitRouter() *gin.Engine {
 	api.GET("/user/phone", controller.PhoneHeal)
 	api.GET("/record", controller.Record)
 	api.GET("/like", controller.Praise)
+	api.GET("/unlike", controller.NoPraise)
 	api.POST("/record", controller.RecordHeal)
 	api.POST("/vod", controller.VodPost)
 
