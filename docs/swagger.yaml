@@ -103,6 +103,13 @@ definitions:
       url:
         type: string
     type: object
+  controller.RemainNum:
+    properties:
+      remainHide:
+        type: integer
+      remainSing:
+        type: integer
+    type: object
   controller.ServerMsg:
     properties:
       message:
@@ -219,6 +226,8 @@ definitions:
         type: integer
       user:
         type: string
+      userid:
+        type: integer
     type: object
   models.RequestSongs:
     properties:
@@ -694,6 +703,22 @@ paths:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
       - rank
+  /api/user/remainNum:
+    get:
+      description: 获取登录用户剩余点歌和匿名次数
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.RemainNum'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - user
   /api/usermodel:
     get:
       description: 获取用户模型，如果path不给id将获取自己的信息

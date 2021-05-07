@@ -554,6 +554,31 @@ var doc = `{
                 }
             }
         },
+        "/api/user/remainNum": {
+            "get": {
+                "description": "获取登录用户剩余点歌和匿名次数",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.RemainNum"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/user/{id}": {
             "get": {
                 "description": "其它用户的个人页接口",
@@ -970,6 +995,17 @@ var doc = `{
                 }
             }
         },
+        "controller.RemainNum": {
+            "type": "object",
+            "properties": {
+                "remainHide": {
+                    "type": "integer"
+                },
+                "remainSing": {
+                    "type": "integer"
+                }
+            }
+        },
         "controller.ServerMsg": {
             "type": "object",
             "properties": {
@@ -1147,6 +1183,9 @@ var doc = `{
                 },
                 "user": {
                     "type": "string"
+                },
+                "userid": {
+                    "type": "integer"
                 }
             }
         },

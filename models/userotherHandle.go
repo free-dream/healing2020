@@ -22,12 +22,11 @@ func UpdateUserOtherNow(userID uint, toSaveUserOther int) error {
 	return tx.Commit().Error
 }
 
-//获取userother
-func SelectUseOther(userID uint) (statements.UserOther, error) {
+//获取剩余点歌和匿名次数
+func SelectRemainNum(userID uint) (statements.UserOther, error) {
 	//连接mysql
 	db := setting.MysqlConn()
-
 	var userOther statements.UserOther
-	err := db.Where("user_id=?", userID).First(&userOther).Error
+	err := db.Select("remain_sing, remain_hide_name").Where("user_id=?", userID).First(&userOther).Error
 	return userOther, err
 }

@@ -64,10 +64,11 @@ func InitRouter() *gin.Engine {
 	api.PUT("/user", controller.PutUser)                           //修改个人信息
 	api.GET("/user", controller.ResponseMyPerponalPage)            //自己个人页
 	api.GET("/user/others", controller.ResponseOthersPerponalPage) //他人个人页
-	api.GET("/usermodel/:id", controller.GetUser)                  // 获取已登录用户信息
-	api.GET("/usermodel", controller.GetUser)                      // 获取已登录用户信息
+	api.GET("/usermodel/:id", controller.GetUser)                  //获取已登录用户信息
+	api.GET("/usermodel", controller.GetUser)                      //获取已登录用户信息
 	api.POST("/user/background", controller.ChangeBackground)      //修改用户个人背景
 	api.PUT("/vod/hide_name", controller.HideName)                 //匿名
+	api.GET("/user/remainNum", controller.GetRemainNum)            //获取用户匿名次数和点歌次数
 
 	//消息
 	api.GET("/ws", controller.WsHandle)          //websocket服务

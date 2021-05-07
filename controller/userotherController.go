@@ -34,21 +34,29 @@ func ChangeBackground(c *gin.Context) {
 	c.JSON(200, e.ErrMsgResponse{Message: e.GetMsg(e.SUCCESS)})
 }
 
-//@Title GetHobby
-//@Description 获取用户爱好
-//@Tags hobby
+type RemainNum struct {
+	RemainSing int `json:"remainSing"`
+	RemainHide int `json:"remainHide"`
+}
+
+//@Title GetRemainNum
+//@Description 获取登录用户剩余点歌和匿名次数
+//@Tags user
 //@Produce json
-//@Router /api/user/hobby [get]
-//@Success 200 {object} Tag
+//@Router /api/user/remainNum [get]
+//@Success 200 {object} RemainNum
 //@Failure 403 {object} e.ErrMsgResponse
-func GetUserOther(c *gin.Context) {
+func GetRemainNum(c *gin.Context) {
 	//获取redis用户信息
 	userID := tools.GetUser(c).ID
-	userOther, err := models.SelectUseOther(userID)
-
+	userOther, err := models.SelectRemainNum(userID)
+	responseInf := RemainNum{
+		RemainSing: userOther.RemainSing,
+		RemainHide: userOther.RemainHideName,
+	}
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
 	} else {
-		c.JSON(200, userOther)
+		c.JSON(200, responseInf)
 	}
 }
