@@ -2,11 +2,14 @@ package models
 
 import (
 	"errors"
+	"strconv"
+	"time"
+
 	"healing2020/models/statements"
 	"healing2020/pkg/setting"
 	"healing2020/pkg/tools"
-	"strconv"
-	"time"
+
+	"github.com/jinzhu/gorm"
 )
 
 func GetPhone(info tools.RedisUser) string {
@@ -122,10 +125,27 @@ func CreateRecord(id string, source string, uid uint) error {
 	return tx.Commit().Error
 }
 
-func AddPraise(strId string, types string) error {
+func HasPraise(types int,userid uint,id uint) bool {
+    db := setting.MysqlConn()
+
+    var praise statements.Praise
+    result := db.Model(&statements.Praise{}).Where("praise_id = ? and user_id = ? and type = ?",id,userid,types).First(&praise)
+
+    if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+        return true
+    }
+    return false
+}
+
+func AddPraise(userid uint,strId string, types string) error {
 	intId, _ := strconv.Atoi(strId)
 	id := uint(intId)
+    typesInt, _ := strconv.Atoi(types)
 	db := setting.MysqlConn()
+
+    if HasPraise(typesInt,userid,id) {
+        return errors.New("can not praise repeatedly")
+    }
 
 	tx := db.Begin()
 	status := 0
@@ -163,14 +183,19 @@ func AddPraise(strId string, types string) error {
 			}
 		}
 	}
+
+    var praise statements.Praise
+    praise.UserId = userid
+    praise.Type = typesInt
+    praise.PraiseId = id
+    tx.Model(&statements.Praise{}).Create(&praise)
+
 	return tx.Commit().Error
 }
 
 func CreateVod(uid uint, singer string, style string, language string, name string, more string) error {
 	db := setting.MysqlConn()
 
-	status := 0
-	tx := db.Begin()
 	var vod statements.Vod
 	vod.UserId = uid
 	vod.More = more
@@ -178,14 +203,6 @@ func CreateVod(uid uint, singer string, style string, language string, name stri
 	vod.Singer = singer
 	vod.Style = style
 	vod.Language = language
-	err := tx.Model(&statements.Vod{}).Create(&vod).Error
-	if err != nil {
-		if status < 5 {
-			status++
-			tx.Rollback()
-		} else {
-			return err
-		}
-	}
-	return tx.Commit().Error
+	err := db.Model(&statements.Vod{}).Create(&vod).Error
+	return err
 }

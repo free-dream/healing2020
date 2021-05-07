@@ -68,11 +68,11 @@ func Record(c *gin.Context) {
 func Praise(c *gin.Context) {
 	id := c.Query("id")
 	types := c.Query("type")
-	if !tools.Valid(id, `^[0-9]+$`) || !tools.Valid(types, `^[12]$`) {
+	if !tools.Valid(id, `^[0-9]+$`) || !tools.Valid(types, `^[123]$`) {
 		c.JSON(403, e.ErrMsgResponse{Message: "Unexpected Params"})
 		return
 	}
-	err := models.AddPraise(id, types)
+	err := models.AddPraise(tools.GetUser(c).ID, id, types)
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: "Fail to add praise"})
 		return

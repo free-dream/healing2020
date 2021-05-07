@@ -21,7 +21,7 @@ import (
 func MainSearch(c *gin.Context) {
     searchRaw := c.Query("search")
     search,_ := url.QueryUnescape(searchRaw) 
-    if !tools.Valid(search,"^([0-9A-Za-z\u4e00-\u9fa5]|\\s)*$") {
+    if !tools.Valid(search,"^[\u0000-\uffff]{1,16}$") {
         c.JSON(400,e.ErrMsgResponse{Message:"unexpected params"})
         return
     }
