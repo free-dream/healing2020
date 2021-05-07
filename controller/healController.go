@@ -4,6 +4,8 @@ import (
 	"healing2020/models"
 	"healing2020/pkg/e"
 	"healing2020/pkg/tools"
+	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -99,6 +101,7 @@ type RecordParams struct {
 // @Failure 403 {object} e.ErrMsgResponse
 func RecordHeal(c *gin.Context) {
 	var params RecordParams
+	userID := tools.GetUser(c).ID
 	if err := c.ShouldBind(&params); err != nil {
 		c.JSON(400, e.ErrMsgResponse{Message: "Uncomplete params"})
 		return
@@ -108,11 +111,34 @@ func RecordHeal(c *gin.Context) {
 		c.JSON(403, e.ErrMsgResponse{Message: err.Error()})
 		return
 	}
-	err = models.CreateRecord(params.Id, url, tools.GetUser(c).ID)
+	songName, err := models.CreateRecord(params.Id, url, userID)
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: err.Error()})
 		return
 	}
+
+	//send ws song_record message(in ws.go)
+	msg := Message{
+		Type:       1,
+		Time:       time.Now().Format("2006-01-02 15:04:05"),
+		FromUserID: userID,
+		URL:        url,
+	}
+	intId, _ := strconv.Atoi(params.Id)
+	vodId := uint(intId)
+	toUserID, err := models.SelectUserIDByVodID(vodId)
+	if err != nil {
+		c.JSON(403, e.ErrMsgResponse{Message: err.Error()})
+		return
+	}
+	msg.ToUserID = toUserID
+	msg.Content = songName
+	md5ID := tools.Md5String(strconv.Itoa(int(userID)) + strconv.Itoa(int(toUserID)) + msg.Time)
+	msg.ID = md5ID
+	MessageQueue[int(msg.FromUserID)] <- &msg
+	MessageQueue[int(msg.ToUserID)] <- &msg
+	MysqlCreate <- &msg
+
 	c.JSON(200, e.ErrMsgResponse{Message: "ok"})
 }
 

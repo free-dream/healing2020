@@ -86,7 +86,7 @@ func GetRecord(id string) ResultResp {
 	return resultResp
 }
 
-func CreateRecord(id string, source string, uid uint) error {
+func CreateRecord(id string, source string, uid uint) (string, error) {
 	intId, _ := strconv.Atoi(id)
 	vodId := uint(intId)
 	db := setting.MysqlConn()
@@ -98,7 +98,7 @@ func CreateRecord(id string, source string, uid uint) error {
 	var vod statements.Vod
 	result1 := tx.Model(&statements.Vod{}).Where("ID=?", vodId).First(&vod)
 	if result1.Error != nil {
-		return errors.New("vod_id is unvalid")
+		return "", errors.New("vod_id is unvalid")
 	}
 	var song statements.Song
 	song.VodId = vodId
@@ -116,10 +116,10 @@ func CreateRecord(id string, source string, uid uint) error {
 			status++
 			tx.Rollback()
 		} else {
-			return err
+			return "", err
 		}
 	}
-	return tx.Commit().Error
+	return song.Name, tx.Commit().Error
 }
 
 func AddPraise(strId string, types string) error {
@@ -188,4 +188,13 @@ func CreateVod(uid uint, singer string, style string, language string, name stri
 		}
 	}
 	return tx.Commit().Error
+}
+
+//根据vod_id获取user_id
+func SelectUserIDByVodID(vod_id uint) (uint, error) {
+	db := setting.MysqlConn()
+
+	var vod statements.Vod
+	err := db.Select("user_id").Where("id=?", vod_id).First(&vod).Error
+	return vod.UserId, err
 }

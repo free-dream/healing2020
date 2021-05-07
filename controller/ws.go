@@ -97,7 +97,7 @@ func MysqltoChan() {
 		}
 		createUserMsgChan(msg.ToUserID)
 		MessageQueue[int(msg.ToUserID)] <- &msg
-		if msg.Type == 3 {
+		if msg.Type == 1 {
 			createUserMsgChan(msg.FromUserID)
 			MessageQueue[int(msg.FromUserID)] <- &msg
 		}
