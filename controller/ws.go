@@ -20,12 +20,6 @@ type ACK struct {
 	ACKID string `json:"ack"`
 }
 
-type ServerMsg struct {
-	Text string `json:"message"`
-	Time string `json:"time"`
-	Type int    `json:"type"`
-}
-
 type Message struct {
 	ID         string `json:"id"`
 	Type       int    `json:"type"`
@@ -51,7 +45,6 @@ var upGrader = websocket.Upgrader{
 }
 
 var MessageQueue = make(map[int](chan *Message))
-var ServerMsgChan = make(map[int](chan *ServerMsg))
 var ACKchan = make(map[string](chan *ACK))
 var MysqlCreate = make(chan *Message, 1000)
 var MysqlDelete = make(chan *Message, 1000)
@@ -113,21 +106,21 @@ func MysqltoChan() {
 //@Success 200 {object} e.ErrMsgResponse
 //@Failure 403 {object} e.ErrMsgResponse
 func Broadcast(c *gin.Context) {
-	json := ServerMsg{
-		Time: time.Now().Format("2006-01-02 15:04:05"),
-		Type: 0,
+	msg := Message{
+		URL:        "",
+		Time:       time.Now().Format("2006-01-02 15:04:05"),
+		Type:       0,
+		FromUserID: 0,
 	}
-	c.BindJSON(&json)
-
+	c.BindJSON(&msg)
+	msg.ID = tools.Md5String(msg.Time)
 	userCount, err := models.GetUserNum()
 	for i := 1; i <= userCount; i++ {
-		if _, ok := ServerMsgChan[i]; !ok {
-			ServerMsgChan[i] = make(chan *ServerMsg)
-		}
-		ServerMsgChan[i] <- &json
+		createUserMsgChan(uint(i))
+		msg.ToUserID = uint(i)
+		MessageQueue[i] <- &msg
 	}
-
-	err = models.CreateMailBox(json.Text)
+	err = models.CreateMailBox(msg.Content)
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: "存储广播信息失败"})
 		return
@@ -155,7 +148,6 @@ func WsHandle(c *gin.Context) {
 	go wsConn.heartbeat()
 	go wsConn.readWs(c)
 	go wsConn.writeWs(c)
-	go wsConn.writeServerMsg(c)
 	go wsConn.MsgMysql()
 }
 
@@ -315,25 +307,6 @@ func (wsConn *WsConnection) MsgMysql() {
 		if mysqlError > 10 {
 			log.Println("can not connect to the mysql, ws close")
 			wsConn.close()
-		}
-	}
-}
-
-//广播
-func (wsConn *WsConnection) writeServerMsg(c *gin.Context) {
-	userID := tools.GetUser(c).ID
-	for {
-		select {
-		case msg := <-ServerMsgChan[int(userID)]:
-			//send broadcast msg
-			responseMsg, _ := json.Marshal(msg)
-			if err := wsConn.ws.WriteMessage(websocket.TextMessage, []byte(responseMsg)); err != nil {
-				log.Println("write websocket fail")
-				wsConn.close()
-				return
-			}
-		case <-wsConn.closeChan:
-			return
 		}
 	}
 }
