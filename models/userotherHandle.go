@@ -30,3 +30,10 @@ func SelectRemainNum(userID uint) (statements.UserOther, error) {
 	err := db.Select("remain_sing, remain_hide_name").Where("user_id=?", userID).First(&userOther).Error
 	return userOther, err
 }
+
+//每日更新用户剩余点歌次数
+func UpdateRemainSingDay() {
+	db := setting.MysqlConn()
+	userOther := statements.UserOther{RemainSing: 3}
+	db.Model(&statements.UserOther{}).Update(&userOther)
+}
