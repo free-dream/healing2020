@@ -33,3 +33,22 @@ func ChangeBackground(c *gin.Context) {
 	}
 	c.JSON(200, e.ErrMsgResponse{Message: e.GetMsg(e.SUCCESS)})
 }
+
+//@Title GetHobby
+//@Description 获取用户爱好
+//@Tags hobby
+//@Produce json
+//@Router /api/user/hobby [get]
+//@Success 200 {object} Tag
+//@Failure 403 {object} e.ErrMsgResponse
+func GetUserOther(c *gin.Context) {
+	//获取redis用户信息
+	userID := tools.GetUser(c).ID
+	userOther, err := models.SelectUseOther(userID)
+
+	if err != nil {
+		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
+	} else {
+		c.JSON(200, userOther)
+	}
+}

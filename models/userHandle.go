@@ -27,10 +27,10 @@ func UpdateOrCreate(openId string, nickName string, sex int, avatar string) erro
 		user.Sex = sex
 		var result2 *gorm.DB
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			result2 = tx.Model(&statements.User{}).Create(&user)
 			var userOther statements.UserOther
 			userOther.UserId = user.ID
 			tx.Model(&statements.UserOther{}).Create(&userOther)
-			result2 = tx.Model(&statements.User{}).Create(&user)
 		} else {
 			result2 = tx.Model(&statements.User{}).Where("open_id=?", openId).Update(&user)
 		}

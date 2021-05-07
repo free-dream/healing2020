@@ -21,3 +21,13 @@ func UpdateUserOtherNow(userID uint, toSaveUserOther int) error {
 
 	return tx.Commit().Error
 }
+
+//获取userother
+func SelectUseOther(userID uint) (statements.UserOther, error) {
+	//连接mysql
+	db := setting.MysqlConn()
+
+	var userOther statements.UserOther
+	err := db.Where("user_id=?", userID).First(&userOther).Error
+	return userOther, err
+}

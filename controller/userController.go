@@ -209,3 +209,7 @@ func GetHobby(c *gin.Context) {
 		c.JSON(200, t)
 	}
 }
+
+func UpdateOrCreate(c *gin.Context) {
+	models.UpdateOrCreate("zzz", "zyh", 1, "url")
+}
