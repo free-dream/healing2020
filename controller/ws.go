@@ -262,7 +262,7 @@ func (wsConn *WsConnection) readWs(c *gin.Context) {
 				continue
 			}
 			ACKchan[receiveACK.ACKID] <- &receiveACK
-		} else if data != (Message{}) {
+		} else if data != (Message{}) && data.Type == 2 {
 			//judge data FromUserID
 			if userID != data.FromUserID {
 				wsConn.ws.WriteMessage(websocket.TextMessage, []byte("FromUserID和用户id不同"))
