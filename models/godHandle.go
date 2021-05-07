@@ -65,7 +65,7 @@ func CreateLotterys(pid int, uid int, weight int) error {
 	var lottery statements.Lottery
 	lottery.PrizeId = prizeId
 	lottery.UserId = userId
-	lottery.Weight = weight
+	// lottery.Weight = weight
 	db := setting.MysqlConn()
 	result := db.Model(&statements.Lottery{}).Create(&lottery)
 	return result.Error
