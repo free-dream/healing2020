@@ -28,6 +28,7 @@ type Rank struct {
 	Praise int    `json:"praise"`
 	Name   string `json:"name"`
     UserId uint   `json:"userid"`
+    IsPraise bool `json:"isPraise"`
 }
 
 type AllRank struct {
@@ -129,7 +130,7 @@ func SendDeliverRank() error {
 	return nil
 }
 
-func GetDeliverRank() ([]AllRank, string) {
+func GetDeliverRank(userid uint) ([]AllRank, string) {
 	result := make([]AllRank, 10)
 	client := setting.RedisConn()
 	count, _ := client.Get("healing2020:rankCount").Float64()
@@ -151,6 +152,10 @@ func GetDeliverRank() ([]AllRank, string) {
 			return nil, "Unexpected data"
 		}
 		json.Unmarshal(data, &rank)
+        // 把是否点赞的项拼上
+        for k:=0;k<len(rank);k++ {
+            rank[k].IsPraise,_ = HasPraise(1,userid,rank[k].ID)
+        }
 		i = i + 0.01
 
 		result[j].Data = rank
@@ -218,7 +223,7 @@ func SendSongRank() error {
 	return nil
 }
 
-func GetSongRank() ([]AllRank, string) {
+func GetSongRank(userid uint) ([]AllRank, string) {
 	result := make([]AllRank, 10)
 	client := setting.RedisConn()
 	count, _ := client.Get("healing2020:rankCount").Float64()
@@ -236,6 +241,11 @@ func GetSongRank() ([]AllRank, string) {
 			return nil, "Unexpected data"
 		}
 		json.Unmarshal(data, &rank)
+
+        // 把是否点赞的项拼上
+        for k:=0;k<len(rank);k++ {
+            rank[k].IsPraise,_ = HasPraise(1,userid,rank[k].ID)
+        }
 		i = i + 0.01
 
 		result[j].Data = rank
