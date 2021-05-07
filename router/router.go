@@ -87,7 +87,7 @@ func InitRouter() *gin.Engine {
 	api.GET("/lottery/allprize", controller.ALLPrize)
 	api.GET("/lottery/mylottery", controller.UserLottery)
 	api.GET("/lottery/money", controller.GetMoney)
-	api.PUT("/lottery/usemoney", controller.LotteryDraw)      //抽奖
+	api.GET("/lottery/usemoney", controller.LotteryDraw)      //抽奖
 	api.PUT("/lottery/earnmoney", controller.EarnMoney)    //完成每日任务增加积分
 	api.GET("/lottery/gettask", controller.GetTask)        //获取每日任务
 	api.GET("/lottery/shareQRcode", controller.PostQRcode) //首次分享二维码加积分
