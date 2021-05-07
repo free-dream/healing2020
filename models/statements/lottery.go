@@ -12,7 +12,6 @@ type Lottery struct {
 	gorm.Model
 	PrizeId uint `gorm:"default: 0"`
 	UserId  uint `gorm:"default: 0"`
-	Weight  int  `gorm:"default: 0"`
 }
 
 func LotteryInit() {

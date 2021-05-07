@@ -14,6 +14,7 @@ type Prize struct {
 	Intro  string `gorm:"default: ''"`
 	Photo  string `gorm:"default: ''"`
 	Weight int    `gorm:"default: 0"`
+	Count  int 	  `gorm:"default: 0"`
 }
 
 func PrizeInit() {

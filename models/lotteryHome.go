@@ -12,6 +12,7 @@ type Prize struct {
 	Name   string `json:"name"`
 	Photo  string `json:"photo"`
 	Weight int    `json:"weight"`
+	Count  int 	  `json:"count"`
 }
 type LotteryId struct {
 	PrizeId uint `json:"prize_id" `
@@ -28,7 +29,7 @@ func AllPrize() ([]Prize, error) {
 
 	//获取所有奖品信息
 	var prizeHome []Prize
-	err := db.Table("prize").Select("id, name, photo, weight").Scan(&prizeHome).Error
+	err := db.Table("prize").Select("id, name, photo, weight, count").Scan(&prizeHome).Error
 	return prizeHome, err
 }
 

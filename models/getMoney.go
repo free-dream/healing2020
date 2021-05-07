@@ -4,7 +4,10 @@ import (
 	"fmt"
 	"healing2020/models/statements"
 	"healing2020/pkg/setting"
+	"log"
+	"math/rand"
 	"strconv"
+	"time"
 
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
@@ -20,6 +23,12 @@ type Task struct {
 	Lo4 int `json:"singHome"`
 	Lo5 int `json:"praise"`
 	Lo6 int `json:"share"`
+}
+
+type GetPrize struct {
+	Id	int	`json:"id"`
+	Name  string `json:"name"`
+	Photo string `json:"photo"`
 }
 
 //查询当前积分
@@ -125,7 +134,7 @@ func PostQRcode(User_id string) error {
 	tx := db.Begin()
 
 	var userother statements.UserOther
-	result := tx.Model(&statements.UserOther{}).Where("user_id= ?", user_id).First(&userother)
+	result := tx.Model(&statements.UserOther{}).Where("user_id = ?", user_id).First(&userother)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -159,4 +168,79 @@ func PostQRcode(User_id string) error {
 		}
 	}
 	return tx.Commit().Error
+}
+
+//真·抽奖
+func LotteryDraw(userID uint) (GetPrize, error) {
+	//连接mysql
+	db := setting.MysqlConn()
+	var responseLottery GetPrize
+	//进行抽奖
+	tx := db.Begin()
+
+	rand.Seed(time.Now().UnixNano())
+	prop := rand.Intn(999)
+	log.Println(prop)
+
+	var black GetPrize
+
+	var prize []Prize
+	err := tx.Model(&statements.Prize{}).Select("id, name, photo, weight, count").Scan(&prize).Error
+	if err != nil {
+		log.Println(err)
+	}
+
+	var user statements.User
+	result := tx.Model(&statements.User{}).Where("id= ?", userID).First(&user)
+	if result.Error != nil {
+		return black, result.Error
+	}
+
+	log.Println(user.Money)
+
+	if user.Money >= 100 {
+		LOOP:
+		for i := 0; i < len(prize); i++ {
+			if prop <= prize[i].Weight && prize[i].Count > 0{
+				responseLottery = GetPrize {
+					Id: prize[i].Id ,
+					Name: prize[i].Name ,
+					Photo: prize[i].Photo,
+				}
+
+				//修改剩余数量
+				var count statements.Prize
+				result2 := tx.Model(&statements.Prize{}).Where("id = ?", uint(prize[i].Id)).First(&count)
+				if result2.Error != nil {
+					return black, result2.Error
+				}
+				count.Count = count.Count - 1
+				err1 := tx.Save(&count).Error
+				if err1 != nil {
+					tx.Rollback()
+				}
+
+				//存入我的奖品
+				var lot statements.Lottery
+				lot.PrizeId = uint(prize[i].Id)
+				lot.UserId = userID
+				// result3 := tx.Model(&statements.Lottery{}).Create(&lot)
+				if result3 := tx.Model(&statements.Lottery{}).Create(&lot).Error; err != nil {
+					tx.Rollback()
+					return  black, result3
+				}
+	
+				//修改剩余积分
+				user.Money = user.Money - 100
+				err2 := tx.Save(&user).Error
+				if err2 != nil {
+					tx.Rollback()
+				}
+				break LOOP
+			}
+		}
+	} else {
+		log.Println(result)
+	}
+	return responseLottery, tx.Commit().Error
 }
