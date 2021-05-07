@@ -286,6 +286,45 @@ var doc = `{
                 }
             }
         },
+        "/api/record2": {
+            "post": {
+                "description": "Upload media_id arr then get record url",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "heal"
+                ],
+                "parameters": [
+                    {
+                        "description": "server_id",
+                        "name": "server_id",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.TransformMediaIdArrToUrlResp"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/register": {
             "post": {
                 "description": "注册接口",
@@ -1084,6 +1123,14 @@ var doc = `{
             "type": "object",
             "properties": {
                 "uptoken": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.TransformMediaIdArrToUrlResp": {
+            "type": "object",
+            "properties": {
+                "url": {
                     "type": "string"
                 }
             }

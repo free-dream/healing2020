@@ -136,6 +136,11 @@ definitions:
       uptoken:
         type: string
     type: object
+  controller.TransformMediaIdArrToUrlResp:
+    properties:
+      url:
+        type: string
+    type: object
   controller.UserRegister:
     properties:
       name:
@@ -509,6 +514,31 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/e.ErrMsgResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - heal
+  /api/record2:
+    post:
+      description: Upload media_id arr then get record url
+      parameters:
+      - description: server_id
+        in: body
+        name: server_id
+        required: true
+        schema:
+          items:
+            type: string
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.TransformMediaIdArrToUrlResp'
         "403":
           description: Forbidden
           schema:

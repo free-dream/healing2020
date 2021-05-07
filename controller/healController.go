@@ -200,3 +200,33 @@ func VodPost(c *gin.Context) {
 	}
 	c.JSON(200, e.ErrMsgResponse{Message: "ok"})
 }
+
+// @Title UploadRecord
+// @Description Upload media_id arr then get record url
+// @Tags heal
+// @Produce json
+// @Param server_id body []string true "server_id"
+// @Router /api/record2 [post]
+// @Success 200 {object} TransformMediaIdArrToUrlResp
+// @Failure 403 {object} e.ErrMsgResponse
+func TransformMediaIdArrToUrl(ctx *gin.Context) {
+	var form TransformMediaIdArrToUrlReq
+	if err := ctx.ShouldBind(&form); err != nil {
+		ctx.JSON(400, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
+		return
+	}
+	url, err := convertMediaIdArrToQiniuUrl(form.ServerID)
+	if err != nil {
+		ctx.JSON(500, e.ErrMsgResponse{Message: err.Error()})
+		return
+	}
+	ctx.JSON(200, &TransformMediaIdArrToUrlResp{Url: url})
+}
+
+type TransformMediaIdArrToUrlReq struct {
+	ServerID []string `json:"server_id" binding:"required"`
+}
+
+type TransformMediaIdArrToUrlResp struct {
+	Url string `json:"url"`
+}
