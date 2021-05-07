@@ -76,6 +76,7 @@ func InitRouter() *gin.Engine {
 
 	//投递箱
 	api.GET("/deliver/home", controller.AllDeliver)
+	api.GET("/deliver/single", controller.SingleDeliver)
 	api.POST("/deliver/postdeliver", controller.PostDeliver)
 
 	//歌房
