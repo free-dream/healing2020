@@ -66,7 +66,11 @@ func MainMsg(c *gin.Context) {
 	if status == 2 {
 		key = style
 	}
-	data, err := models.GetMainMsg(sort, key)
+    tags := ""
+    if style == "推荐" {
+        tags = tools.GetUser(c).Hobby
+    }
+	data, err := models.GetMainMsg(sort, key, tags)
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: "Unexpected Data"})
 		return
@@ -82,7 +86,7 @@ type SongType struct {
 
 func LoadType() SongType {
 	language := []string{"国语", "英语", "日语", "粤语"}
-	style := []string{"ACG", "流行", "古风", "民谣", "摇滚", "抖音热歌", "其他"}
+	style := []string{"推荐","ACG", "流行", "古风", "民谣", "摇滚", "抖音热歌", "其他"}
 	var songType SongType
 	songType.Language = language
 	songType.Style = style
