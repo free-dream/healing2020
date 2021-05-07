@@ -556,6 +556,33 @@ paths:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
       - rank
+  /api/unlike:
+    get:
+      description: 取消点赞
+      parameters:
+      - description: type id
+        in: query
+        name: id
+        required: true
+        type: string
+      - description: 1 song; 2 deliver
+        in: query
+        name: type
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - heal
   /api/user:
     get:
       description: 已登录用户的个人页接口

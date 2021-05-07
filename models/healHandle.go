@@ -2,11 +2,14 @@ package models
 
 import (
 	"errors"
+	"strconv"
+	"time"
+
 	"healing2020/models/statements"
 	"healing2020/pkg/setting"
 	"healing2020/pkg/tools"
-	"strconv"
-	"time"
+
+	"github.com/jinzhu/gorm"
 )
 
 func GetPhone(info tools.RedisUser) string {
@@ -122,10 +125,104 @@ func CreateRecord(id string, source string, uid uint) (string, error) {
 	return song.Name, tx.Commit().Error
 }
 
-func AddPraise(strId string, types string) error {
+func HasPraise(types int,userid uint,id uint) (bool,uint) {
+    db := setting.MysqlConn()
+
+    var praise statements.Praise
+    result := db.Model(&statements.Praise{}).Where("is_cancel = 0 and praise_id = ? and user_id = ? and type = ?",id,userid,types).First(&praise)
+
+    if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+        return false,0
+    }
+    return true,praise.ID
+}
+
+func IsPraiseCancel(types int,userid,uint,id uint) bool {
+    db := setting.MysqlConn()
+
+    var praise statements.Praise
+    result := db.Model(&statements.Praise{}).Where("is_cancel = 1 and praise_id = ? and user_id = ? and type = ?",id,userid,types).First(&praise)
+
+    if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+        return false
+    }
+    return true
+}
+
+func CancelPraise(userid uint,strId string,types string) error {
 	intId, _ := strconv.Atoi(strId)
 	id := uint(intId)
+    typesInt, _ := strconv.Atoi(types)
 	db := setting.MysqlConn()
+
+    hasPraise,praiseId := HasPraise(typesInt,userid,id)
+    if !hasPraise {
+        return errors.New("item does not be praised")
+    }
+
+	tx := db.Begin()
+	status := 0
+	if types == "1" {
+		var song statements.Song
+		result := tx.Model(&statements.Song{}).Where("ID=?", id).First(&song)
+		if result.Error != nil {
+			return result.Error
+		}
+		song.Praise = song.Praise - 1
+		err := tx.Save(&song).Error
+		if err != nil {
+			if status < 5 {
+				status++
+				tx.Rollback()
+			} else {
+				return err
+			}
+		}
+	}
+	if types == "2" {
+		var deliver statements.Deliver
+		result := tx.Model(&statements.Deliver{}).Where("ID=?", id).First(&deliver)
+		if result.Error != nil {
+			return result.Error
+		}
+		deliver.Praise = deliver.Praise - 1
+		err := tx.Save(&deliver).Error
+		if err != nil {
+			if status < 5 {
+				status++
+				tx.Rollback()
+			} else {
+				return err
+            }
+        }
+    }
+
+    var praise statements.Praise
+    tx.Model(&statements.Praise{}).Where("id = ?",praiseId).First(&praise)
+    praise.IsCancel = 1
+    err := tx.Save(&praise).Error
+    if err != nil {
+        if status < 10 {
+            status++
+            tx.Rollback()
+        } else {
+            return err
+        }
+    }
+
+	return tx.Commit().Error
+}
+
+func AddPraise(userid uint,strId string, types string) error {
+	intId, _ := strconv.Atoi(strId)
+	id := uint(intId)
+    typesInt, _ := strconv.Atoi(types)
+	db := setting.MysqlConn()
+
+    hasPraise,_ := HasPraise(typesInt,userid,id)
+    if hasPraise {
+        return errors.New("can not praise repeatedly")
+    }
 
 	tx := db.Begin()
 	status := 0
@@ -163,14 +260,19 @@ func AddPraise(strId string, types string) error {
 			}
 		}
 	}
+
+    var praise statements.Praise
+    praise.UserId = userid
+    praise.Type = typesInt
+    praise.PraiseId = id
+    tx.Model(&statements.Praise{}).Create(&praise)
+
 	return tx.Commit().Error
 }
 
 func CreateVod(uid uint, singer string, style string, language string, name string, more string) error {
 	db := setting.MysqlConn()
 
-	status := 0
-	tx := db.Begin()
 	var vod statements.Vod
 	vod.UserId = uid
 	vod.More = more
@@ -178,16 +280,8 @@ func CreateVod(uid uint, singer string, style string, language string, name stri
 	vod.Singer = singer
 	vod.Style = style
 	vod.Language = language
-	err := tx.Model(&statements.Vod{}).Create(&vod).Error
-	if err != nil {
-		if status < 5 {
-			status++
-			tx.Rollback()
-		} else {
-			return err
-		}
-	}
-	return tx.Commit().Error
+	err := db.Model(&statements.Vod{}).Create(&vod).Error
+	return err
 }
 
 //根据vod_id获取user_id

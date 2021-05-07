@@ -3,6 +3,7 @@ package models
 import (
 	"healing2020/models/statements"
 	"healing2020/pkg/setting"
+	"strconv"
 	"time"
 
 	_ "github.com/jinzhu/gorm/dialects/mysql"
@@ -66,4 +67,39 @@ func DeliverHome(Type string) ([]AllDeliver, error) {
 	}
 
 	return responseDeliver, err
+}
+
+//发送单个投递详情
+func SingleDeliver(DevId string) ([]AllDeliver, error) {
+	//连接mysql
+	db := setting.MysqlConn()
+
+	intId, _ := strconv.Atoi(DevId)
+	deliverId := uint(intId)
+
+	var singleDeliver []User
+	//获取单个投递信息
+	err := db.Table("deliver").Select("id, user_id, created_at, type, text_field, photo, record, praise").Where("id = ? ", deliverId).First(&singleDeliver).Error
+	if err != nil {
+		return nil, err
+	}
+
+	//获取用户昵称
+	SingleElse := make([]statements.User, len(singleDeliver))
+	for i := 0; i < len(singleDeliver); i++ {
+		err2 := db.Table("user").Select("nick_name, avatar").Where("id = ?", singleDeliver[i].UserID).Scan(&SingleElse[i]).Error
+		if err2 != nil {
+			return nil, err2
+		}
+	}
+
+	responseSingle := make([]AllDeliver, len(singleDeliver))
+	for i := 0; i < len(singleDeliver); i++ {
+		responseSingle[i] = AllDeliver{
+			Deliverelse: singleDeliver[i],
+			Nickname:    SingleElse[i].NickName,
+			Avatar:      SingleElse[i].Avatar,
+		}
+	}
+	return responseSingle, err
 }

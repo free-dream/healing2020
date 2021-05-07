@@ -333,6 +333,47 @@
                 }
             }
         },
+        "/api/unlike": {
+            "get": {
+                "description": "取消点赞",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "heal"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "type id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "1 song; 2 deliver",
+                        "name": "type",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/user": {
             "get": {
                 "description": "已登录用户的个人页接口",
