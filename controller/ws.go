@@ -153,7 +153,7 @@ func WsHandle(c *gin.Context) {
 	}
 
 	go wsConn.heartbeat()
-	go wsConn.readWs()
+	go wsConn.readWs(c)
 	go wsConn.writeWs(c)
 	go wsConn.writeServerMsg(c)
 	go wsConn.MsgMysql()
@@ -237,7 +237,8 @@ func (wsConn *WsConnection) writeWs(c *gin.Context) {
 }
 
 //接收客户端发送的消息和ack
-func (wsConn *WsConnection) readWs() {
+func (wsConn *WsConnection) readWs(c *gin.Context) {
+	userID := tools.GetUser(c).ID
 	for {
 		_, rawData, err := wsConn.ws.ReadMessage()
 		if err != nil {
@@ -262,6 +263,12 @@ func (wsConn *WsConnection) readWs() {
 			}
 			ACKchan[receiveACK.ACKID] <- &receiveACK
 		} else if data != (Message{}) {
+			//judge data FromUserID
+			if userID != data.FromUserID {
+				wsConn.ws.WriteMessage(websocket.TextMessage, []byte("FromUserID和用户id不同"))
+				log.Println("FromUserID is not same as userID")
+				data.FromUserID = userID
+			}
 			//if get message, response ack
 			responseACK, _ := json.Marshal(ACK{ACKID: data.ID})
 			wsConn.ws.WriteMessage(websocket.TextMessage, []byte(responseACK))
