@@ -52,7 +52,7 @@ func GetRecord(id string) ResultResp {
 	vodId := song.VodId
 
 	var vod statements.Vod
-	db.Model(&statements.Vod{}).Select("created_at").Where("id=?", vodId).First(&vod)
+	db.Model(&statements.Vod{}).Select("created_at,user_id").Where("id=?", vodId).First(&vod)
 
 	resultResp.Time = vod.CreatedAt
 	resultResp.Name = song.Name
