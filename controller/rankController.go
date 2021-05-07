@@ -59,7 +59,7 @@ func UserRank(c *gin.Context) {
 // @Success 200 {object} []models.AllRank
 // @Failure 403 {object} e.ErrMsgResponse
 func SongRank(c *gin.Context) {
-	data, err := models.GetSongRank()
+	data, err := models.GetSongRank(tools.GetUser(c).ID)
 	if err != "" {
 		c.JSON(403, e.ErrMsgResponse{Message: err})
 		return
@@ -76,7 +76,7 @@ func SongRank(c *gin.Context) {
 // @Success 200 {object} []models.AllRank
 // @Failure 403 {object} e.ErrMsgResponse
 func DeliverRank(c *gin.Context) {
-	data, err := models.GetDeliverRank()
+	data, err := models.GetDeliverRank(tools.GetUser(c).ID)
 	if err != "" {
 		c.JSON(403, e.ErrMsgResponse{Message: err})
 		return
