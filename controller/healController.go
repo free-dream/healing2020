@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"healing2020/models"
 	"healing2020/pkg/e"
 	"healing2020/pkg/tools"
@@ -160,7 +159,6 @@ func RecordHeal(c *gin.Context) {
 	msg.ToUserID = toUserID
 	msg.Content = songName
 	md5ID := tools.Md5String(strconv.Itoa(int(userID)) + strconv.Itoa(int(toUserID)) + msg.Time)
-	fmt.Println(md5ID)
 	msg.ID = md5ID
 	MessageQueue[int(msg.FromUserID)] <- &msg
 	MessageQueue[int(msg.ToUserID)] <- &msg
