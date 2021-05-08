@@ -2,7 +2,9 @@ package controller
 
 import (
 	"healing2020/models"
+	"healing2020/models/statements"
 	"healing2020/pkg/e"
+	"healing2020/pkg/setting"
 	"healing2020/pkg/tools"
 	"log"
 
@@ -20,16 +22,16 @@ func GetMoney(c *gin.Context) {
 	c.JSON(200, Money)
 }
 
-func UseMoney(c *gin.Context) {
-	userInf := tools.GetUser(c)
+// func UseMoney(c *gin.Context) {
+// 	userInf := tools.GetUser(c)
 
-	err := models.UseMoney(userInf.ID)
-	if err != nil {
-		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
-		return
-	}
-	c.JSON(200, "抽奖成功")
-}
+// 	err := models.UseMoney(userInf.ID)
+// 	if err != nil {
+// 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
+// 		return
+// 	}
+// 	c.JSON(200, "抽奖成功")
+// }
 
 func EarnMoney(c *gin.Context) {
 	userInf := tools.GetUser(c)
@@ -65,10 +67,18 @@ func PostQRcode(c *gin.Context) {
 }
 
 func LotteryDraw(c *gin.Context) {
+	db := setting.MysqlConn()
 	userInf := tools.GetUser(c)
 
-	lot, err := models.LotteryDraw(userInf.ID)
-	// lot, err := models.LotteryDraw()
+	var Background statements.UserOther
+	result2 := db.Select("ava_background").Where("user_id = ?", userInf.ID).First(&Background)
+	if result2.Error != nil {
+		return
+	}
+	bd := SplitAvaBackgroundtoI(Background.AvaBackground)
+	bdstr := Background.AvaBackground
+
+	lot, err := models.LotteryDraw(userInf.ID, bd, bdstr)
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
 		return
