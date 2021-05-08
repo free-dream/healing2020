@@ -294,44 +294,29 @@ func SendUserRank() error {
 
 	//set in redis
 	client := setting.RedisConn()
-	count, _ := client.Get("healing2020:rankCount").Float64()
-	keyName := "healing2020:User." + strconv.FormatFloat(count/100+5.10, 'f', 2, 64)
+	keyName := "healing2020:User" 
 	client.Set(keyName, jsonRank, 0)
 
 	return nil
 }
 
 type AllUserRank struct {
-	Time string   `json:"time"`
 	Data [][]Rank `json:"data"`
 }
 
-func GetAllUserRank() ([]AllUserRank, string) {
-	result := make([]AllUserRank, 10)
+func GetAllUserRank() (AllUserRank, string) {
+	var result AllUserRank 
+    var rank [][]Rank
 	client := setting.RedisConn()
-	count, _ := client.Get("healing2020:rankCount").Float64()
-	var i float64 = 0
-	for j := 0; ; j++ {
-		var rank [][]Rank
-		if i*100 > count {
-			fmt.Println(j)
-			break
-		}
-		var date float64 = 5.10 + i
-		dateStr := strconv.FormatFloat(date, 'f', 2, 64)
-		keyname := "healing2020:User." + dateStr
-		data, err := client.Get(keyname).Bytes()
-		if err != nil {
-			return nil, "Unexpected data"
-		}
-		json.Unmarshal(data, &rank)
-		i = i + 0.01
 
-		result[j].Data = rank
-		result[j].Time = dateStr
-	}
+	keyname := "healing2020:User"
+	data, err := client.Get(keyname).Bytes()
+    if err != nil {
+        return AllUserRank{}, "Unexpected data"
+    }
+    json.Unmarshal(data, &rank)
 
-	//fmt.Println(result)
+    result.Data = rank
 	return result, ""
 }
 
