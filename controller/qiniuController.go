@@ -63,7 +63,7 @@ func QiniuToken(c *gin.Context) {
 }
 
 func convertMediaIdArrToQiniuUrl(media_id_arr []string) (string, error) {
-	new_name := media_id_arr[0] + string(time.Now().Unix())
+	new_name := media_id_arr[0] + fmt.Sprintf("%d", time.Now().Unix())
 	if err := downloadSpeexFromWechat(media_id_arr); err != nil {
 		return "", err
 	}
