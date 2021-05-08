@@ -72,7 +72,7 @@ func MainMsg(c *gin.Context) {
     if style == "推荐" {
         tags = tools.GetUser(c).Hobby
     }
-	data, err := models.GetMainMsg(page,sort, key, tags)
+	data, err := models.GetMainMsg(page,sort, key, tags, tools.GetUser(c).ID)
 	if err != nil {
 		//c.JSON(403, e.ErrMsgResponse{Message: "Unexpected Data"})
 		c.JSON(403, e.ErrMsgResponse{Message: err.Error()})
