@@ -261,6 +261,7 @@ func (wsConn *WsConnection) readWs(c *gin.Context) {
 				log.Println("FromUserID is not same as userID")
 				data.FromUserID = userID
 			}
+			MysqlCreate <- &data
 			//if get message, response ack
 			responseACK, _ := json.Marshal(ACK{ACKID: data.ID})
 			wsConn.ws.WriteMessage(websocket.TextMessage, []byte(responseACK))
@@ -268,7 +269,6 @@ func (wsConn *WsConnection) readWs(c *gin.Context) {
 			createUserMsgChan(data.ToUserID)
 			select {
 			case MessageQueue[int(data.ToUserID)] <- &data:
-				MysqlCreate <- &data
 			case <-wsConn.closeChan:
 				return
 			}
