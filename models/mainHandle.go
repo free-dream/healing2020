@@ -3,7 +3,7 @@ package models
 import (
 	"database/sql"
 	"encoding/json"
-	//"strconv"
+	"strconv"
 	//"fmt"
 	"time"
 	"errors"
@@ -68,7 +68,7 @@ func max(a int, b int) int {
 	}
 }
 
-func LoadSongMsg(sort string, key string,userTags string) []SongMsg {
+func LoadSongMsg(sort string, key string,userTags string) []SongMsg{
 	db := setting.MysqlConn()
     count := 0
     db.Raw("select count(*) from song").Row().Scan(&count)
@@ -78,7 +78,7 @@ func LoadSongMsg(sort string, key string,userTags string) []SongMsg {
 	var rows *sql.Rows
 	var result *gorm.DB
 	if key == "" || key == "推荐" {
-        if sort == "1" {
+        if sort == "0" {
             result = db.Raw("select id,user_id,vod_send,name,praise,source,style,language,created_at from song order by rand()")
             rows, _ = result.Rows()
         } else {
@@ -86,7 +86,7 @@ func LoadSongMsg(sort string, key string,userTags string) []SongMsg {
             rows, _ = result.Rows()
         }
 	} else {
-		if sort == "1" {
+		if sort == "0" {
 			result = db.Raw("select id,user_id,vod_send,name,praise,source,style,language,created_at from song where style=? or language=? order by rand()", key, key)
 			rows, _ = result.Rows()
 		} else {
@@ -143,7 +143,7 @@ func LoadVodMsg(sort string, key string,userTags string) []SongMsg {
 	var rows *sql.Rows
 	var result *gorm.DB
 	if key == "" || key == "推荐"{
-        if sort == "1" {
+        if sort == "0" {
             result = db.Raw("select id,user_id,name,singer,more,style,language,created_at from vod order by rand() limit 10")
             rows, _ = result.Rows()
         }else {
@@ -151,7 +151,7 @@ func LoadVodMsg(sort string, key string,userTags string) []SongMsg {
             rows, _ = result.Rows()
         }
 	} else {
-		if sort == "1" {
+		if sort == "0" {
 			result = db.Raw("select id,user_id,name,singer,more,created_at,style,language from vod where style=? or language=? order by rand()", key, key)
 			rows, _ = result.Rows()
 		} else {
@@ -193,12 +193,22 @@ func LoadVodMsg(sort string, key string,userTags string) []SongMsg {
 	return vodList
 }
 
-func GetMainMsg(sort string, key string,tags string) (MainMsg, error) {
+func GetMainMsg(pageStr string,sort string, key string,tags string) (MainMsg, error) {
+    page,_ := strconv.Atoi(pageStr)
 	var result MainMsg
     //推荐部分先发
     if tags != "" {
-        result.Listen = LoadSongMsg(sort,"推荐",tags)
-        result.Sing = LoadVodMsg(sort,"推荐",tags)
+        listen := LoadSongMsg(sort,"推荐",tags)
+        resultListen,err1 := Paging(page,listen)
+        sing := LoadVodMsg(sort,"推荐",tags)
+        resultSing,err2 := Paging(page,sing)
+
+        if err1 != nil || err2 != nil {
+            return result,errors.New("page out of range")
+        }
+
+        result.Sing = resultSing
+        result.Listen = resultListen
 
         return result,nil
     }
@@ -223,10 +233,32 @@ func GetMainMsg(sort string, key string,tags string) (MainMsg, error) {
 	var listen []SongMsg
 	json.Unmarshal(data1, &sing)
 	json.Unmarshal(data2, &listen)
-	result.Sing = sing
-	result.Listen = listen
+    resultSing,err1 := Paging(page,sing)
+    resultListen,err2 := Paging(page,listen)
+
+    if err1 != nil || err2 != nil {
+        return result,errors.New("page out of range")
+    }
+
+    result.Sing = resultSing
+    result.Listen = resultListen
 
 	return result, nil
+}
+
+func Paging(page int,data []SongMsg) ([]SongMsg,error) {
+    if (page-1)*20 > len(data) {
+        return nil,errors.New("page out of range")
+    }
+
+    var result []SongMsg = make([]SongMsg,20)
+    for i:=0;i<20;i++ {
+        if (page-1)*20+i >= len(data) {
+            break
+        }
+        result[i] = data[(page-1)*20+i]
+    }
+    return result,nil
 }
 
 func isListNil(result *gorm.DB) bool {

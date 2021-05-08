@@ -48,7 +48,8 @@ func MainMsg(c *gin.Context) {
 	sort := c.Query("sort")
 	language := c.Query("language")
 	style := c.Query("style")
-	if !tools.Valid(sort, `^[01]$`) {
+    page := c.Query("page")
+	if !tools.Valid(sort, `^[01]$`) || !tools.Valid(page, `^[1-9]+[0-9]*$`) {
 		c.JSON(403, e.ErrMsgResponse{Message: "Unexpected input"})
 		return
 	}
@@ -70,9 +71,10 @@ func MainMsg(c *gin.Context) {
     if style == "推荐" {
         tags = tools.GetUser(c).Hobby
     }
-	data, err := models.GetMainMsg(sort, key, tags)
+	data, err := models.GetMainMsg(page,sort, key, tags)
 	if err != nil {
-		c.JSON(403, e.ErrMsgResponse{Message: "Unexpected Data"})
+		//c.JSON(403, e.ErrMsgResponse{Message: "Unexpected Data"})
+		c.JSON(403, e.ErrMsgResponse{Message: err.Error()})
 		return
 	}
 	c.JSON(200, data)
