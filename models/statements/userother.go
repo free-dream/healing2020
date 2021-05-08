@@ -13,7 +13,7 @@ type UserOther struct {
 	UserId         uint   `gorm:"default: 0"`
 	Now            int    `gorm:"default: 1"` //初始默认为B1且只有B1可用
 	AvaBackground  string `gorm:"default: '1'"`
-	RemainSing     int    `gorm:"default: 3"`
+	RemainSing     int    `gorm:"default: 8"`
 	RemainHideName int    `gorm:"default: 0"`
 	Lo1            int    `gorm:"default: 0"`
 	Lo2            int    `gorm:"default: 0"`

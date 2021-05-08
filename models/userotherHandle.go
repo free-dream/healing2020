@@ -34,6 +34,5 @@ func SelectRemainNum(userID uint) (statements.UserOther, error) {
 //每日更新用户剩余点歌次数
 func UpdateRemainSingDay() {
 	db := setting.MysqlConn()
-	userOther := statements.UserOther{RemainSing: 3}
-	db.Model(&statements.UserOther{}).Update(&userOther)
+	db.Model(&statements.UserOther{}).Where("remain_sing < ?", 8).Update("remain_sing", 8)
 }

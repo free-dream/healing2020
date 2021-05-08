@@ -31,66 +31,6 @@ type Admire struct { //点赞
 	Praise    int       `json:"number"`
 }
 
-//ResponseSongs使用
-//给Songs加上From，如歌房、投递、治愈
-func songsFrom(someSongs []Songs, from string) []Songs {
-	for i := 0; i < len(someSongs); i++ {
-		someSongs[i].From = from
-	}
-	return someSongs
-}
-
-//ResponseSongs使用
-//对deliver的返回进行处理，将deliver的textfield截至5个字
-func handleDeliver(someSongs []Songs) []Songs {
-	splitDeliver := make([]string, 5)
-	for i := 0; i < len(someSongs); i++ {
-		splitDeliver = strings.Split(someSongs[i].Name, "")
-		if len(splitDeliver) <= 5 {
-			continue
-		}
-		someSongs[i].Name = strings.Join(splitDeliver[:5], "")
-	}
-	return someSongs
-}
-
-//ResponseSongs使用
-//将select到的deliver[]信息代入一个[]Songs结构
-func deliverToSongs(deliver []statements.Deliver) []Songs {
-	s := make([]Songs, len(deliver))
-	for i := 0; i < len(deliver); i++ {
-		s[i] = Songs{
-			ID:        deliver[i].ID,
-			Name:      deliver[i].TextField,
-			CreatedAt: deliver[i].CreatedAt,
-			From:      "投递箱",
-		}
-	}
-	return s
-}
-
-//ResponsePraise使用
-//根据praiseID来select对应表的信息，并加上From来源(歌房、治愈、投递箱）
-func selectPraiseInf(db *gorm.DB, table string, from string, praiseID uint) (Admire, error) {
-	var admireInf Admire
-	err := db.Table(table).Select("id, name, created_at, praise").Where("id=?", praiseID).Scan(&admireInf).Error
-	admireInf.From = from
-	return admireInf, err
-}
-
-//ResponsePraise使用
-//将select到的deliver信息代入到一个Admire结构
-func deliverToAdmire(deliver statements.Deliver) Admire {
-	a := Admire{
-		ID:        deliver.ID,
-		Name:      deliver.TextField,
-		CreatedAt: deliver.CreatedAt,
-		From:      "投递箱",
-		Praise:    deliver.Praise,
-	}
-	return a
-}
-
 //获取其它用户信息接口用
 //select并根据id返回用户信息
 func ResponseUser(userID uint) (statements.User, error) {
@@ -124,6 +64,58 @@ func ResponseVod(userID uint) ([]RequestSongs, error) {
 	return allVod, err
 }
 
+//ResponseSongs使用
+//给Songs加上From，如歌房、投递、治愈
+func songsFrom(someSongs []Songs, from string) []Songs {
+	for i := 0; i < len(someSongs); i++ {
+		someSongs[i].From = from
+	}
+	return someSongs
+}
+
+//ResponseSongs使用
+//对deliver的返回进行处理，将deliver的textfield截至5个字
+func handleDeliver(deliver []statements.Deliver) []statements.Deliver {
+	for key := range deliver {
+		splitDeliver := strings.Split(deliver[key].TextField, "")
+		if len(splitDeliver) <= 5 {
+			continue
+		}
+		deliver[key].TextField = strings.Join(splitDeliver[:5], "")
+	}
+	return deliver
+}
+
+//ResponseSongs使用
+//将select到的deliver[]信息代入一个[]Songs结构
+func deliverToSongs(deliver []statements.Deliver) []Songs {
+	var s []Songs
+	for _, value := range deliver {
+		s = append(s, Songs{
+			ID:        value.ID,
+			Name:      value.TextField,
+			CreatedAt: value.CreatedAt,
+			From:      "投递箱",
+		})
+	}
+	return s
+}
+
+//ResponseSongs使用
+//将select到的special[]信息代入一个[]Songs结构
+func specialToSongs(special []statements.Special) []Songs {
+	var s []Songs
+	for _, value := range special {
+		s = append(s, Songs{
+			ID:        value.SubjectId,
+			Name:      value.Song,
+			CreatedAt: value.CreatedAt,
+			From:      "歌房",
+		})
+	}
+	return s
+}
+
 //select并返回用户唱歌信息
 func ResponseSongs(userID uint) ([]Songs, error) {
 	var err error
@@ -139,8 +131,8 @@ func ResponseSongs(userID uint) ([]Songs, error) {
 	}
 
 	//获取歌房专题歌曲信息
-	var specialSongs []Songs
-	err = db.Table("special").Select("id, name, created_at").Where("user_id=?", userID).Scan(&specialSongs).Error
+	var special []statements.Special
+	err = db.Select("subject_id, song, created_at").Where("user_id=?", userID).Find(&special).Error
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		return nil, err
 	}
@@ -154,15 +146,67 @@ func ResponseSongs(userID uint) ([]Songs, error) {
 
 	//处理不同表select下来的信息, 转换为Songs类型
 	singSongs = songsFrom(singSongs, "治愈")
-
-	specialSongs = songsFrom(specialSongs, "歌房")
-
-	deliverSongs := deliverToSongs(deliver)
-	deliverSongs = handleDeliver(deliverSongs)
-
+	specialSongs := specialToSongs(special)
+	deliverSongs := deliverToSongs(handleDeliver(deliver))
 	//合并数据
 	allSongs := append(append(singSongs, specialSongs...), deliverSongs...)
 	return allSongs, nil
+}
+
+//ResponsePraise使用
+//将select到的[]deliver信息代入到一个[]Admire结构
+func deliverToAdmire(deliver []statements.Deliver) []Admire {
+	var admire []Admire
+	for _, value := range deliver {
+		admire = append(admire, Admire{
+			ID:        value.ID,
+			Name:      value.TextField,
+			CreatedAt: value.CreatedAt,
+			From:      "投递箱",
+			Praise:    value.Praise,
+		})
+	}
+	return admire
+}
+
+//ResponsePraise使用
+//将select到的[]special信息代入到一个[]Admire结构
+func specialToAdmire(special []statements.Special) []Admire {
+	var admire []Admire
+	for _, value := range special {
+		admire = append(admire, Admire{
+			ID:        value.SubjectId,
+			Name:      value.Song,
+			CreatedAt: value.CreatedAt,
+			From:      "歌房",
+			Praise:    value.Praise,
+		})
+	}
+	return admire
+}
+
+//ResponsePraise使用
+//根据type提取结构体id字段
+func getPraiseStructID(praise []statements.Praise) map[string][]uint {
+	var deliverID []uint
+	var healID []uint
+	var specialID []uint
+	for _, value := range praise {
+		switch value.Type {
+		case 1:
+			deliverID = append(deliverID, value.PraiseId)
+		case 2:
+			healID = append(healID, value.PraiseId)
+		case 3:
+			specialID = append(specialID, value.PraiseId)
+		}
+
+	}
+	return map[string][]uint{
+		"deliver": deliverID,
+		"heal":    healID,
+		"special": specialID,
+	}
 }
 
 //select并返回用户点赞信息
@@ -178,32 +222,34 @@ func ResponsePraise(userID uint) ([]Admire, error) {
 	if err != nil {
 		return nil, err
 	}
-	//根据type查询不同表获得信息
-	allPraise := make([]Admire, len(praise))
-	for i := 0; i < len(praise); i++ {
-		switch praise[i].Type {
-		//投递箱
-		case 1:
-			var deliverInf statements.Deliver
-			err = db.Select("id, text_field, created_at, praise").Where("id=?", praise[i].PraiseId).Find(&deliverInf).Error
-			allPraise[i] = deliverToAdmire(deliverInf)
-			if err != nil && !gorm.IsRecordNotFoundError(err) {
-				return nil, err
-			}
-		//治愈
-		case 2:
-			allPraise[i], err = selectPraiseInf(db, "song", "治愈", praise[i].PraiseId)
-			if err != nil && !gorm.IsRecordNotFoundError(err) {
-				return nil, err
-			}
-		//专题歌曲
-		case 3:
-			allPraise[i], err = selectPraiseInf(db, "special", "歌房", praise[i].PraiseId)
-			if err != nil && !gorm.IsRecordNotFoundError(err) {
-				return nil, err
-			}
-		}
+	allID := getPraiseStructID(praise)
+
+	//投递箱,type=1
+	var deliverInf []statements.Deliver
+	err = db.Select("id, text_field, created_at, praise").Where("id in (?)", allID["deliver"]).Find(&deliverInf).Error
+	if err != nil && !gorm.IsRecordNotFoundError(err) {
+		return nil, err
 	}
+
+	//治愈,type=2
+	var admireHealInf []Admire
+	err = db.Table("song").Select("id, name, created_at, praise").Where("id in (?)", allID["heal"]).Scan(&admireHealInf).Error
+	if err != nil && !gorm.IsRecordNotFoundError(err) {
+		return nil, err
+	}
+	for key := range admireHealInf {
+		admireHealInf[key].From = "治愈"
+	}
+
+	//专题歌曲,type=3
+	//返回id为歌房id
+	var specialInf []statements.Special
+	err = db.Select("subject_id, song, created_at, praise").Where("id in (?)", allID["special"]).Find(&specialInf).Error
+	if err != nil && !gorm.IsRecordNotFoundError(err) {
+		return nil, err
+	}
+
+	allPraise := append(append(deliverToAdmire(deliverInf), admireHealInf...), specialToAdmire(specialInf)...)
 	return allPraise, err
 }
 
