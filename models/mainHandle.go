@@ -294,7 +294,7 @@ func GetSearchResult(search string) SearchResp {
 
 	var song statements.Song
 	//result := db.Raw("select id,praise,source,created_at,user_id from song where name = ?",search)
-	result := db.Model(&statements.Song{}).Where("name = ? or phone = ? or true_name = ?", search,search,search).Select("id,praise,source,created_at,user_id").Find(&song)
+	result := db.Model(&statements.Song{}).Where("name = ?", search).Select("id,praise,source,created_at,user_id").Find(&song)
 	if result.RowsAffected != 0 && result.Error == nil {
 		rows, _ := result.Rows()
 		defer rows.Close()
@@ -355,7 +355,7 @@ func GetSearchResult(search string) SearchResp {
 
 	//result = db.Raw("select id,more,avatar from user where nick_name = ?",search)
 	var user statements.User
-	result = db.Model(&statements.User{}).Where("nick_name=?", search).Select("id,more,avatar").Find(&user)
+	result = db.Model(&statements.User{}).Where("nick_name=? or true_name = ? or phone =?", search, search, search).Select("id,more,avatar").Find(&user)
 	if result.RowsAffected != 0 && result.Error == nil {
 		rows, _ := result.Rows()
 		defer rows.Close()
