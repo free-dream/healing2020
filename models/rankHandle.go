@@ -264,9 +264,9 @@ func SendUserRank() error {
 	db := setting.MysqlConn()
 
 	var user []statements.User
-	var rank []Rank = make([]Rank, 10)
 	var allRank [][]Rank = make([][]Rank, 3)
 	for i := 0; i < 3; i++ {
+	    var rank []Rank = make([]Rank, 10)
 		pattern := []string{"", "中大", "华工"}
 		var result *gorm.DB
 		if i == 0 {
@@ -276,7 +276,8 @@ func SendUserRank() error {
 		}
 		rows := result.RowsAffected
 		if rows == 0 {
-			return nil
+            allRank[i] = rank
+            continue
 		}
 		if result.Error != nil {
 			return result.Error
