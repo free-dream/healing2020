@@ -16,10 +16,12 @@ type AllComment struct {
 }
 
 type Comment struct {
+	Id 		  int 		`json:"comment_id"`
 	UserID    uint      `json:"UserID"`
 	Type      int       `json:"Type"`
 	CreatedAt time.Time `json:"created_at"`
 	Content   string    `json:"content"`
+	Praise    int    	`json:"praise"`
 }
 
 func GetComment(strID string, Type string) ([]AllComment, error) {
@@ -32,13 +34,13 @@ func GetComment(strID string, Type string) ([]AllComment, error) {
 	//获取评论其他信息
 	var commentElse []Comment
 	if Type == "2" { //投递评论
-		err = db.Table("comment").Select("user_id, type, created_at, content").Where("type = 2 AND deliver_id = ?", id).Scan(&commentElse).Error
+		err = db.Table("comment").Select("id, user_id, type, created_at, content").Where("type = 2 AND deliver_id = ?", id).Scan(&commentElse).Error
 		if err != nil {
 			return nil, err
 		}
 	}
 	if Type == "1" { //歌房评论
-		err = db.Table("comment").Select("user_id, type, created_at, content").Where("type = 1 AND song_id = ?", id).Scan(&commentElse).Error
+		err = db.Table("comment").Select("id, user_id, type, created_at, content").Where("type = 1 AND song_id = ?", id).Scan(&commentElse).Error
 		if err != nil {
 			return nil, err
 		}

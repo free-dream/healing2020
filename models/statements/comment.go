@@ -15,6 +15,7 @@ type Comment struct {
 	SongId    uint   `gorm:"default: 0"`
 	DeliverId uint   `gorm:"default: 0"`
 	Content   string `gorm:"default: ''"`
+	Praise	  int    `gorm:"default: 0"`
 }
 
 func CommentInit() {

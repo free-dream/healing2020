@@ -82,6 +82,8 @@ func InitRouter() *gin.Engine {
 	//歌房
 	api.GET("/singsubject", controller.SingSubject)
 	api.GET("/singhome", controller.SingHome)
+	api.POST("/postsubject", controller.PostSubject)//发送歌房
+	api.POST("/postspecial", controller.PostSpecial)//发送歌房歌曲
 
 	//抽奖
 	api.GET("/lottery/allprize", controller.ALLPrize)
@@ -127,8 +129,6 @@ func InitRouter() *gin.Engine {
 
 	//test
 	api.GET("/initest", controller.Test)
-	api.POST("/god/postsubject", controller.PostSubject)
-	api.POST("/god/postspecial", controller.PostSpecial)
 	//god view
 
 	//login
