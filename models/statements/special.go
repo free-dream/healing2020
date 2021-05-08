@@ -12,7 +12,6 @@ type Special struct {
 	gorm.Model
 	SubjectId uint   `gorm:"default: 0"`
 	UserId    uint   `gorm:"default: 0"`
-	Name      string `gorm:"default: ''"`
 	Praise    int    `gorm:"default: 0"`
 	Song      string `gorm:"default: ''"`
 	Record    string `gorm:"default: ''"`
