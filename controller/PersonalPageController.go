@@ -3,6 +3,7 @@ package controller
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"healing2020/models"
 	"healing2020/models/statements"
@@ -13,15 +14,17 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-type PersonalPage struct {
+type MyPersonalPage struct {
 	NickName       string                `json:"name"`
 	Campus         string                `json:"school"`
 	More           string                `json:"more"`
+	Sex            int                   `json:"sex"`
 	Setting1       int                   `json:"setting1"`
 	Setting2       int                   `json:"setting2"`
 	Setting3       int                   `json:"setting3"`
 	Avatar         string                `json:"avatar"`
-	Background     string                `json:"background"`
+	Background     int                   `json:"background"`
+	AvaBackground  []int                 `json:"avaBackground"`
 	RemainHideName int                   `json:"hide_number"`
 	TrueName       string                `json:"truename"`
 	Phone          string                `json:"phone"`
@@ -30,18 +33,36 @@ type PersonalPage struct {
 	Praise         []models.Admire       `json:"admire"`
 }
 
-type VodID struct {
-	VodID uint `json:"VodID"`
+type OthersPersonalPage struct {
+	NickName   string                `json:"name"`
+	Campus     string                `json:"school"`
+	More       string                `json:"more"`
+	Avatar     string                `json:"avatar"`
+	Background int                   `json:"background"`
+	Vod        []models.RequestSongs `json:"requestSongs"`
+	Songs      []models.Songs        `json:"Songs"`
+	Praise     []models.Admire       `json:"admire"`
+}
+
+func SplitAvaBackgroundtoI(avaBackground string) []int {
+	avaBString := strings.Split(avaBackground, ",")
+	var avaBInt []int
+	for _, value := range avaBString {
+		valueInt, _ := strconv.Atoi(value)
+		avaBInt = append(avaBInt, valueInt)
+	}
+	return avaBInt
 }
 
 //综合处理各项数据获取最终返回结果
-func responsePage(c *gin.Context, user statements.User, userID uint) {
+func responsePage(c *gin.Context, user statements.User, my_others string) {
 	var err error
 
 	//初始化返回数据
-	page := PersonalPage{
+	page := MyPersonalPage{
 		NickName: user.NickName,
 		Campus:   user.Campus,
+		Sex:      user.Sex,
 		More:     user.More,
 		Setting1: user.Setting1,
 		Setting2: user.Setting2,
@@ -51,32 +72,52 @@ func responsePage(c *gin.Context, user statements.User, userID uint) {
 		TrueName: user.TrueName,
 	}
 
+	// if user's setting3 == 0, back to default url
+	if user.Setting3 == 0 {
+		page.Avatar = tools.GetAvatarUrl(user.Sex)
+	}
+
 	//补充返回数据
-	page.Background, page.RemainHideName, err = models.ResponseUserOther(userID)
+	userOther, err := models.ResponseUserOther(user.ID)
+	if err != nil && !gorm.IsRecordNotFoundError(err) {
+		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
+		return
+	}
+	page.Background = userOther.Now
+	page.AvaBackground = SplitAvaBackgroundtoI(userOther.AvaBackground)
+
+	page.Vod, err = models.ResponseVod(user.ID)
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
 		return
 	}
 
-	page.Vod, err = models.ResponseVod(userID)
+	page.Songs, err = models.ResponseSongs(user.ID)
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
 		return
 	}
 
-	page.Songs, err = models.ResponseSongs(userID)
+	page.Praise, err = models.ResponsePraise(user.ID)
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
 		return
 	}
 
-	page.Praise, err = models.ResponsePraise(userID)
-	if err != nil && !gorm.IsRecordNotFoundError(err) {
-		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
-		return
+	if my_others == "my" {
+		c.JSON(200, page)
+	} else if my_others == "others" {
+		c.JSON(200, OthersPersonalPage{
+			NickName:   page.NickName,
+			Campus:     page.Campus,
+			More:       page.More,
+			Avatar:     page.Avatar,
+			Background: page.Background,
+			Vod:        page.Vod,
+			Songs:      page.Songs,
+			Praise:     page.Praise,
+		})
 	}
-
-	c.JSON(200, page)
 	return
 }
 
@@ -85,11 +126,11 @@ func responsePage(c *gin.Context, user statements.User, userID uint) {
 //@Tags user
 //@Produce json
 //@Router /api/user [get]
-//@Success 200 {object} PersonalPage
+//@Success 200 {object} MyPersonalPage
 //@Failure 403 {object} e.ErrMsgResponse
 func ResponseMyPerponalPage(c *gin.Context) {
 	rUser := tools.GetUser(c)
-	responsePage(c, statements.User(rUser), rUser.ID)
+	responsePage(c, statements.User(rUser), "my")
 }
 
 //@Title ResponseOthersPerponalPage
@@ -97,7 +138,7 @@ func ResponseMyPerponalPage(c *gin.Context) {
 //@Tags user
 //@Produce json
 //@Router /api/user/{id} [get]
-//@Success 200 {object} PersonalPage
+//@Success 200 {object} OthersPersonalPage
 //@Failure 403 {object} e.ErrMsgResponse
 func ResponseOthersPerponalPage(c *gin.Context) {
 	//获取querystring并转化格式
@@ -116,12 +157,16 @@ func ResponseOthersPerponalPage(c *gin.Context) {
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
 		return
 	}
-	responsePage(c, user, userID)
+	responsePage(c, user, "others")
+}
+
+type VodID struct {
+	VodID uint `json:"VodID"`
 }
 
 //@Title HideName
 //@Description 匿名
-//@Tags mypersonalpage
+//@Tags user
 //@Produce json
 //@Router /api/vod/hide_name [put]
 //@Success 200 {object} e.ErrMsgResponse
@@ -131,13 +176,13 @@ func HideName(c *gin.Context) {
 	c.BindJSON(&jsonInf)
 
 	userID := tools.GetUser(c).ID
-	_, remainHideName, err := models.ResponseUserOther(userID)
+	userOther, err := models.ResponseUserOther(userID)
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(403, e.ErrMsgResponse{Message: "无法获取剩余匿名次数！"})
 		return
 	}
-	if remainHideName == 0 {
+	if userOther.RemainHideName == 0 {
 		c.JSON(403, e.ErrMsgResponse{Message: "已无剩余匿名次数！"})
 		return
 	}

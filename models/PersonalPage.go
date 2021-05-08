@@ -6,7 +6,6 @@ import (
 
 	"healing2020/models/statements"
 	"healing2020/pkg/setting"
-	"healing2020/pkg/tools"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
@@ -99,19 +98,19 @@ func ResponseUser(userID uint) (statements.User, error) {
 	db := setting.MysqlConn()
 
 	var user statements.User
-	err := db.Select("id, sex, phone, hobby, nick_name, campus, more, setting1, setting2, setting3, avatar").Where("id=?", userID).First(&user).Error
+	err := db.Select("id, sex, nick_name, campus, more, setting3, avatar").Where("id=?", userID).First(&user).Error
 	return user, err
 }
 
-//select并返回用户现在使用的个人背景和剩余匿名次数
-func ResponseUserOther(userID uint) (string, int, error) {
+//select并返回用户个人背景信息和剩余匿名次数
+func ResponseUserOther(userID uint) (statements.UserOther, error) {
 	//连接mysql
 	db := setting.MysqlConn()
 
 	//查询
-	var nowUserOther statements.UserOther
-	err := db.Select("now, remain_hide_name").Where("user_id=?", userID).First(&nowUserOther).Error
-	return tools.GetBackgroundUrl(nowUserOther.Now), nowUserOther.RemainHideName, err
+	var userOther statements.UserOther
+	err := db.Select("ava_background, now, remain_hide_name").Where("user_id=?", userID).First(&userOther).Error
+	return userOther, err
 }
 
 //select并返回点歌信息

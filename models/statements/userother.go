@@ -10,21 +10,17 @@ import (
 
 type UserOther struct {
 	gorm.Model
-	UserId         uint `gorm:"default: 0"`
-	Now            int  `gorm:"default: 1"` //初始默认为B1且只有B1可用
-	B1             int  `gorm:"default: 1"`
-	B2             int  `gorm:"default: 0"`
-	B3             int  `gorm:"default: 0"`
-	B4             int  `gorm:"default: 0"`
-	B5             int  `gorm:"default: 0"`
-	RemainSing     int  `gorm:"default: 0"`
-	RemainHideName int  `gorm:"default: 0"`
-	Lo1            int  `gorm:"default: 0"`
-	Lo2            int  `gorm:"default: 0"`
-	Lo3            int  `gorm:"default: 0"`
-	Lo4            int  `gorm:"default: 0"`
-	Lo5            int  `gorm:"default: 0"`
-	Lo6            int  `gorm:"default: 0"`
+	UserId         uint   `gorm:"default: 0"`
+	Now            int    `gorm:"default: 1"` //初始默认为B1且只有B1可用
+	AvaBackground  string `gorm:"default: '1'"`
+	RemainSing     int    `gorm:"default: 3"`
+	RemainHideName int    `gorm:"default: 0"`
+	Lo1            int    `gorm:"default: 0"`
+	Lo2            int    `gorm:"default: 0"`
+	Lo3            int    `gorm:"default: 0"`
+	Lo4            int    `gorm:"default: 0"`
+	Lo5            int    `gorm:"default: 0"`
+	Lo6            int    `gorm:"default: 0"`
 }
 
 func UserOtherInit() {
