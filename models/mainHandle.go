@@ -35,7 +35,7 @@ type SongMsg struct {
 	Source string `json:"source"`
 	Singer string `json:"singer"`
 	UserId  uint  `json:"userid"`
-    IsPraise int  `json:"isPraise"`
+    IsPraise bool `json:"isPraise"`
 }
 
 func SendMainMsg() {
@@ -194,7 +194,7 @@ func LoadVodMsg(sort string, key string,userTags string) []SongMsg {
 	return vodList
 }
 
-func GetMainMsg(pageStr string,sort string, key string,tags string) (MainMsg, error) {
+func GetMainMsg(pageStr string,sort string, key string,tags string,userid uint) (MainMsg, error) {
     page,_ := strconv.Atoi(pageStr)
 	var result MainMsg
     //推荐部分先发
@@ -207,6 +207,11 @@ func GetMainMsg(pageStr string,sort string, key string,tags string) (MainMsg, er
         if err1 != nil || err2 != nil {
             return result,errors.New("page out of range")
         }
+
+        //塞进是否点赞
+        for i:=0;i<len(resultListen);i++ {
+            resultListen[i].IsPraise,_ = HasPraise(2,userid,resultListen[i].Id)
+        } 
 
         result.Sing = resultSing
         result.Listen = resultListen
@@ -240,6 +245,11 @@ func GetMainMsg(pageStr string,sort string, key string,tags string) (MainMsg, er
     if err1 != nil || err2 != nil {
         return result,errors.New("page out of range")
     }
+
+    //塞进是否点赞
+    for i:=0;i<len(resultListen);i++ {
+        resultListen[i].IsPraise,_ = HasPraise(2,userid,resultListen[i].Id)
+    } 
 
     result.Sing = resultSing
     result.Listen = resultListen
@@ -299,6 +309,7 @@ type UserResp struct {
 	UserName string `json:"userName"`
 	Avatar   string `json:"avatar"`
 	More     string `json:"more"`
+    Bg       int    `json:"background"`
 }
 
 type SongResp struct {
@@ -415,6 +426,9 @@ func GetSearchResult(search string) SearchResp {
 			userResp[i].Avatar = user.Avatar
 			userResp[i].UserName = user.NickName
 
+            var userOther statements.UserOther
+            db.Model(&statements.UserOther{}).Select("now").Where("user_id = ?",user.ID).First(&userOther)
+            userResp[i].Bg = userOther.Now
 			i++
 		}
 	} else {
