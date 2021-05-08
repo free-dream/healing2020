@@ -293,17 +293,17 @@ func GetSearchResult(search string) SearchResp {
 	var userResp []UserResp
 	var vodResp []VodResp
 
-	var song statements.Song
-	//result := db.Raw("select id,praise,source,created_at,user_id from song where name = ?",search)
-	result := db.Model(&statements.Song{}).Where("name = ?", search).Select("id,praise,source,created_at,user_id").Find(&song)
-	if result.RowsAffected != 0 && result.Error == nil {
+	var songCount int = 0
+    result := db.Model(&statements.Song{}).Where("name = ?", search).Select("id,praise,source,created_at,user_id").Count(&songCount)
+	if songCount != 0 && result.Error == nil {
 		rows, _ := result.Rows()
 		defer rows.Close()
 
-		songResp = make([]SongResp, result.RowsAffected)
+		songResp = make([]SongResp, songCount)
 
 		i := 0
 		for rows.Next() {
+            var song statements.Song
 			db.ScanRows(rows, &song)
 			songResp[i].SongId = song.ID
 			songResp[i].Praise = song.Praise
@@ -319,24 +319,26 @@ func GetSearchResult(search string) SearchResp {
 			i++
 		}
 	} else {
-		searchResp.Err = result.Error.Error()
+        if result.Error != nil {
+		    searchResp.Err = result.Error.Error()
+        }
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			searchResp.Err = ""
 		}
 	}
 
-	var vod statements.Vod
-	//result = db.Raw("select id,created_at,user_id from vod where name = ?",search)
-	result = db.Model(&statements.Vod{}).Where("name = ?", search).Select("id,created_at,user_id").Find(&vod)
+    var vodCount int = 0
+	result = db.Model(&statements.Vod{}).Where("name = ?", search).Select("id,created_at,user_id").Count(&vodCount)
 
-	if result.RowsAffected != 0 && result.Error == nil {
+	if vodCount != 0 && result.Error == nil {
 		rows, _ := result.Rows()
 		defer rows.Close()
 
-		var vodResp []VodResp = make([]VodResp, result.RowsAffected)
+		vodResp = make([]VodResp, vodCount)
 
 		i := 0
 		for rows.Next() {
+	        var vod statements.Vod
 			db.ScanRows(rows, &vod)
 			vodResp[i].VodId = vod.ID
 			vodResp[i].VodName = search
@@ -349,16 +351,17 @@ func GetSearchResult(search string) SearchResp {
 			i++
 		}
 	} else {
-		searchResp.Err = result.Error.Error()
+        if result.Error != nil {
+		    searchResp.Err = result.Error.Error()
+        }
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			searchResp.Err = ""
 		}
 	}
 
-	//result = db.Raw("select id,more,avatar from user where nick_name = ?",search)
-	var user statements.User
-	result = db.Model(&statements.User{}).Select("id,nick_name,more,avatar").Where("nick_name=? or true_name = ? or phone =?", search, search, search).Select("id,more,avatar").Find(&user)
-	if result.RowsAffected != 0 && result.Error == nil {
+    userCount := 0
+	result = db.Model(&statements.User{}).Select("id,nick_name,more,avatar").Where("nick_name=? or true_name = ? or phone =?", search, search, search).Count(&userCount)
+	if userCount != 0 && result.Error == nil {
 		rows, _ := result.Rows()
 		defer rows.Close()
 
@@ -366,6 +369,7 @@ func GetSearchResult(search string) SearchResp {
 
 		i := 0
 		for rows.Next() {
+	        var user statements.User
 			db.ScanRows(rows, &user)
 			userResp[i].UserId = user.ID
 			userResp[i].More = user.More
@@ -375,7 +379,9 @@ func GetSearchResult(search string) SearchResp {
 			i++
 		}
 	} else {
-		searchResp.Err = result.Error.Error()
+        if result.Error != nil {
+		    searchResp.Err = result.Error.Error()
+        }
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			searchResp.Err = ""
 		}
