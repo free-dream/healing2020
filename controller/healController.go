@@ -99,13 +99,34 @@ func Praise(c *gin.Context) {
 		c.JSON(403, e.ErrMsgResponse{Message: "Unexpected Params"})
 		return
 	}
-	err := models.AddPraise(tools.GetUser(c).ID, id, types)
+	err,data := models.AddPraise(tools.GetUser(c).ID, id, types)
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: "Fail to add praise"})
 		return
 	}
+    SendPraiseMsg(data.MyID,data.TargetID,tools.GetUser(c).NickName,data.Type,data.Msg)
 	c.JSON(200, e.ErrMsgResponse{Message: "ok"})
 	return
+}
+
+func SendPraiseMsg(myID uint,targetID uint,myName string,types string,mainMsg string) {
+    if types == "1" {
+        types = "[治愈]:"
+    }else {
+        types = "[投递]:"
+    }
+    content := myName+"点赞了您的"+types+mainMsg
+    msgID := tools.Md5String(content)
+    msg := Message{
+        ID : msgID,
+        Type : 3,
+        Time : "",
+        FromUserID : myID,
+        ToUserID : targetID,
+        Content : content,
+        URL : "",
+    }
+    MessageQueue[int(targetID)] <- &msg
 }
 
 type RecordParams struct {
