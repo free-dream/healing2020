@@ -35,7 +35,7 @@ func CronInit() *cron.Cron {
 	c.AddFunc("0 0 0 * *", func() {
 		models.UpdateTask()
 	})
-	c.AddFunc("0 48 0 * *", func() {
+	c.AddFunc("0 0 0 * *", func() {
 		models.UpdateRemainSingDay()
 	})
 	return c
