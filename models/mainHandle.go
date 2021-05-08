@@ -365,7 +365,7 @@ func GetSearchResult(search string) SearchResp {
 		rows, _ := result.Rows()
 		defer rows.Close()
 
-		userResp = make([]UserResp, result.RowsAffected)
+		userResp = make([]UserResp, userCount)
 
 		i := 0
 		for rows.Next() {
