@@ -301,7 +301,7 @@ type UserResp struct {
 }
 
 type SongResp struct {
-	SongId   uint      `json:"songid"`
+	SongId   uint      `json:"id"`
 	SongName string    `json:"name"`
     Avatar   string    `json:"avatar"`
 	Praise   int       `json:"like"`
@@ -311,10 +311,12 @@ type SongResp struct {
 }
 
 type VodResp struct {
-	VodId   uint      `vodid`
+	VodId   uint      `id`
 	VodName string    `json:"name"`
 	VodUser string    `json:"user"`
     Avatar  string    `json:"avatar"`  
+    More    string    `json:"more"`
+    Sex     int       `json:"sex"`
 	Time    time.Time `json:"time"`
 }
 
@@ -378,9 +380,11 @@ func GetSearchResult(search string) SearchResp {
 			vodResp[i].Time = vod.CreatedAt
 
 			var user statements.User
-			db.Model(&statements.User{}).Select("avatar,nick_name").Where("id = ?", vod.UserId).First(&user)
+			db.Model(&statements.User{}).Select("sex,more,avatar,nick_name").Where("id = ?", vod.UserId).First(&user)
 			vodResp[i].VodUser = user.NickName
             vodResp[i].Avatar = user.Avatar
+            vodResp[i].More = user.More
+            vodResp[i].Sex = user.Sex
 
 			i++
 		}
