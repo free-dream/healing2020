@@ -211,6 +211,7 @@ func SendSongRank() error {
 		}
 		rank[i].User = user.NickName
 		rank[i].Avatar = user.Avatar
+        rank[i].UserId = userid
 	}
 	jsonRank, _ := json.Marshal(rank)
 
@@ -282,6 +283,7 @@ func SendUserRank() error {
 		}
 		for i := 0; i < min(int(rows), 10); i++ {
 			rank[i].ID = user[i].ID
+            rank[i].UserId = user[i].ID
 			rank[i].User = user[i].NickName
 			rank[i].Avatar = user[i].Avatar
 		}
