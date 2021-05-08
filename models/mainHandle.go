@@ -294,7 +294,7 @@ func GetSearchResult(search string) SearchResp {
 
 	var song statements.Song
 	//result := db.Raw("select id,praise,source,created_at,user_id from song where name = ?",search)
-	result := db.Model(&statements.Song{}).Where("name = ?", search).Select("id,praise,source,created_at,user_id").Find(&song)
+	result := db.Model(&statements.Song{}).Where("name = ? or phone = ? or true_name = ?", search,search,search).Select("id,praise,source,created_at,user_id").Find(&song)
 	if result.RowsAffected != 0 && result.Error == nil {
 		rows, _ := result.Rows()
 		defer rows.Close()
