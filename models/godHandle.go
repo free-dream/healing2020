@@ -159,7 +159,7 @@ func CreateSpecials(id1 string, id2 string, name string, praise int, song string
 	var special statements.Special
 	special.SubjectId = subjectid
 	special.UserId = userid
-	special.Name = name
+	// special.Name = name
 	special.Praise = praise
 	special.Song = song
 	db := setting.MysqlConn()

@@ -27,6 +27,7 @@ type UserMessage struct {
 	Praise    string    `json:"praise"`
 	Song      string    `json:"name"`
 	Record    string    `json:"record"`
+	IsPraise  bool      `json:"isPraise"`
 
 	//无用数据
 	Type   string `json:"type"`
@@ -65,6 +66,7 @@ func SingHome(subjectID uint) (AllSpecial, error) {
 			Song:      SingHome[i].Song,
 			Record:    SingHome[i].Record,
 		}
+		responseSing[i].IsPraise, _ = HasPraise(3, SingHome[i].UserID, uint(SingHome[i].Id))
 	}
 
 	allSpecial := AllSpecial{
