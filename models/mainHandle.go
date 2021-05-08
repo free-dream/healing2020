@@ -271,9 +271,10 @@ type UserResp struct {
 type SongResp struct {
 	SongId   uint      `json:"songid"`
 	SongName string    `json:"songName"`
-	Praise   int       `json:"praise"`
+    Avatar   string    `json:"avatar"`
+	Praise   int       `json:"like"`
 	Source   string    `json:"source"`
-	Singer   string    `json:"singer"`
+	Singer   string    `json:"user"`
 	Time     time.Time `json:"time"`
 }
 
@@ -311,8 +312,9 @@ func GetSearchResult(search string) SearchResp {
 			songResp[i].Time = song.CreatedAt
 
 			var user statements.User
-			db.Model(&statements.User{}).Select("nick_name").Where("id = ?", song.UserId).First(&user)
+			db.Model(&statements.User{}).Select("nick_name,avatar").Where("id = ?", song.UserId).First(&user)
 			songResp[i].Singer = user.NickName
+            songResp[i].Avatar = user.Avatar
 
 			i++
 		}
@@ -355,7 +357,7 @@ func GetSearchResult(search string) SearchResp {
 
 	//result = db.Raw("select id,more,avatar from user where nick_name = ?",search)
 	var user statements.User
-	result = db.Model(&statements.User{}).Where("nick_name=? or true_name = ? or phone =?", search, search, search).Select("id,more,avatar").Find(&user)
+	result = db.Model(&statements.User{}).Select("id,nick_name,more,avatar").Where("nick_name=? or true_name = ? or phone =?", search, search, search).Select("id,more,avatar").Find(&user)
 	if result.RowsAffected != 0 && result.Error == nil {
 		rows, _ := result.Rows()
 		defer rows.Close()
@@ -368,7 +370,7 @@ func GetSearchResult(search string) SearchResp {
 			userResp[i].UserId = user.ID
 			userResp[i].More = user.More
 			userResp[i].Avatar = user.Avatar
-			userResp[i].UserName = search
+			userResp[i].UserName = user.NickName
 
 			i++
 		}
