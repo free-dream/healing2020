@@ -17,12 +17,14 @@ func GetPhone(info tools.RedisUser) string {
 }
 
 type RecordResp struct {
+    SongId     uint   `json:"songId"`
 	Praise     int    `json:"praise"`
 	User       string `json:"user"`
 	Source     string `json:"source"`
 	SongAvatar string `json:"songAvatar"`
 }
 type ResultResp struct {
+    VodId     uint      `json:"id"`
 	Time      time.Time `json:"time"`
 	Singer    string    `json:"singer"`
 	More      string    `json:"more"`
@@ -75,6 +77,7 @@ func GetRecord(id string) ResultResp {
 	i := 0
 	for rows.Next() {
 		db.ScanRows(rows, &song)
+		recordResp[i].SongId = song.ID
 		recordResp[i].Praise = GetPraiseCount("song",song.ID)
 		recordResp[i].Source = song.Source
 
