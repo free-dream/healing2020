@@ -93,49 +93,234 @@ func UpdateTask() error {
 	return err
 }
 
-//分享二维码加积分
-func PostQRcode(User_id string) error {
-	intId, _ := strconv.Atoi(User_id)
-	user_id := uint(intId)
-
+func FinishTask(task string, userID uint) error {
+	//连接mysql
 	db := setting.MysqlConn()
-
-	status := 0
 	tx := db.Begin()
 
-	var userother statements.UserOther
-	result := tx.Model(&statements.UserOther{}).Where("user_id = ?", user_id).First(&userother)
-	if result.Error != nil {
-		return result.Error
-	}
-	//判断完成每日任务和增加积分
-	if userother.Lo6 != 1 {
-		err2 := tx.Model(&statements.UserOther{}).Where("user_id = ?", user_id).Update("lo6", 1).Error
-		if err2 != nil {
-			if status < 5 {
-				status++
-				tx.Rollback()
-			} else {
-				return err2
-			}
-		}
-		var user statements.User
-		result := tx.Model(&statements.User{}).Where("id= ?", user_id).First(&user)
+	switch task {
+	case "1" :
+		//login
+		var userother statements.UserOther
+		result := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).First(&userother)
 		if result.Error != nil {
 			return result.Error
 		}
-		if user.Money >= 0 {
-			user.Money = user.Money + 10
-			err3 := tx.Save(&user).Error
-			if err3 != nil {
-				if status < 5 {
-					status++
+		if userother.Lo1 != 1 {
+			t := time.Now()
+			t_zero := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location()).Unix()
+			t_to_tomorrow := 24*60*60 - (t.Unix() - t_zero)		
+			redis_cli := setting.RedisClient
+			logined := !redis_cli.SetNX(fmt.Sprintf("finish_lo1_id:%d", userID), 0, time.Duration(t_to_tomorrow)*time.Second).Val()
+			
+			if !logined {
+				err2 := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).Update("lo1", 1).Error
+				if err2 != nil {
 					tx.Rollback()
-				} else {
-					return err3
+					return err2
+				}
+				
+				var user statements.User
+				result := tx.Model(&statements.User{}).Where("id= ?", userID).First(&user)
+				if result.Error != nil {
+					return result.Error
+				}
+				if user.Money >= 0 {
+					user.Money = user.Money + 50
+					err3 := tx.Save(&user).Error
+					if err3 != nil {
+						tx.Rollback()
+						return err3
+					}
 				}
 			}
 		}
+		break
+	case "2" :
+		//vod
+		var userother statements.UserOther
+		result := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).First(&userother)
+		if result.Error != nil {
+			return result.Error
+		}
+		if userother.Lo2 != 1 {
+			t := time.Now()
+			t_zero := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location()).Unix()
+			t_to_tomorrow := 24*60*60 - (t.Unix() - t_zero)		
+			redis_cli := setting.RedisClient
+			voded := !redis_cli.SetNX(fmt.Sprintf("finish_lo2_id:%d", userID), 0, time.Duration(t_to_tomorrow)*time.Second).Val()
+			
+			if !voded {
+				err2 := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).Update("lo2", 1).Error
+				if err2 != nil {
+					tx.Rollback()
+					return err2
+				}
+				
+				var user statements.User
+				result := tx.Model(&statements.User{}).Where("id= ?", userID).First(&user)
+				if result.Error != nil {
+					return result.Error
+				}
+				if user.Money >= 0 {
+					user.Money = user.Money + 15
+					err3 := tx.Save(&user).Error
+					if err3 != nil {
+						tx.Rollback()
+						return err3
+					}
+				}
+			}
+		}
+		break
+	case "3" :
+		//healing
+		var userother statements.UserOther
+		result := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).First(&userother)
+		if result.Error != nil {
+			return result.Error
+		}
+		if userother.Lo3 != 1 {
+			t := time.Now()
+			t_zero := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location()).Unix()
+			t_to_tomorrow := 24*60*60 - (t.Unix() - t_zero)		
+			redis_cli := setting.RedisClient
+			healed := !redis_cli.SetNX(fmt.Sprintf("finish_lo3_id:%d", userID), 0, time.Duration(t_to_tomorrow)*time.Second).Val()
+			
+			if !healed {
+				err2 := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).Update("lo3", 1).Error
+				if err2 != nil {
+					tx.Rollback()
+					return err2
+				}
+				
+				var user statements.User
+				result := tx.Model(&statements.User{}).Where("id= ?", userID).First(&user)
+				if result.Error != nil {
+					return result.Error
+				}
+				if user.Money >= 0 {
+					user.Money = user.Money + 20
+					err3 := tx.Save(&user).Error
+					if err3 != nil {
+						tx.Rollback()
+						return err3
+					}
+				}
+			}
+		}
+		break
+	case "4" :
+		//singHome
+		var userother statements.UserOther
+		result := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).First(&userother)
+		if result.Error != nil {
+			return result.Error
+		}
+		if userother.Lo4 != 1 {
+			t := time.Now()
+			t_zero := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location()).Unix()
+			t_to_tomorrow := 24*60*60 - (t.Unix() - t_zero)		
+			redis_cli := setting.RedisClient
+			sang := !redis_cli.SetNX(fmt.Sprintf("finish_lo4_id:%d", userID), 0, time.Duration(t_to_tomorrow)*time.Second).Val()
+			
+			if !sang {
+				err2 := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).Update("lo4", 1).Error
+				if err2 != nil {
+					tx.Rollback()
+					return err2
+				}
+				
+				var user statements.User
+				result := tx.Model(&statements.User{}).Where("id= ?", userID).First(&user)
+				if result.Error != nil {
+					return result.Error
+				}
+				if user.Money >= 0 {
+					user.Money = user.Money + 20
+					err3 := tx.Save(&user).Error
+					if err3 != nil {
+						tx.Rollback()
+						return err3
+					}
+				}
+			}
+		}
+		break
+	case "5" :
+		//praise
+		var userother statements.UserOther
+		result := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).First(&userother)
+		if result.Error != nil {
+			return result.Error
+		}
+		if userother.Lo5 != 1 {
+			t := time.Now()
+			t_zero := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location()).Unix()
+			t_to_tomorrow := 24*60*60 - (t.Unix() - t_zero)		
+			redis_cli := setting.RedisClient
+			praised := !redis_cli.SetNX(fmt.Sprintf("finish_lo5_id:%d", userID), 0, time.Duration(t_to_tomorrow)*time.Second).Val()
+			
+			if !praised {
+				err2 := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).Update("lo5", 1).Error
+				if err2 != nil {
+					tx.Rollback()
+					return err2
+				}
+				
+				var user statements.User
+				result := tx.Model(&statements.User{}).Where("id= ?", userID).First(&user)
+				if result.Error != nil {
+					return result.Error
+				}
+				if user.Money >= 0 {
+					user.Money = user.Money + 10
+					err3 := tx.Save(&user).Error
+					if err3 != nil {
+						tx.Rollback()
+						return err3
+					}
+				}
+			}
+		}
+		break
+	case "6" :
+		//share
+		var userother statements.UserOther
+		result := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).First(&userother)
+		if result.Error != nil {
+			return result.Error
+		}
+		if userother.Lo6 != 1 {
+			t := time.Now()
+			t_zero := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location()).Unix()
+			t_to_tomorrow := 24*60*60 - (t.Unix() - t_zero)		
+			redis_cli := setting.RedisClient
+			shared := !redis_cli.SetNX(fmt.Sprintf("finish_lo6_id:%d", userID), 0, time.Duration(t_to_tomorrow)*time.Second).Val()
+			
+			if !shared {
+				err2 := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).Update("lo6", 1).Error
+				if err2 != nil {
+					tx.Rollback()
+					return err2
+				}
+				
+				var user statements.User
+				result := tx.Model(&statements.User{}).Where("id= ?", userID).First(&user)
+				if result.Error != nil {
+					return result.Error
+				}
+				if user.Money >= 0 {
+					user.Money = user.Money + 10
+					err3 := tx.Save(&user).Error
+					if err3 != nil {
+						tx.Rollback()
+						return err3
+					}
+				}
+			}
+		}
+		break
 	}
 	return tx.Commit().Error
 }

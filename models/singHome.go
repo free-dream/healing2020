@@ -3,7 +3,6 @@ package models
 import (
 	"healing2020/models/statements"
 	"healing2020/pkg/setting"
-	"log"
 	"strconv"
 	"time"
 
@@ -89,11 +88,10 @@ func PostSpecial(Subject_id string, Song string, User_id string, Record string) 
 
 	db := setting.MysqlConn()
 
-	status := 0
 	tx := db.Begin()
 	if Song != "" {
 		var dev statements.Special
-		var userother statements.UserOther
+		// var userother statements.UserOther
 
 		dev.SubjectId = subject_id
 		dev.Song = Song
@@ -102,50 +100,13 @@ func PostSpecial(Subject_id string, Song string, User_id string, Record string) 
 		//发送歌曲
 		err := tx.Model(&statements.Special{}).Create(&dev).Error
 		if err != nil {
-			if status < 5 {
-				status++
-				tx.Rollback()
-			} else {
-				return err
-			}
+			tx.Rollback()
+			return err
 		}
-
-		result := tx.Model(&statements.UserOther{}).Where("user_id= ?", user_id).First(&userother)
-		if result.Error != nil {
-			log.Println(0)
-			return result.Error
-		}
-		//判断完成每日任务和增加积分
-		if userother.Lo4 != 1 {
-			err2 := tx.Model(&statements.UserOther{}).Where("user_id = ?", user_id).Update("lo4", 1).Error
-			if err2 != nil {
-				log.Println(1)
-				if status < 5 {
-					status++
-					tx.Rollback()
-				} else {
-					return err2
-				}
-			}
-			var user statements.User
-			result := tx.Model(&statements.User{}).Where("id= ?", user_id).First(&user)
-			if result.Error != nil {
-				log.Println(2)
-				return result.Error
-			}
-			if user.Money >= 0 {
-				user.Money = user.Money + 20
-				err3 := tx.Save(&user).Error
-				if err3 != nil {
-					log.Println(3)
-					if status < 5 {
-						status++
-						tx.Rollback()
-					} else {
-						return err3
-					}
-				}
-			}
+		result := FinishTask("4", user_id)
+		if result != nil {
+			tx.Rollback()
+			return result
 		}
 	}
 	return tx.Commit().Error
