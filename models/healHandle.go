@@ -67,8 +67,7 @@ func GetRecord(id string) ResultResp {
 	resultResp.VodAvatar = user.Avatar
 
 	recordsToVod := db.Model(&statements.Song{}).Where("vod_id = ?", vodId).Find(&song)
-	count := recordsToVod.RowsAffected
-	var recordResp []RecordResp = make([]RecordResp, count)
+	var recordResp []RecordResp = make([]RecordResp, 1)
 
 	rows, _ := recordsToVod.Rows()
 
