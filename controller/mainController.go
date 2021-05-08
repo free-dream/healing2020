@@ -40,6 +40,7 @@ func MainSearch(c *gin.Context) {
 // @Produce json
 // @Router /api/main/page [get]
 // @Param sort query string true "1综合排序2最新发布"
+// @Param page query string true "页数"
 // @Param language query string false "language"
 // @Param style query string false "style"
 // @Success 200 {object} models.MainMsg
