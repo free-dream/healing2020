@@ -34,7 +34,8 @@ type SongMsg struct {
 	Style  string `json:"style"`
 	Source string `json:"source"`
 	Singer string `json:"singer"`
-	UserId uint   `json:"userid"`
+	UserId  uint  `json:"userid"`
+    IsPraise bool `json:"isPraise"`
 }
 
 func SendMainMsg() {
@@ -82,7 +83,7 @@ func LoadSongMsg(sort string, key string,userTags string) []SongMsg{
             result = db.Raw("select id,user_id,vod_send,name,praise,source,style,language,created_at from song order by rand()")
             rows, _ = result.Rows()
         } else {
-            result = db.Raw("select id,user_id,vod_send,name,praise,source,style,language,created_at from song order by created_at,praise desc")
+            result = db.Raw("select id,user_id,vod_send,name,praise,source,style,language,created_at from song order by created_at desc")
             rows, _ = result.Rows()
         }
 	} else {
@@ -90,7 +91,7 @@ func LoadSongMsg(sort string, key string,userTags string) []SongMsg{
 			result = db.Raw("select id,user_id,vod_send,name,praise,source,style,language,created_at from song where style=? or language=? order by rand()", key, key)
 			rows, _ = result.Rows()
 		} else {
-			result = db.Raw("select id,user_id,vod_send,name,praise,source,style,language,created_at from song where style=? or language=? order by created_at,praise desc", key, key)
+			result = db.Raw("select id,user_id,vod_send,name,praise,source,style,language,created_at from song where style=? or language=? order by created_at desc", key, key)
 			rows, _ = result.Rows()
 		}
 	}
@@ -108,7 +109,7 @@ func LoadSongMsg(sort string, key string,userTags string) []SongMsg{
             continue
         }
 		songList[i].Id = song.ID
-		songList[i].Like = song.Praise
+		songList[i].Like = GetPraiseCount("song",song.ID)
 		songList[i].Source = song.Source
 		songList[i].Style = song.Style
 		songList[i].Time = song.CreatedAt
@@ -193,7 +194,7 @@ func LoadVodMsg(sort string, key string,userTags string) []SongMsg {
 	return vodList
 }
 
-func GetMainMsg(pageStr string,sort string, key string,tags string) (MainMsg, error) {
+func GetMainMsg(pageStr string,sort string, key string,tags string,userid uint) (MainMsg, error) {
     page,_ := strconv.Atoi(pageStr)
 	var result MainMsg
     //推荐部分先发
@@ -206,6 +207,11 @@ func GetMainMsg(pageStr string,sort string, key string,tags string) (MainMsg, er
         if err1 != nil || err2 != nil {
             return result,errors.New("page out of range")
         }
+
+        //塞进是否点赞
+        for i:=0;i<len(resultListen);i++ {
+            resultListen[i].IsPraise,_ = HasPraise(2,userid,resultListen[i].Id)
+        } 
 
         result.Sing = resultSing
         result.Listen = resultListen
@@ -239,6 +245,11 @@ func GetMainMsg(pageStr string,sort string, key string,tags string) (MainMsg, er
     if err1 != nil || err2 != nil {
         return result,errors.New("page out of range")
     }
+
+    //塞进是否点赞
+    for i:=0;i<len(resultListen);i++ {
+        resultListen[i].IsPraise,_ = HasPraise(2,userid,resultListen[i].Id)
+    } 
 
     result.Sing = resultSing
     result.Listen = resultListen
@@ -298,10 +309,11 @@ type UserResp struct {
 	UserName string `json:"userName"`
 	Avatar   string `json:"avatar"`
 	More     string `json:"more"`
+    Bg       int    `json:"background"`
 }
 
 type SongResp struct {
-	SongId   uint      `json:"songid"`
+	SongId   uint      `json:"id"`
 	SongName string    `json:"name"`
     Avatar   string    `json:"avatar"`
 	Praise   int       `json:"like"`
@@ -311,10 +323,12 @@ type SongResp struct {
 }
 
 type VodResp struct {
-	VodId   uint      `vodid`
+	VodId   uint      `id`
 	VodName string    `json:"name"`
 	VodUser string    `json:"user"`
     Avatar  string    `json:"avatar"`  
+    More    string    `json:"more"`
+    Sex     int       `json:"sex"`
 	Time    time.Time `json:"time"`
 }
 
@@ -327,7 +341,7 @@ func GetSearchResult(search string) SearchResp {
 	var vodResp []VodResp
 
 	var songCount int = 0
-    result := db.Model(&statements.Song{}).Where("name = ?", search).Select("id,praise,source,created_at,user_id").Count(&songCount)
+    result := db.Model(&statements.Song{}).Where("name = ?", search).Select("id,source,created_at,user_id").Count(&songCount)
 	if songCount != 0 && result.Error == nil {
 		rows, _ := result.Rows()
 		defer rows.Close()
@@ -339,7 +353,7 @@ func GetSearchResult(search string) SearchResp {
             var song statements.Song
 			db.ScanRows(rows, &song)
 			songResp[i].SongId = song.ID
-			songResp[i].Praise = song.Praise
+			songResp[i].Praise = GetPraiseCount("song",song.ID)
 			songResp[i].Source = song.Source
 			songResp[i].SongName = search
 			songResp[i].Time = song.CreatedAt
@@ -376,11 +390,13 @@ func GetSearchResult(search string) SearchResp {
 			vodResp[i].VodId = vod.ID
 			vodResp[i].VodName = search
 			vodResp[i].Time = vod.CreatedAt
+            vodResp[i].More = vod.More
 
 			var user statements.User
-			db.Model(&statements.User{}).Select("avatar,nick_name").Where("id = ?", vod.UserId).First(&user)
+			db.Model(&statements.User{}).Select("sex,more,avatar,nick_name").Where("id = ?", vod.UserId).First(&user)
 			vodResp[i].VodUser = user.NickName
             vodResp[i].Avatar = user.Avatar
+            vodResp[i].Sex = user.Sex
 
 			i++
 		}
@@ -410,6 +426,9 @@ func GetSearchResult(search string) SearchResp {
 			userResp[i].Avatar = user.Avatar
 			userResp[i].UserName = user.NickName
 
+            var userOther statements.UserOther
+            db.Model(&statements.UserOther{}).Select("now").Where("user_id = ?",user.ID).First(&userOther)
+            userResp[i].Bg = userOther.Now
 			i++
 		}
 	} else {

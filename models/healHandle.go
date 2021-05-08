@@ -74,7 +74,7 @@ func GetRecord(id string) ResultResp {
 	i := 0
 	for rows.Next() {
 		db.ScanRows(rows, &song)
-		recordResp[i].Praise = song.Praise
+		recordResp[i].Praise = GetPraiseCount("song",song.ID)
 		recordResp[i].Source = song.Source
 
 		db.Model(&statements.User{}).Select("avatar,nick_name").Where("id = ?", song.UserId).First(&user)
@@ -159,57 +159,12 @@ func CancelPraise(userid uint,strId string,types string) error {
         return errors.New("item does not be praised")
     }
 
-	tx := db.Begin()
-	status := 0
-	if types == "1" {
-		var song statements.Song
-		result := tx.Model(&statements.Song{}).Where("ID=?", id).First(&song)
-		if result.Error != nil {
-			return result.Error
-		}
-		song.Praise = song.Praise - 1
-		err := tx.Save(&song).Error
-		if err != nil {
-			if status < 5 {
-				status++
-				tx.Rollback()
-			} else {
-				return err
-			}
-		}
-	}
-	if types == "2" {
-		var deliver statements.Deliver
-		result := tx.Model(&statements.Deliver{}).Where("ID=?", id).First(&deliver)
-		if result.Error != nil {
-			return result.Error
-		}
-		deliver.Praise = deliver.Praise - 1
-		err := tx.Save(&deliver).Error
-		if err != nil {
-			if status < 5 {
-				status++
-				tx.Rollback()
-			} else {
-				return err
-            }
-        }
-    }
-
     var praise statements.Praise
-    tx.Model(&statements.Praise{}).Where("id = ?",praiseId).First(&praise)
+    db.Model(&statements.Praise{}).Where("id = ?",praiseId).First(&praise)
     praise.IsCancel = 1
-    err := tx.Save(&praise).Error
-    if err != nil {
-        if status < 10 {
-            status++
-            tx.Rollback()
-        } else {
-            return err
-        }
-    }
+    err := db.Save(&praise).Error
 
-	return tx.Commit().Error
+	return err
 }
 
 type PraiseData struct {
@@ -233,54 +188,14 @@ func AddPraise(userid uint,strId string, types string) (error,PraiseData) {
     praiseData.Type = types
     praiseData.MyID = userid
 
-	tx := db.Begin()
-	status := 0
-	if types == "1" {
-		var song statements.Song
-		result := tx.Model(&statements.Song{}).Where("ID=?", id).First(&song)
-		if result.Error != nil {
-			return result.Error,PraiseData{}
-		}
-		song.Praise = song.Praise + 1
-        praiseData.TargetID = song.UserId
-        praiseData.Msg = song.Name
-		err := tx.Save(&song).Error
-		if err != nil {
-			if status < 5 {
-				status++
-				tx.Rollback()
-			} else {
-				return err,PraiseData{}
-			}
-		}
-	}
-	if types == "2" {
-		var deliver statements.Deliver
-		result := tx.Model(&statements.Deliver{}).Where("ID=?", id).First(&deliver)
-		if result.Error != nil {
-			return result.Error,PraiseData{}
-		}
-		deliver.Praise = deliver.Praise + 1
-        praiseData.TargetID = deliver.UserId
-        praiseData.Msg = deliver.TextField
-		err := tx.Save(&deliver).Error
-		if err != nil {
-			if status < 5 {
-				status++
-				tx.Rollback()
-			} else {
-				return err,PraiseData{}
-			}
-		}
-	}
-
     var praise statements.Praise
     praise.UserId = userid
     praise.Type = typesInt
     praise.PraiseId = id
-    tx.Model(&statements.Praise{}).Create(&praise)
 
-	return tx.Commit().Error,praiseData
+    err := db.Model(&statements.Praise{}).Create(&praise).Error
+
+	return err,praiseData
 }
 
 func CreateVod(uid uint, singer string, style string, language string, name string, more string) error {
@@ -304,4 +219,72 @@ func SelectUserIDByVodID(vod_id uint) (uint, error) {
 	var vod statements.Vod
 	err := db.Select("user_id").Where("id=?", vod_id).First(&vod).Error
 	return vod.UserId, err
+}
+
+//所有表查点赞总数的函数
+func GetPraiseCount(table string,id uint) int {
+    db := setting.MysqlConn()
+
+    types := "" 
+    switch table {
+    case "deliver":
+        types = "1"
+        break
+    case "song":
+        types = "2"
+        break
+    case "special":
+        types = "3"
+        break
+    }
+
+    count := 0
+    db.Model(&statements.Praise{}).Where("type = ? and praise_id = ?",types,id).Count(&count) 
+
+    return count
+}
+
+func SyncPraise(id uint,table string) {
+    db := setting.MysqlConn()
+
+    if table == "" {
+        return 
+    }
+    count := GetPraiseCount(table,id)
+    if table == "deliver" {
+        var deliver statements.Deliver
+        db.Model(&statements.Deliver{}).Where("id = ?",id).First(&deliver)
+        deliver.Praise = count
+        db.Save(&deliver)
+    }
+    if table == "song" {
+        var song statements.Song
+        db.Model(&statements.Song{}).Where("id = ?",id).First(&song)
+        song.Praise = count
+        db.Save(&song)
+    }
+    if table == "special" {
+        var special statements.Special
+        db.Model(&statements.Special{}).Where("id = ?",id).First(&special)
+        special.Praise = count
+        db.Save(&special)
+    }
+}
+
+func AutoSyncPraise() {
+    db := setting.MysqlConn()
+
+    count := 0
+    db.Model(&statements.Deliver{}).Count(&count)
+    for i:=0;i<count;i++ {
+        SyncPraise(uint(i+1),"deliver")
+    }
+    db.Model(&statements.Song{}).Count(&count)
+    for i:=0;i<count;i++ {
+        SyncPraise(uint(i+1),"song")
+    }
+    db.Model(&statements.Special{}).Count(&count)
+    for i:=0;i<count;i++ {
+        SyncPraise(uint(i+1),"special")
+    }
 }

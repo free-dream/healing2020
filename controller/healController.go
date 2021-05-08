@@ -116,9 +116,7 @@ func SendPraiseMsg(myID uint,targetID uint,myName string,types string,mainMsg st
         types = "[投递]:"
     }
     content := myName+"点赞了您的"+types+mainMsg
-    msgID := tools.Md5String(content)
     msg := Message{
-        ID : msgID,
         Type : 3,
         Time : "",
         FromUserID : myID,
@@ -126,7 +124,10 @@ func SendPraiseMsg(myID uint,targetID uint,myName string,types string,mainMsg st
         Content : content,
         URL : "",
     }
+	msgID := tools.Md5String(strconv.Itoa(int(myID)) + strconv.Itoa(int(targetID)) + msg.Time)
+    msg.ID = msgID
     MessageQueue[int(targetID)] <- &msg
+	MysqlCreate <- &msg
 }
 
 type RecordParams struct {
