@@ -42,10 +42,7 @@ func init() {
 	g_qiniu_accesskey = tools.GetConfig("qiniu", "accessKey")
 	g_qiniu_secretkey = tools.GetConfig("qiniu", "secretKey")
 
-	for {
-		go updateUploadToken()
-		time.Sleep(3 * time.Minute)
-	}
+	go updateUploadToken()
 }
 
 //@Title qiniuToken
@@ -202,9 +199,12 @@ func removeTmpFiles(media_id_arr []string) {
 
 func updateUploadToken() {
 	//获取token
-	mac := qbox.NewMac(g_qiniu_accesskey, g_qiniu_secretkey)
-	putPolicy := storage.PutPolicy{
-		Scope: g_bucket,
+	for {
+		mac := qbox.NewMac(g_qiniu_accesskey, g_qiniu_secretkey)
+		putPolicy := storage.PutPolicy{
+			Scope: g_bucket,
+		}
+		g_qiniu_upload_token = putPolicy.UploadToken(mac)
+		time.Sleep(3 * time.Minute)
 	}
-	g_qiniu_upload_token = putPolicy.UploadToken(mac)
 }
