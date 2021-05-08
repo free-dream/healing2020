@@ -378,12 +378,12 @@ func GetSearchResult(search string) SearchResp {
 			vodResp[i].VodId = vod.ID
 			vodResp[i].VodName = search
 			vodResp[i].Time = vod.CreatedAt
+            vodResp[i].More = vod.More
 
 			var user statements.User
 			db.Model(&statements.User{}).Select("sex,more,avatar,nick_name").Where("id = ?", vod.UserId).First(&user)
 			vodResp[i].VodUser = user.NickName
             vodResp[i].Avatar = user.Avatar
-            vodResp[i].More = user.More
             vodResp[i].Sex = user.Sex
 
 			i++

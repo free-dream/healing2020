@@ -26,7 +26,7 @@ type Task struct {
 }
 
 type GetPrize struct {
-	Id	int	`json:"id"`
+	Id    int    `json:"id"`
 	Name  string `json:"name"`
 	Photo string `json:"photo"`
 }
@@ -40,36 +40,6 @@ func GetMoney(userID uint) ([]Money, error) {
 	var user []Money
 	err := db.Table("user").Select("money").Where("id= ? ", userID).First(&user).Error
 	return user, err
-}
-
-//抽奖--减少当前积分
-func UseMoney(userID uint) error {
-	//连接mysql
-	db := setting.MysqlConn()
-	//进行抽奖
-	status := 0
-	tx := db.Begin()
-	var user statements.User
-	result := tx.Model(&statements.User{}).Where("id= ?", userID).First(&user)
-	if result.Error != nil {
-		return result.Error
-	}
-	if user.Money >= 100 {
-		user.Money = user.Money - 100
-		err := tx.Save(&user).Error
-		if err != nil {
-			if status < 5 {
-				status++
-				tx.Rollback()
-			} else {
-				return err
-			}
-		}
-	} else {
-		err := fmt.Errorf("")
-		return err
-	}
-	return tx.Commit().Error
 }
 
 //每日任务--增加当前积分
@@ -171,7 +141,7 @@ func PostQRcode(User_id string) error {
 }
 
 //真·抽奖
-func LotteryDraw(userID uint) (GetPrize, error) {
+func LotteryDraw(userID uint, bd []int, bdstr string) (GetPrize, error) {
 	//连接mysql
 	db := setting.MysqlConn()
 	var responseLottery GetPrize
@@ -191,28 +161,61 @@ func LotteryDraw(userID uint) (GetPrize, error) {
 	}
 
 	var user statements.User
-	result := tx.Model(&statements.User{}).Where("id= ?", userID).First(&user)
-	if result.Error != nil {
-		return black, result.Error
+	result0 := tx.Model(&statements.User{}).Where("id= ?", userID).First(&user)
+	if result0.Error != nil {
+		return black, result0.Error
 	}
 
 	log.Println(user.Money)
 
 	if user.Money >= 100 {
-		LOOP:
+	LOOP:
 		for i := 0; i < len(prize); i++ {
-			if prop <= prize[i].Weight && prize[i].Count > 0{
-				responseLottery = GetPrize {
-					Id: prize[i].Id ,
-					Name: prize[i].Name ,
+			if prop <= prize[i].Weight && prize[i].Count > 0 {
+				responseLottery = GetPrize{
+					Id:    prize[i].Id,
+					Name:  prize[i].Name,
 					Photo: prize[i].Photo,
 				}
 
+				//增加匿名次数
+				if prize[i].Id == 6 {
+					var anonymous statements.UserOther
+					result1 := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).First(&anonymous)
+					if result1.Error != nil {
+						return black, result1.Error
+					}
+					anonymous.RemainHideName = anonymous.RemainHideName + 1
+					err0 := tx.Save(&anonymous).Error
+					if err0 != nil {
+						tx.Rollback()
+					}
+				}
+
+				//增加背景图
+				if prize[i].Id == 5 {
+					bdcount := len(bd)
+					if bdcount == 6 {
+						i = i + 1
+						responseLottery = GetPrize{
+							Id:    prize[i].Id,
+							Name:  prize[i].Name,
+							Photo: prize[i].Photo,
+						}		
+					} else {
+						bdstr = bdstr + "," + strconv.Itoa(len(bd) + 1)
+						result2 := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).Update("ava_background", bdstr).Error
+						if result2 != nil {
+							tx.Rollback()
+						}
+					}
+				}
+				
 				//修改剩余数量
 				var count statements.Prize
-				result2 := tx.Model(&statements.Prize{}).Where("id = ?", uint(prize[i].Id)).First(&count)
-				if result2.Error != nil {
-					return black, result2.Error
+				result3 := tx.Model(&statements.Prize{}).Where("id = ?", uint(prize[i].Id)).First(&count)
+				if result3.Error != nil {
+					return black, result3.Error
 				}
 				count.Count = count.Count - 1
 				err1 := tx.Save(&count).Error
@@ -224,12 +227,11 @@ func LotteryDraw(userID uint) (GetPrize, error) {
 				var lot statements.Lottery
 				lot.PrizeId = uint(prize[i].Id)
 				lot.UserId = userID
-				// result3 := tx.Model(&statements.Lottery{}).Create(&lot)
-				if result3 := tx.Model(&statements.Lottery{}).Create(&lot).Error; err != nil {
+				if result4 := tx.Model(&statements.Lottery{}).Create(&lot).Error; err != nil {
 					tx.Rollback()
-					return  black, result3
+					return black, result4
 				}
-	
+
 				//修改剩余积分
 				user.Money = user.Money - 100
 				err2 := tx.Save(&user).Error
@@ -240,7 +242,7 @@ func LotteryDraw(userID uint) (GetPrize, error) {
 			}
 		}
 	} else {
-		log.Println(result)
+		log.Println(result0)
 	}
 	return responseLottery, tx.Commit().Error
 }
