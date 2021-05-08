@@ -11,6 +11,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/qiniu/go-sdk/v7/auth/qbox"
@@ -38,14 +39,13 @@ func init() {
 	g_qiniu_upload_config.UseHTTPS = false
 	g_qiniu_upload_config.UseCdnDomains = false
 
-	g_qiniu_accesskey := tools.GetConfig("qiniu", "accessKey")
-	g_qiniu_secretkey := tools.GetConfig("qiniu", "secretKey")
-	//获取token
-	mac := qbox.NewMac(g_qiniu_accesskey, g_qiniu_secretkey)
-	putPolicy := storage.PutPolicy{
-		Scope: g_bucket,
+	g_qiniu_accesskey = tools.GetConfig("qiniu", "accessKey")
+	g_qiniu_secretkey = tools.GetConfig("qiniu", "secretKey")
+
+	for {
+		go updateUploadToken()
+		time.Sleep(3 * time.Minute)
 	}
-	g_qiniu_upload_token = putPolicy.UploadToken(mac)
 }
 
 //@Title qiniuToken
@@ -198,4 +198,13 @@ func removeTmpFiles(media_id_arr []string) {
 	arglist = append(arglist, fmt.Sprintf("./media/wav/%s_concated.wav", media_id_arr[0]))
 	cmd := exec.Command("rm", arglist...)
 	_ = cmd.Run()
+}
+
+func updateUploadToken() {
+	//获取token
+	mac := qbox.NewMac(g_qiniu_accesskey, g_qiniu_secretkey)
+	putPolicy := storage.PutPolicy{
+		Scope: g_bucket,
+	}
+	g_qiniu_upload_token = putPolicy.UploadToken(mac)
 }
