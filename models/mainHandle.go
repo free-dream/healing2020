@@ -144,7 +144,7 @@ func LoadVodMsg(sort string, key string,userTags string) []SongMsg {
 	var result *gorm.DB
 	if key == "" || key == "推荐"{
         if sort == "0" {
-            result = db.Raw("select id,user_id,name,singer,more,style,language,created_at from vod order by rand() limit 10")
+            result = db.Raw("select id,user_id,name,singer,more,style,language,created_at from vod order by rand()")
             rows, _ = result.Rows()
         }else {
             result = db.Raw("select id,user_id,name,singer,more,style,language,created_at from vod order by created_at desc")
