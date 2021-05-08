@@ -145,7 +145,6 @@ func GetDeliverRank(userid uint) ([]AllRank, string) {
 		var date float64 = 5.10 + i
 		dateStr := strconv.FormatFloat(date, 'f', 2, 64)
 		keyname := "healing2020:Deliver." + dateStr
-		//fmt.Println(dateStr)
 		data, err := client.Get(keyname).Bytes()
 		if err != nil {
 			fmt.Println(err)
@@ -196,7 +195,7 @@ func SendSongRank() error {
 	for i := 0; i < min(int(rows), 10); i++ {
 		rank[i].ID = song[i].ID
 		rank[i].Name = song[i].Name
-		rank[i].Praise = song[i].Praise
+		rank[i].Praise = GetPraiseCount("song",song[i].ID)
 		rank[i].Time = date
 		rank[i].Source = song[i].Source
 

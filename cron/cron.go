@@ -10,14 +10,17 @@ func CronInit() *cron.Cron {
 	c := cron.New()
 
 	c.AddFunc("0 */2 * * *", func() {
+		models.AutoSyncPraise()
+	})
+	c.AddFunc("1 */2 * * *", func() {
 		models.SendDeliverRank()
 	})
 
-	c.AddFunc("1 */2 * * *", func() {
+	c.AddFunc("2 */2 * * *", func() {
 		models.SendSongRank()
 	})
 
-	c.AddFunc("2 */2 * * *", func() {
+	c.AddFunc("3 */2 * * *", func() {
 		models.SendUserRank()
 	})
 
