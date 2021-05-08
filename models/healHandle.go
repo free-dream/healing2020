@@ -67,8 +67,7 @@ func GetRecord(id string) ResultResp {
 	resultResp.VodAvatar = user.Avatar
 
 	recordsToVod := db.Model(&statements.Song{}).Where("vod_id = ?", vodId).Find(&song)
-	count := recordsToVod.RowsAffected
-	var recordResp []RecordResp = make([]RecordResp, count)
+	var recordResp []RecordResp = make([]RecordResp, 1)
 
 	rows, _ := recordsToVod.Rows()
 
@@ -213,7 +212,13 @@ func CancelPraise(userid uint,strId string,types string) error {
 	return tx.Commit().Error
 }
 
-func AddPraise(userid uint,strId string, types string) error {
+type PraiseData struct {
+    MyID uint
+    TargetID uint
+    Type string
+    Msg string
+}
+func AddPraise(userid uint,strId string, types string) (error,PraiseData) {
 	intId, _ := strconv.Atoi(strId)
 	id := uint(intId)
     typesInt, _ := strconv.Atoi(types)
@@ -221,8 +226,12 @@ func AddPraise(userid uint,strId string, types string) error {
 
     hasPraise,_ := HasPraise(typesInt,userid,id)
     if hasPraise {
-        return errors.New("can not praise repeatedly")
+        return errors.New("can not praise repeatedly"),PraiseData{}
     }
+
+    var praiseData PraiseData
+    praiseData.Type = types
+    praiseData.MyID = userid
 
 	tx := db.Begin()
 	status := 0
@@ -230,16 +239,18 @@ func AddPraise(userid uint,strId string, types string) error {
 		var song statements.Song
 		result := tx.Model(&statements.Song{}).Where("ID=?", id).First(&song)
 		if result.Error != nil {
-			return result.Error
+			return result.Error,PraiseData{}
 		}
 		song.Praise = song.Praise + 1
+        praiseData.TargetID = song.UserId
+        praiseData.Msg = song.Name
 		err := tx.Save(&song).Error
 		if err != nil {
 			if status < 5 {
 				status++
 				tx.Rollback()
 			} else {
-				return err
+				return err,PraiseData{}
 			}
 		}
 	}
@@ -247,16 +258,18 @@ func AddPraise(userid uint,strId string, types string) error {
 		var deliver statements.Deliver
 		result := tx.Model(&statements.Deliver{}).Where("ID=?", id).First(&deliver)
 		if result.Error != nil {
-			return result.Error
+			return result.Error,PraiseData{}
 		}
 		deliver.Praise = deliver.Praise + 1
+        praiseData.TargetID = deliver.UserId
+        praiseData.Msg = deliver.TextField
 		err := tx.Save(&deliver).Error
 		if err != nil {
 			if status < 5 {
 				status++
 				tx.Rollback()
 			} else {
-				return err
+				return err,PraiseData{}
 			}
 		}
 	}
@@ -267,7 +280,7 @@ func AddPraise(userid uint,strId string, types string) error {
     praise.PraiseId = id
     tx.Model(&statements.Praise{}).Create(&praise)
 
-	return tx.Commit().Error
+	return tx.Commit().Error,praiseData
 }
 
 func CreateVod(uid uint, singer string, style string, language string, name string, more string) error {
