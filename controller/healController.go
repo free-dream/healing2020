@@ -208,7 +208,7 @@ func VodPost(c *gin.Context) {
 // @Router /api/record2 [post]
 // @Success 200 {object} TransformMediaIdArrToUrlResp
 // @Failure 403 {object} e.ErrMsgResponse
-func TransformMediaIdArrToUrl(ctx *gin.Context) {
+func ConvertMediaIdArrToUrl(ctx *gin.Context) {
 	var form TransformMediaIdArrToUrlReq
 	if err := ctx.ShouldBind(&form); err != nil {
 		ctx.JSON(400, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})

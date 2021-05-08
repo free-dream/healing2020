@@ -119,7 +119,7 @@ func InitRouter() *gin.Engine {
 	api.GET("/like", controller.Praise)
 	api.GET("/unlike", controller.NoPraise)
 	api.POST("/record", controller.RecordHeal)
-	api.POST("/record2", controller.TransformMediaIdArrToUrl)
+	api.POST("/record2", controller.ConvertMediaIdArrToUrl)
 	api.POST("/vod", controller.VodPost)
 
 	//swagger
