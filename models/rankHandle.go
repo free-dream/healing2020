@@ -98,7 +98,7 @@ func SendDeliverRank() error {
 		client.Set(keyName, "", 0)
 		return errors.New("no data")
 	}
-	var rank []Rank = make([]Rank, 1)
+	var rank []Rank = make([]Rank, 10)
 	for i := 0; i < min(int(rows), 10); i++ {
 		rank[i].ID = deliver[i].ID
 		rank[i].Type = deliver[i].Type
@@ -136,7 +136,7 @@ func GetDeliverRank(userid uint) ([]AllRank, string) {
 	count, _ := client.Get("healing2020:rankCount").Float64()
 	var i float64 = 0
 	for j := 0; ; j++ {
-		rank := make([]Rank, 1)
+		rank := make([]Rank, 10)
 		//fmt.Println(count)
 		//fmt.Println(i)
 		if i*100 > count {
@@ -224,7 +224,7 @@ func SendSongRank() error {
 }
 
 func GetSongRank(userid uint) ([]AllRank, string) {
-	result := make([]AllRank, 1)
+	result := make([]AllRank, 10)
 	client := setting.RedisConn()
 	count, _ := client.Get("healing2020:rankCount").Float64()
 	var i float64 = 0
@@ -263,7 +263,7 @@ func SendUserRank() error {
 	db := setting.MysqlConn()
 
 	var user []statements.User
-	var rank []Rank = make([]Rank, 1)
+	var rank []Rank = make([]Rank, 10)
 	var allRank [][]Rank = make([][]Rank, 3)
 	for i := 0; i < 3; i++ {
 		pattern := []string{"", "中大", "华工"}

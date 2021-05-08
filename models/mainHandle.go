@@ -23,7 +23,6 @@ type MainMsg struct {
 
 type SongMsg struct {
 	User     string    `json:"user"`
-	SendUser string    `json:"senduser"`
 	Name     string    `json:"name"`
 	Avatar   string    `json:"avatar"`
 	Time     time.Time `json:"time"`
@@ -125,7 +124,7 @@ func LoadSongMsg(sort string, key string,userTags string) []SongMsg {
 
 		var vod statements.Vod
 		db.Model(&statements.Vod{}).Select("name,more").Where("id=?", sendid).Find(&vod)
-		songList[i].SendUser = vod.Name
+		songList[i].Name = vod.Name
 		songList[i].More = vod.More
 
 		i++
@@ -198,8 +197,8 @@ func GetMainMsg(sort string, key string,tags string) (MainMsg, error) {
 	var result MainMsg
     //推荐部分先发
     if tags != "" {
-        result.Sing = LoadSongMsg(sort,"推荐",tags)
-        result.Listen = LoadVodMsg(sort,"推荐",tags)
+        result.Listen = LoadSongMsg(sort,"推荐",tags)
+        result.Sing = LoadVodMsg(sort,"推荐",tags)
 
         return result,nil
     }
