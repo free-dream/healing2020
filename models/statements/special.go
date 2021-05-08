@@ -15,6 +15,7 @@ type Special struct {
 	Name      string `gorm:"default: ''"`
 	Praise    int    `gorm:"default: 0"`
 	Song      string `gorm:"default: ''"`
+	Record    string `gorm:"default: ''"`
 }
 
 func SpecialInit() {

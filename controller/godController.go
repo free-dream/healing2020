@@ -2,9 +2,6 @@ package controller
 
 import (
 	"healing2020/models"
-	"healing2020/pkg/e"
-
-	"github.com/gin-gonic/gin"
 )
 
 func autoCreate() {
@@ -65,29 +62,4 @@ func autoCreate() {
 func LoadTestData() {
 	models.TableCleanUp()
 	autoCreate()
-}
-
-func PostSubject(c *gin.Context) {
-	ID := c.Query("subject_id")
-	Name := c.Query("name")
-	Photo := c.Query("photo")
-	Intro := c.Query("intro")
-	err := models.PostSubject(ID, Name, Photo, Intro)
-	if err != nil {
-		c.JSON(403, e.ErrMsgResponse{Message: "Fail to add subject"})
-		return
-	}
-	c.JSON(200, e.ErrMsgResponse{Message: "发送歌房成功！"})
-}
-
-func PostSpecial(c *gin.Context) {
-	Subject_id := c.Query("subject_id")
-	Song := c.Query("song")
-	User_id := c.Query("user_id")
-	err := models.PostSpecial(Subject_id, Song, User_id)
-	if err != nil {
-		c.JSON(403, e.ErrMsgResponse{Message: "Fail to add special"})
-		return
-	}
-	c.JSON(200, e.ErrMsgResponse{Message: "发送歌房成功！"})
 }
