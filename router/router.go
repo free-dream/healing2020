@@ -129,6 +129,8 @@ func InitRouter() *gin.Engine {
 
 	//test
 	api.GET("/initest", controller.Test)
+	api.POST("/god/postprize", controller.PostPrize)
+
 	//god view
 
 	//login

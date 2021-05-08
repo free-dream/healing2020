@@ -242,3 +242,24 @@ func TableCleanUp() {
 	db.Exec("TRUNCATE TABLE user")
 	db.Exec("TRUNCATE TABLE vod")
 }
+
+func GodAddPrize(name string, photo string, intro string, weight int, count int) error {
+	
+	db := setting.MysqlConn()
+
+	tx := db.Begin()
+	//发送
+	var dev statements.Prize
+	dev.Name = name
+	dev.Photo = photo
+	dev.Intro = intro
+	dev.Weight = weight
+	dev.Count = count
+
+	err := tx.Model(&statements.Prize{}).Create(&dev).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	return tx.Commit().Error
+}
