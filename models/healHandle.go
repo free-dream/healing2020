@@ -55,9 +55,9 @@ func GetRecord(id string) ResultResp {
 	db.Model(&statements.Vod{}).Select("created_at,user_id").Where("id=?", vodId).First(&vod)
 
 	resultResp.Time = vod.CreatedAt
-	resultResp.Name = song.Name
-	resultResp.Style = song.Style
-	resultResp.Language = song.Language
+	resultResp.Name = vod.Name
+	resultResp.Style = vod.Style
+	resultResp.Language = vod.Language
 
 	userId := vod.UserId
 	var user statements.User
@@ -66,8 +66,9 @@ func GetRecord(id string) ResultResp {
 	resultResp.VodUser = user.NickName
 	resultResp.VodAvatar = user.Avatar
 
-	recordsToVod := db.Model(&statements.Song{}).Where("vod_id = ?", vodId).Find(&song)
-	var recordResp []RecordResp = make([]RecordResp, 1)
+    count := 0
+	recordsToVod := db.Model(&statements.Song{}).Where("vod_id = ?", vodId).Find(&song).Count(&count)
+	var recordResp []RecordResp = make([]RecordResp, count)
 
 	rows, _ := recordsToVod.Rows()
 
