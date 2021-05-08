@@ -82,17 +82,17 @@ func InitRouter() *gin.Engine {
 	//歌房
 	api.GET("/singsubject", controller.SingSubject)
 	api.GET("/singhome", controller.SingHome)
-	api.POST("/postsubject", controller.PostSubject)//发送歌房
-	api.POST("/postspecial", controller.PostSpecial)//发送歌房歌曲
+	api.POST("/postsubject", controller.PostSubject) //发送歌房
+	api.POST("/postspecial", controller.PostSpecial) //发送歌房歌曲
 
 	//抽奖
 	api.GET("/lottery/allprize", controller.ALLPrize)
 	api.GET("/lottery/mylottery", controller.UserLottery)
 	api.GET("/lottery/money", controller.GetMoney)
-	api.PUT("/lottery/usemoney", controller.LotteryDraw)   //抽奖
-	api.PUT("/lottery/earnmoney", controller.EarnMoney)    //完成每日任务增加积分
-	api.GET("/lottery/gettask", controller.GetTask)        //获取每日任务
-	api.GET("/lottery/shareQRcode", controller.PostQRcode) //首次分享二维码加积分
+	api.GET("/lottery/usemoney", controller.LotteryDraw) //抽奖
+	api.PUT("/lottery/earnmoney", controller.EarnMoney)
+	api.GET("/lottery/gettask", controller.GetTask)       //获取每日任务
+	api.GET("/lottery/finishtask", controller.FinishTask) //完成任务加积分
 
 	//评论
 	api.GET("/getcomment", controller.GetComment)
