@@ -18,6 +18,7 @@ type User struct {
 	Photo     string    `json:"photo"`
 	Record    string    `json:"record"`
 	Praise    int       `json:"praise"`
+    IsPraise  bool      `json:"isPraise"`
 }
 
 type AllDeliver struct {
@@ -64,6 +65,7 @@ func DeliverHome(Type string) ([]AllDeliver, error) {
 			Nickname:    UserElse[i].NickName,
 			Avatar:      UserElse[i].Avatar,
 		}
+        responseDeliver[i].Deliverelse.IsPraise,_ = HasPraise(1,uint(deliverHome[i].UserID),uint(deliverHome[i].Id))
 	}
 
 	return responseDeliver, err
@@ -100,6 +102,7 @@ func SingleDeliver(DevId string) ([]AllDeliver, error) {
 			Nickname:    SingleElse[i].NickName,
 			Avatar:      SingleElse[i].Avatar,
 		}
+        responseSingle[i].Deliverelse.IsPraise,_ = HasPraise(1,uint(singleDeliver[i].UserID),uint(singleDeliver[i].Id))
 	}
 	return responseSingle, err
 }
