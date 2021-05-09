@@ -193,7 +193,12 @@ func DisposableLogin(ctx *gin.Context) {
 	tmp, _ := json.Marshal(user)
 	json.Unmarshal(tmp, &redisUser)
 
+	// 生成session
 	session := sessions.Default(ctx)
+	option := sessions.Options{
+		MaxAge: 3600,
+	}
+	session.Options(option)
 	session.Clear()
 	session.Set("user", redisUser)
 	session.Save()
