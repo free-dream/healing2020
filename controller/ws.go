@@ -3,6 +3,7 @@ package controller
 import (
 	"crypto/sha1"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"sync"
@@ -328,5 +329,5 @@ func getHash() string {
 	sh := sha1.New()
 	sh.Write([]byte(t_zero))
 	sum := sh.Sum([]byte("healing2020"))
-	return string(sum)
+	return fmt.Sprintf("%x", sum)
 }
