@@ -120,15 +120,15 @@ func CreatePrizes(name string, intro string, photo string, weight int) error {
 	return result.Error
 }
 
-func CreateRanks(campus string, allrank string, partrank string) error {
-	var rank statements.Rank
-	rank.Campus = campus
-	rank.AllRank = allrank
-	rank.PartRank = partrank
-	db := setting.MysqlConn()
-	result := db.Model(&statements.Rank{}).Create(&rank)
-	return result.Error
-}
+//func CreateRanks(campus string, allrank string, partrank string) error {
+//	var rank statements.Rank
+//	rank.Campus = campus
+//	rank.AllRank = allrank
+//	rank.PartRank = partrank
+//	db := setting.MysqlConn()
+//	result := db.Model(&statements.Rank{}).Create(&rank)
+//	return result.Error
+//}
 
 func CreateSongs(id1 string, id2 string, id3 string, name string, praise int, source string, style string, language string) error {
 	intId1, _ := strconv.Atoi(id1)

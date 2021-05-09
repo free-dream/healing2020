@@ -14,7 +14,6 @@ import (
 
 func TableInit() {
     statements.UserInit()
-    statements.RankInit()
     statements.CommentInit()
     statements.DeliverInit()
     statements.LotteryInit()

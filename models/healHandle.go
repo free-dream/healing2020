@@ -49,9 +49,7 @@ func GetRecord(id string) ResultResp {
 
 	result := db.Model(&statements.Song{}).Where("id=?", songId).First(&song)
 	resultResp.Err = result.Error
-	if result.Error != nil {
-		return resultResp
-	}
+
 	vodId := song.VodId
     resultResp.VodId = vodId
 
@@ -72,6 +70,10 @@ func GetRecord(id string) ResultResp {
 	resultResp.VodUser = user.NickName
 	resultResp.VodAvatar = user.Avatar
 
+	if result.Error != nil {
+		return resultResp
+	}
+
 	count := 0
     var allSong []statements.Song
 	recordsToVod := db.Model(&statements.Song{}).Where("vod_id = ?", vodId).Count(&count).Find(&allSong)
@@ -89,7 +91,7 @@ func GetRecord(id string) ResultResp {
 		recordResp[i].Source = songRows.Source
 
         var userRows statements.User
-		db.Model(&statements.User{}).Select("avatar,nick_name").Where("id = ?", song.UserId).First(&userRows)
+		db.Model(&statements.User{}).Select("avatar,nick_name").Where("id = ?", songRows.UserId).First(&userRows)
 		recordResp[i].User = userRows.NickName
 		recordResp[i].SongAvatar = userRows.Avatar
 
