@@ -3,7 +3,6 @@ package controller
 import (
 	"crypto/sha1"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"sync"
