@@ -119,6 +119,8 @@ func Broadcast(c *gin.Context) {
 		Type:       0,
 		FromUserID: 0,
 	}
+
+	// 鉴权
 	var form BroadcastReq
 	err := c.ShouldBindJSON(&form)
 	if err != nil {
@@ -130,7 +132,10 @@ func Broadcast(c *gin.Context) {
 		return
 	}
 	log.Printf("broadcasting: %s", form.Content)
+	msg.Content = form.Content
 	msg.ID = tools.Md5String(msg.Time)
+
+	// 开始广播
 	userCount, err := models.GetUserNum()
 	for i := 1; i <= userCount; i++ {
 		createUserMsgChan(uint(i))
