@@ -262,7 +262,7 @@ func GetPraiseCount(table string, id uint) int {
 	}
 
 	count := 0
-	db.Model(&statements.Praise{}).Where("type = ? and praise_id = ?", types, id).Count(&count)
+	db.Model(&statements.Praise{}).Where("type = ? and praise_id = ? and is_cancel = 0", types, id).Count(&count)
 
 	return count
 }
