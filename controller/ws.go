@@ -1,7 +1,9 @@
 package controller
 
 import (
+	"crypto/sha1"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"sync"
@@ -113,6 +115,11 @@ func Broadcast(c *gin.Context) {
 		FromUserID: 0,
 	}
 	c.BindJSON(&msg)
+	hash, ok := c.Get("hash")
+	if !ok || hash != getHash() {
+		c.JSON(403, e.ErrMsgResponse{Message: "rejected"})
+		return
+	}
 	msg.ID = tools.Md5String(msg.Time)
 	userCount, err := models.GetUserNum()
 	for i := 1; i <= userCount; i++ {
@@ -309,4 +316,13 @@ func (wsConn *WsConnection) MsgMysql() {
 			wsConn.close()
 		}
 	}
+}
+
+func getHash() string {
+	t := time.Now()
+	t_zero := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location()).Format("2006-01-02 15:04")
+	sh := sha1.New()
+	sh.Write([]byte(t_zero))
+	sum := sh.Sum([]byte("healing2020"))
+	return string(sum)
 }
