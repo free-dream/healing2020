@@ -30,6 +30,7 @@ type SongMsg struct {
 	More     string    `json:"more"`
 
 	Id     uint   `json:"id"`
+    SongId uint   `json:"songId"`
 	Like   int    `json:"like"`
 	Style  string `json:"style"`
 	Source string `json:"source"`
@@ -108,7 +109,7 @@ func LoadSongMsg(sort string, key string,userTags string) []SongMsg{
         if key == "推荐" && !recommendFilter(song.Style,song.Language,userTags){
             continue
         }
-		songList[i].Id = song.ID
+		songList[i].SongId = song.ID
 		songList[i].Like = GetPraiseCount("song",song.ID)
 		songList[i].Source = song.Source
         songList[i].Name = song.Name
@@ -125,7 +126,8 @@ func LoadSongMsg(sort string, key string,userTags string) []SongMsg{
 		songList[i].UserId = userid
 
 		var vod statements.Vod
-		db.Model(&statements.Vod{}).Select("name,more").Where("id=?", sendid).Find(&vod)
+		db.Model(&statements.Vod{}).Select("id,name,more").Where("id=?", sendid).Find(&vod)
+        songList[i].Id = vod.ID
 		songList[i].Name = vod.Name
 		songList[i].More = vod.More
 

@@ -40,21 +40,21 @@ type ResultResp struct {
 
 func GetRecord(id string) ResultResp {
 	intId, _ := strconv.Atoi(id)
-	songId := uint(intId)
-	var song statements.Song
+	vodId := uint(intId)
 
 	db := setting.MysqlConn()
 
 	var resultResp ResultResp
 
-	result := db.Model(&statements.Song{}).Where("id=?", songId).First(&song)
-	resultResp.Err = result.Error
-
-	vodId := song.VodId
     resultResp.VodId = vodId
 
 	var vod statements.Vod
-	db.Model(&statements.Vod{}).Where("id=?", vodId).First(&vod)
+    result := db.Model(&statements.Vod{}).Where("id=?", vodId).First(&vod)
+	resultResp.Err = result.Error
+
+	if result.Error != nil {
+		return resultResp
+	}
 
     resultResp.Singer = vod.Singer
     resultResp.More = vod.More
@@ -70,17 +70,14 @@ func GetRecord(id string) ResultResp {
 	resultResp.VodUser = user.NickName
 	resultResp.VodAvatar = user.Avatar
 
-	if result.Error != nil {
-        if errors.Is(result.Error,gorm.ErrRecordNotFound) {
-            resultResp.Err = nil
-        }
-		return resultResp
-	}
-
 	count := 0
     var allSong []statements.Song
 	recordsToVod := db.Model(&statements.Song{}).Where("vod_id = ?", vodId).Count(&count).Find(&allSong)
 	var recordResp []RecordResp = make([]RecordResp, count)
+
+    if count == 0 {
+        return resultResp
+    }
 
 	rows, _ := recordsToVod.Rows()
     defer rows.Close()
