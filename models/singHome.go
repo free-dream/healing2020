@@ -47,7 +47,7 @@ func SingHome(subjectID uint) (AllSpecial, error) {
 	err = db.Table("comment").Where("type = 1 and song_id = ?", subjectID).Count(&count).Error
 	//获取歌曲信息
 	var SingHome []UserMessage
-	err = db.Table("special").Select("user_id, id, created_at, praise, song, record").Where("subject_id = ? ", subjectID).Scan(&SingHome).Error
+	err = db.Table("special").Select("user_id, id, created_at, praise, song, record").Where("subject_id = ? ", subjectID).Order("created_at DESC").Scan(&SingHome).Error
 	//获取用户信息
 	UserElse := make([]statements.User, len(SingHome))
 	for i := 0; i < len(SingHome); i++ {

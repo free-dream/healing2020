@@ -15,6 +15,7 @@ import (
 	"healing2020/models"
 	"healing2020/models/statements"
 	"healing2020/pkg/e"
+	"healing2020/pkg/setting"
 	"healing2020/pkg/tools"
 )
 
@@ -67,8 +68,12 @@ func msgToSMessage(msg *Message) statements.Message {
 
 //create msg chan for user
 func createUserMsgChan(userID uint) {
+	redis_cli := setting.RedisClient
 	if _, ok := MessageQueue[int(userID)]; !ok {
-		MessageQueue[int(userID)] = make(chan *Message, 1000)
+		IsMsgChanIn := !redis_cli.SetNX(fmt.Sprintf("msgchan_id:%d", userID), 0, time.Duration(1)*time.Second).Val()
+		if !IsMsgChanIn {
+			MessageQueue[int(userID)] = make(chan *Message, 1000)
+		}
 	}
 }
 

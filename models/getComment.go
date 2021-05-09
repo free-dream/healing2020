@@ -13,6 +13,7 @@ type AllComment struct {
 	CommentResponse Comment
 	NickName        string `json:"nickname"`
 	Avatar          string `json:"avatar"`
+	IsPraise  bool      `json:"isPraise"`
 }
 
 type Comment struct {
@@ -34,13 +35,13 @@ func GetComment(strID string, Type string) ([]AllComment, error) {
 	//获取评论其他信息
 	var commentElse []Comment
 	if Type == "2" { //投递评论
-		err = db.Table("comment").Select("id, user_id, type, created_at, content").Where("type = 2 AND deliver_id = ?", id).Scan(&commentElse).Error
+		err = db.Table("comment").Select("id, user_id, type, created_at, content, praise").Where("type = 2 AND deliver_id = ?", id).Scan(&commentElse).Error
 		if err != nil {
 			return nil, err
 		}
 	}
 	if Type == "1" { //歌房评论
-		err = db.Table("comment").Select("id, user_id, type, created_at, content").Where("type = 1 AND song_id = ?", id).Scan(&commentElse).Error
+		err = db.Table("comment").Select("id, user_id, type, created_at, content, praise").Where("type = 1 AND song_id = ?", id).Scan(&commentElse).Error
 		if err != nil {
 			return nil, err
 		}
@@ -62,6 +63,7 @@ func GetComment(strID string, Type string) ([]AllComment, error) {
 			NickName:        commentName[i].NickName,
 			Avatar:          commentName[i].Avatar,
 		}
+		responseComment[i].IsPraise, _ = HasPraise(4, commentElse[i].UserID, uint(commentElse[i].Id))
 	}
 	return responseComment, err
 }
