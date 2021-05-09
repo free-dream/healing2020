@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"healing2020/models/statements"
 	"healing2020/pkg/setting"
 	"strconv"
@@ -18,7 +19,6 @@ type User struct {
 	Photo     string    `json:"photo"`
 	Record    string    `json:"record"`
 	Praise    int       `json:"praise"`
-    IsPraise  bool      `json:"isPraise"`
 }
 
 type AllDeliver struct {
@@ -27,7 +27,8 @@ type AllDeliver struct {
 	Avatar      string `json:"avater"`
 }
 
-func DeliverHome(Type string, myID uint) ([]AllDeliver, error) {
+func DeliverHome(pageStr string, Type string) ([]AllDeliver, error) {
+	page, _ := strconv.Atoi(pageStr)
 	var err error
 	//连接mysql
 	db := setting.MysqlConn()
@@ -65,15 +66,32 @@ func DeliverHome(Type string, myID uint) ([]AllDeliver, error) {
 			Nickname:    UserElse[i].NickName,
 			Avatar:      UserElse[i].Avatar,
 		}
-        responseDeliver[i].Deliverelse.IsPraise,_ = HasPraise(1,myID,uint(deliverHome[i].Id))
-        responseDeliver[i].Deliverelse.Praise = GetPraiseCount("deliver",uint(deliverHome[i].Id))
+	}
+	
+	pageResponDeliver, err := Pageing(page, responseDeliver)
+	if err != nil {
+		return pageResponDeliver,errors.New("page out of range")
+	}
+	return pageResponDeliver, err
+}
+
+func Pageing(page int, data []AllDeliver) ([]AllDeliver, error) {
+	if (page-1)*20 > len(data) {
+		return nil, errors.New("page out of range")
 	}
 
-	return responseDeliver, err
+	var result []AllDeliver = make([]AllDeliver, 20)
+	for i := 0; i < 20; i++ {
+		if (page-1)*20+i >= len(data) {
+			break
+		}
+		result[i] = data[(page-1)*20+i]
+	}
+	return result, nil
 }
 
 //发送单个投递详情
-func SingleDeliver(DevId string, myID uint) ([]AllDeliver, error) {
+func SingleDeliver(DevId string) ([]AllDeliver, error) {
 	//连接mysql
 	db := setting.MysqlConn()
 
@@ -103,8 +121,6 @@ func SingleDeliver(DevId string, myID uint) ([]AllDeliver, error) {
 			Nickname:    SingleElse[i].NickName,
 			Avatar:      SingleElse[i].Avatar,
 		}
-        responseSingle[i].Deliverelse.IsPraise,_ = HasPraise(1,myID,uint(singleDeliver[i].Id))
-        responseSingle[i].Deliverelse.Praise = GetPraiseCount("deliver",uint(singleDeliver[i].Id))
 	}
 	return responseSingle, err
 }
