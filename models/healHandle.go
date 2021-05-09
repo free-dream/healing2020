@@ -4,7 +4,8 @@ import (
 	"errors"
 	"strconv"
 	"time"
-    //"fmt"
+
+	//"fmt"
 
 	"healing2020/models/statements"
 	"healing2020/pkg/setting"
@@ -46,18 +47,18 @@ func GetRecord(id string) ResultResp {
 
 	var resultResp ResultResp
 
-    resultResp.VodId = vodId
+	resultResp.VodId = vodId
 
 	var vod statements.Vod
-    result := db.Model(&statements.Vod{}).Where("id=?", vodId).First(&vod)
+	result := db.Model(&statements.Vod{}).Where("id=?", vodId).First(&vod)
 	resultResp.Err = result.Error
 
 	if result.Error != nil {
 		return resultResp
 	}
 
-    resultResp.Singer = vod.Singer
-    resultResp.More = vod.More
+	resultResp.Singer = vod.Singer
+	resultResp.More = vod.More
 	resultResp.Time = vod.CreatedAt
 	resultResp.Name = vod.Name
 	resultResp.Style = vod.Style
@@ -71,26 +72,26 @@ func GetRecord(id string) ResultResp {
 	resultResp.VodAvatar = user.Avatar
 
 	count := 0
-    var allSong []statements.Song
+	var allSong []statements.Song
 	recordsToVod := db.Model(&statements.Song{}).Where("vod_id = ?", vodId).Count(&count).Find(&allSong)
 	var recordResp []RecordResp = make([]RecordResp, count)
 
-    if count == 0 {
-        return resultResp
-    }
+	if count == 0 {
+		return resultResp
+	}
 
 	rows, _ := recordsToVod.Rows()
-    defer rows.Close()
+	defer rows.Close()
 
 	i := 0
 	for rows.Next() {
-        var songRows statements.Song
+		var songRows statements.Song
 		db.ScanRows(rows, &songRows)
 		recordResp[i].SongId = songRows.ID
 		recordResp[i].Praise = GetPraiseCount("song", songRows.ID)
 		recordResp[i].Source = songRows.Source
 
-        var userRows statements.User
+		var userRows statements.User
 		db.Model(&statements.User{}).Select("avatar,nick_name").Where("id = ?", songRows.UserId).First(&userRows)
 		recordResp[i].User = userRows.NickName
 		recordResp[i].SongAvatar = userRows.Avatar
@@ -109,8 +110,13 @@ func CreateRecord(id string, source string, uid uint) (string, error) {
 	userId := uid
 	status := 0
 
-	tx := db.Begin()
+	var userOther statements.UserOther
+	db.Select("remain_sing").Where("user_id = ?", uid).First(&userOther)
+	if userOther.RemainSing <= 0 {
+		return "", errors.New("已无点歌次数！")
+	}
 
+	tx := db.Begin()
 	var vod statements.Vod
 	result1 := tx.Model(&statements.Vod{}).Where("ID=?", vodId).First(&vod)
 	if result1.Error != nil {
