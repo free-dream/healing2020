@@ -39,6 +39,7 @@ type OthersPersonalPage struct {
 	More       string                `json:"more"`
 	Avatar     string                `json:"avatar"`
 	Background int                   `json:"background"`
+	IsPraised  int                   `json:"ispraised"`
 	Vod        []models.RequestSongs `json:"requestSongs"`
 	Songs      []models.Songs        `json:"Songs"`
 	Praise     []models.Admire       `json:"admire"`
@@ -57,7 +58,7 @@ func SplitAvaBackgroundtoI(avaBackground string) []int {
 //综合处理各项数据获取最终返回结果
 func responsePage(c *gin.Context, user statements.User, my_others string) {
 	var err error
-
+	myID := tools.GetUser(c).ID
 	//初始化返回数据
 	page := MyPersonalPage{
 		NickName: user.NickName,
@@ -92,7 +93,7 @@ func responsePage(c *gin.Context, user statements.User, my_others string) {
 		return
 	}
 
-	page.Songs, err = models.ResponseSongs(user.ID)
+	page.Songs, err = models.ResponseSongs(user.ID, myID)
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
 		return
