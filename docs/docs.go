@@ -112,6 +112,13 @@ var doc = `{
                     },
                     {
                         "type": "string",
+                        "description": "页数",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "language",
                         "name": "language",
                         "in": "query"
@@ -443,7 +450,7 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controller.PersonalPage"
+                            "$ref": "#/definitions/controller.MyPersonalPage"
                         }
                     },
                     "403": {
@@ -532,7 +539,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "hobby"
+                    "user"
                 ],
                 "responses": {
                     "200": {
@@ -555,7 +562,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "hobby"
+                    "user"
                 ],
                 "parameters": [
                     {
@@ -598,6 +605,42 @@ var doc = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/controller.PhoneHealing"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/postbox": {
+            "post": {
+                "description": "增加用户邮箱",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "parameters": [
+                    {
+                        "description": "用户邮箱",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.Postbox"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
                         }
                     },
                     "403": {
@@ -672,7 +715,7 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controller.PersonalPage"
+                            "$ref": "#/definitions/controller.OthersPersonalPage"
                         }
                     },
                     "403": {
@@ -820,7 +863,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "mypersonalpage"
+                    "user"
                 ],
                 "responses": {
                     "200": {
@@ -849,12 +892,12 @@ var doc = `{
                 ],
                 "parameters": [
                     {
-                        "description": "广播信息",
+                        "description": "广播信息(只要content)",
                         "name": "json",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controller.ServerMsg"
+                            "$ref": "#/definitions/controller.Message"
                         }
                     }
                 ],
@@ -971,7 +1014,37 @@ var doc = `{
                 }
             }
         },
-        "controller.PersonalPage": {
+        "controller.Message": {
+            "type": "object",
+            "required": [
+                "content",
+                "toUserID"
+            ],
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "fromUserID": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "time": {
+                    "type": "string"
+                },
+                "toUserID": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "integer"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.MyPersonalPage": {
             "type": "object",
             "properties": {
                 "Songs": {
@@ -986,11 +1059,17 @@ var doc = `{
                         "$ref": "#/definitions/models.Admire"
                     }
                 },
+                "avaBackground": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
                 "avatar": {
                     "type": "string"
                 },
                 "background": {
-                    "type": "string"
+                    "type": "integer"
                 },
                 "hide_number": {
                     "type": "integer"
@@ -1022,7 +1101,48 @@ var doc = `{
                 "setting3": {
                     "type": "integer"
                 },
+                "sex": {
+                    "type": "integer"
+                },
                 "truename": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.OthersPersonalPage": {
+            "type": "object",
+            "properties": {
+                "Songs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Songs"
+                    }
+                },
+                "admire": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Admire"
+                    }
+                },
+                "avatar": {
+                    "type": "string"
+                },
+                "background": {
+                    "type": "integer"
+                },
+                "more": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "requestSongs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.RequestSongs"
+                    }
+                },
+                "school": {
                     "type": "string"
                 }
             }
@@ -1031,6 +1151,14 @@ var doc = `{
             "type": "object",
             "properties": {
                 "phone": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.Postbox": {
+            "type": "object",
+            "properties": {
+                "postbox": {
                     "type": "string"
                 }
             }
@@ -1082,20 +1210,6 @@ var doc = `{
                     "type": "integer"
                 },
                 "remainSing": {
-                    "type": "integer"
-                }
-            }
-        },
-        "controller.ServerMsg": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                },
-                "time": {
-                    "type": "string"
-                },
-                "type": {
                     "type": "integer"
                 }
             }
@@ -1248,6 +1362,9 @@ var doc = `{
                 "id": {
                     "type": "integer"
                 },
+                "isPraise": {
+                    "type": "boolean"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -1329,6 +1446,9 @@ var doc = `{
                 "id": {
                     "type": "integer"
                 },
+                "isPraise": {
+                    "type": "boolean"
+                },
                 "like": {
                     "type": "integer"
                 },
@@ -1336,9 +1456,6 @@ var doc = `{
                     "type": "string"
                 },
                 "name": {
-                    "type": "string"
-                },
-                "senduser": {
                     "type": "string"
                 },
                 "sex": {
@@ -1367,22 +1484,25 @@ var doc = `{
         "models.SongResp": {
             "type": "object",
             "properties": {
-                "praise": {
-                    "type": "integer"
-                },
-                "singer": {
+                "avatar": {
                     "type": "string"
                 },
-                "songName": {
-                    "type": "string"
-                },
-                "songid": {
+                "id": {
                     "type": "integer"
+                },
+                "like": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
                 },
                 "source": {
                     "type": "string"
                 },
                 "time": {
+                    "type": "string"
+                },
+                "user": {
                     "type": "string"
                 }
             }
@@ -1418,6 +1538,9 @@ var doc = `{
                 "avatar": {
                     "type": "string"
                 },
+                "background": {
+                    "type": "integer"
+                },
                 "more": {
                     "type": "string"
                 },
@@ -1432,17 +1555,26 @@ var doc = `{
         "models.VodResp": {
             "type": "object",
             "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "more": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "sex": {
+                    "type": "integer"
+                },
                 "time": {
+                    "type": "string"
+                },
+                "user": {
                     "type": "string"
                 },
                 "vodId": {
                     "type": "integer"
-                },
-                "vodName": {
-                    "type": "string"
-                },
-                "vodUser": {
-                    "type": "string"
                 }
             }
         }

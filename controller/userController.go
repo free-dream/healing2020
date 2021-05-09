@@ -170,7 +170,7 @@ func hobbyJoin(tag []string) string {
 
 //@Title NewHobby
 //@Description 爱好选择接口
-//@Tags hobby
+//@Tags user
 //@Produce json
 //@Param json body Tag true "用户爱好标签"
 //@Router /api/user/hobby [post]
@@ -193,7 +193,7 @@ func NewHobby(c *gin.Context) {
 
 //@Title GetHobby
 //@Description 获取用户爱好
-//@Tags hobby
+//@Tags user
 //@Produce json
 //@Router /api/user/hobby [get]
 //@Success 200 {object} Tag
@@ -207,5 +207,29 @@ func GetHobby(c *gin.Context) {
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
 	} else {
 		c.JSON(200, t)
+	}
+}
+
+type Postbox struct {
+	Postbox string `json:"postbox"`
+}
+
+//@Title PostPostbox
+//@Description 增加用户邮箱
+//@Tags user
+//@Produce json
+//@Param json body Postbox true "用户邮箱"
+//@Router /api/user/postbox [post]
+//@Success 200 {object} e.ErrMsgResponse
+//@Failure 403 {object} e.ErrMsgResponse
+func PostPostbox(c *gin.Context) {
+	var jsonInf Postbox
+	c.BindJSON(&jsonInf)
+	userID := tools.GetUser(c).ID
+	err := models.UpdateUser(c, map[string]interface{}{"Postbox": jsonInf.Postbox}, userID)
+	if err != nil {
+		c.JSON(403, e.ErrMsgResponse{Message: "更新邮箱失败！"})
+	} else {
+		c.JSON(200, e.ErrMsgResponse{Message: e.GetMsg(e.SUCCESS)})
 	}
 }
