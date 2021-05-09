@@ -135,6 +135,7 @@ type RecordParams struct {
 	Id       string   `json:"id" binding:"required"`
 	Name     string   `json:"name" binding:"required"`
 	ServerID []string `json:"server_id" binding:"required"`
+    IsHide   int      `json:"isHide binding:"required`
 }
 
 // @Title AddRecord
@@ -145,6 +146,7 @@ type RecordParams struct {
 // @Param id body string true "点歌单id"
 // @Param name body string false "user name"
 // @Param server_id body []string true "server_id"
+// @Param isHide body int true "1 自己可见,0 所有人可见"
 // @Success 200 {object} e.ErrMsgResponse
 // @Failure 403 {object} e.ErrMsgResponse
 func RecordHeal(c *gin.Context) {
@@ -154,12 +156,16 @@ func RecordHeal(c *gin.Context) {
 		c.JSON(400, e.ErrMsgResponse{Message: "Uncomplete params"})
 		return
 	}
+    if !tools.Valid(strconv.Itoa(params.IsHide),`^[01]$`) {
+		c.JSON(400, e.ErrMsgResponse{Message: "Unexpected input"})
+		return
+    }
 	url, err := convertMediaIdArrToQiniuUrl(params.ServerID)
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: err.Error()})
 		return
 	}
-	songName, err := models.CreateRecord(params.Id, url, userID)
+	songName, err := models.CreateRecord(params.Id, url, userID, params.IsHide)
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: err.Error()})
 		return

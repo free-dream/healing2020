@@ -18,6 +18,7 @@ type Song struct {
 	Source   string `gorm:"default: ''"`
 	Style    string `gorm:"default: ''"`
 	Language string `gorm:"default: ''"`
+    IsHide   int    `gorm:"default: 0"`
 }
 
 func SongInit() {

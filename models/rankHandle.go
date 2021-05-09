@@ -177,7 +177,7 @@ func SendSongRank() error {
 	var song []statements.Song
 	year, mon, day := time.Now().Date()
 	date := strconv.Itoa(year) + "_" + monthTransfer(mon.String()) + "_" + dayTransfer(strconv.Itoa(day))
-	result := tx.Model(&statements.Song{}).Where("created_at LIKE ?", date+"%").Order("praise, created_at desc").Find(&song)
+	result := tx.Model(&statements.Song{}).Where("is_hide = 0 and created_at LIKE ?", date+"%").Order("praise, created_at desc").Find(&song)
 	err1 := errRollBack(tx, &status)
 	if err1 != nil {
 		return err1

@@ -74,7 +74,7 @@ func GetRecord(id string) ResultResp {
 
 	count := 0
 	var allSong []statements.Song
-	recordsToVod := db.Model(&statements.Song{}).Where("vod_id = ?", vodId).Count(&count).Find(&allSong)
+	recordsToVod := db.Model(&statements.Song{}).Where("vod_id = ? and is_hide = 0", vodId).Count(&count).Find(&allSong)
 	var recordResp []RecordResp = make([]RecordResp, count)
 
 	if count == 0 {
@@ -105,7 +105,7 @@ func GetRecord(id string) ResultResp {
 	return resultResp
 }
 
-func CreateRecord(id string, source string, uid uint) (string, error) {
+func CreateRecord(id string, source string, uid uint, isHide int) (string, error) {
 	intId, _ := strconv.Atoi(id)
 	vodId := uint(intId)
 	db := setting.MysqlConn()
@@ -127,6 +127,7 @@ func CreateRecord(id string, source string, uid uint) (string, error) {
 	song.Source = source
 	song.Style = vod.Style
 	song.Language = vod.Language
+    song.IsHide = isHide
 
 	err := tx.Model(&statements.Song{}).Create(&song).Error
 	if err != nil {
