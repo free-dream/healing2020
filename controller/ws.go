@@ -132,21 +132,20 @@ func (wsConn *WsConnection) MsgMysql() {
 type BroadcastReq struct {
 	Content string `json:"content" binding:"required"`
 	Hash    string `json:"hash" binding:"required"`
+	Type    int    `json:"type"`
+	Url     string `json:"url"`
 }
 
 //@Title Broadcast
 //@Description 广播
 //@Tags message
 //@Produce json
-//@Param json body Message true "广播信息(只要content)"
 //@Router /broadcast [post]
 //@Success 200 {object} e.ErrMsgResponse
 //@Failure 403 {object} e.ErrMsgResponse
 func Broadcast(c *gin.Context) {
 	msg := Message{
-		URL:        "",
 		Time:       time.Now().Format("2006-01-02 15:04:05"),
-		Type:       0,
 		FromUserID: 0,
 	}
 
@@ -161,8 +160,9 @@ func Broadcast(c *gin.Context) {
 		c.JSON(403, e.ErrMsgResponse{Message: "rejected"})
 		return
 	}
-	log.Printf("broadcasting: %s", form.Content)
 	msg.Content = form.Content
+	msg.Type = form.Type
+	msg.URL = form.Url
 	msg.ID = tools.Md5String(msg.Time)
 
 	// 开始广播

@@ -66,6 +66,7 @@ func DeliverHome(Type string, myID uint) ([]AllDeliver, error) {
 			Avatar:      UserElse[i].Avatar,
 		}
         responseDeliver[i].Deliverelse.IsPraise,_ = HasPraise(1,myID,uint(deliverHome[i].Id))
+        responseDeliver[i].Deliverelse.Praise = GetPraiseCount("deliver",uint(deliverHome[i].Id))
 	}
 
 	return responseDeliver, err
@@ -103,6 +104,7 @@ func SingleDeliver(DevId string, myID uint) ([]AllDeliver, error) {
 			Avatar:      SingleElse[i].Avatar,
 		}
         responseSingle[i].Deliverelse.IsPraise,_ = HasPraise(1,myID,uint(singleDeliver[i].Id))
+        responseSingle[i].Deliverelse.Praise = GetPraiseCount("deliver",uint(singleDeliver[i].Id))
 	}
 	return responseSingle, err
 }
