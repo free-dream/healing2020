@@ -56,6 +56,8 @@ func GetRecord(id string) ResultResp {
 	var vod statements.Vod
 	db.Model(&statements.Vod{}).Where("id=?", vodId).First(&vod)
 
+    resultResp.Singer = vod.Singer
+    resultResp.More = vod.More
 	resultResp.Time = vod.CreatedAt
 	resultResp.Name = vod.Name
 	resultResp.Style = vod.Style
