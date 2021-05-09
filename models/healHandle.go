@@ -24,6 +24,7 @@ type RecordResp struct {
 	User       string `json:"user"`
 	Source     string `json:"source"`
 	SongAvatar string `json:"songAvatar"`
+    IsPraise   bool   `json:"isPraise"`
 }
 type ResultResp struct {
 	VodId     uint      `json:"id"`
@@ -96,6 +97,7 @@ func GetRecord(id string) ResultResp {
 		recordResp[i].User = userRows.NickName
 		recordResp[i].SongAvatar = userRows.Avatar
 
+        recordResp[i].IsPraise,_ = HasPraise(1,songRows.UserId,songRows.ID)
 		i++
 	}
 	resultResp.AllSongs = recordResp

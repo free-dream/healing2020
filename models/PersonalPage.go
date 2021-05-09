@@ -18,10 +18,11 @@ type RequestSongs struct { //点歌
 	HideName  int       `json:"hidename"`
 }
 type Songs struct { //唱歌
-	ID        uint      `json:"id"`
+	ID        uint      `json:"id" gorm:"column:vod_id"`
 	Name      string    `json:"song"`
 	CreatedAt time.Time `json:"time"`
 	From      string    `json:"from"`
+	IsPraise  bool      `json:"ispraise"`
 }
 type Admire struct { //点赞
 	ID        uint      `json:"id"`
@@ -62,15 +63,6 @@ func ResponseVod(userID uint) ([]RequestSongs, error) {
 	var allVod []RequestSongs
 	err := db.Table("vod").Select("id, name, created_at, hide_name").Where("user_id=?", userID).Scan(&allVod).Error
 	return allVod, err
-}
-
-//ResponseSongs使用
-//给Songs加上From，如歌房、投递、治愈
-func songsFrom(someSongs []Songs, from string) []Songs {
-	for i := 0; i < len(someSongs); i++ {
-		someSongs[i].From = from
-	}
-	return someSongs
 }
 
 //ResponseSongs使用
@@ -117,7 +109,7 @@ func specialToSongs(special []statements.Special) []Songs {
 }
 
 //select并返回用户唱歌信息
-func ResponseSongs(userID uint) ([]Songs, error) {
+func ResponseSongs(userID uint, myID uint) ([]Songs, error) {
 	var err error
 
 	//连接mysql
@@ -125,7 +117,7 @@ func ResponseSongs(userID uint) ([]Songs, error) {
 
 	//获取唱歌信息
 	var singSongs []Songs
-	err = db.Table("song").Select("id, name, created_at").Where("user_id=?", userID).Scan(&singSongs).Error
+	err = db.Table("song").Select("vod_id, name, created_at").Where("user_id=?", userID).Scan(&singSongs).Error
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		return nil, err
 	}
@@ -145,11 +137,23 @@ func ResponseSongs(userID uint) ([]Songs, error) {
 	}
 
 	//处理不同表select下来的信息, 转换为Songs类型
-	singSongs = songsFrom(singSongs, "治愈")
+	for key := range singSongs {
+		singSongs[key].From = "治愈"
+	}
 	specialSongs := specialToSongs(special)
 	deliverSongs := deliverToSongs(handleDeliver(deliver))
 	//合并数据
 	allSongs := append(append(singSongs, specialSongs...), deliverSongs...)
+	for key, value := range allSongs {
+		switch value.From {
+		case "投递箱":
+			allSongs[key].IsPraise, _ = HasPraise(1, myID, value.ID)
+		case "治愈":
+			allSongs[key].IsPraise, _ = HasPraise(2, myID, value.ID)
+		case "歌房":
+			allSongs[key].IsPraise, _ = HasPraise(3, myID, value.ID)
+		}
+	}
 	return allSongs, nil
 }
 
@@ -179,6 +183,22 @@ func specialToAdmire(special []statements.Special) []Admire {
 			Name:      value.Song,
 			CreatedAt: value.CreatedAt,
 			From:      "歌房",
+			Praise:    value.Praise,
+		})
+	}
+	return admire
+}
+
+//ResponsePraise使用
+//将select到的[]song信息代入到一个[]Admire结构
+func songToAdmire(song []statements.Song) []Admire {
+	var admire []Admire
+	for _, value := range song {
+		admire = append(admire, Admire{
+			ID:        value.VodId,
+			Name:      value.Name,
+			CreatedAt: value.CreatedAt,
+			From:      "治愈",
 			Praise:    value.Praise,
 		})
 	}
@@ -232,13 +252,10 @@ func ResponsePraise(userID uint) ([]Admire, error) {
 	}
 
 	//治愈,type=2
-	var admireHealInf []Admire
-	err = db.Table("song").Select("id, name, created_at, praise").Where("id in (?)", allID["heal"]).Scan(&admireHealInf).Error
+	var songInf []statements.Song
+	err = db.Table("song").Select("vod_id, name, created_at, praise").Where("id in (?)", allID["heal"]).Scan(&songInf).Error
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		return nil, err
-	}
-	for key := range admireHealInf {
-		admireHealInf[key].From = "治愈"
 	}
 
 	//专题歌曲,type=3
@@ -249,7 +266,7 @@ func ResponsePraise(userID uint) ([]Admire, error) {
 		return nil, err
 	}
 
-	allPraise := append(append(deliverToAdmire(deliverInf), admireHealInf...), specialToAdmire(specialInf)...)
+	allPraise := append(append(deliverToAdmire(deliverInf), songToAdmire(songInf)...), specialToAdmire(specialInf)...)
 	return allPraise, err
 }
 

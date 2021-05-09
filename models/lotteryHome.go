@@ -12,7 +12,8 @@ type Prize struct {
 	Name   string `json:"name"`
 	Photo  string `json:"photo"`
 	Weight int    `json:"weight"`
-	Count  int 	  `json:"count"`
+	Count  int    `json:"count"`
+	Pro    float64 `json:"probability"`
 }
 type LotteryId struct {
 	PrizeId uint `json:"prize_id" `
@@ -30,6 +31,10 @@ func AllPrize() ([]Prize, error) {
 	//获取所有奖品信息
 	var prizeHome []Prize
 	err := db.Table("prize").Select("id, name, photo, weight, count").Scan(&prizeHome).Error
+	pro := [...] float64 {0.1, 0.1, 0.2, 0.5, 10, 10, 20, 59.9}
+	for i := 0; i<len(prizeHome); i++ {
+		prizeHome[i].Pro = pro[i]
+	}
 	return prizeHome, err
 }
 
