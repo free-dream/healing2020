@@ -26,13 +26,14 @@ type UserMessage struct {
 	CreatedAt time.Time `json:"time"`
 	Praise    string    `json:"praise"`
 	Song      string    `json:"name"`
-	Record    string    `json:"record"`
+	Record    string    `json:"source"`
+	IsPraise  bool      `json:"isPraise"`
 
 	//无用数据
 	Type   string `json:"type"`
 	Photo  string `json:"photo"`
 	Text   string `json:"text"`
-	Source string `json:"source"`
+	NilId  string `json:"id"`
 }
 
 func SingHome(subjectID uint) (AllSpecial, error) {
@@ -65,6 +66,7 @@ func SingHome(subjectID uint) (AllSpecial, error) {
 			Song:      SingHome[i].Song,
 			Record:    SingHome[i].Record,
 		}
+		responseSing[i].IsPraise, _ = HasPraise(3, SingHome[i].UserID, uint(SingHome[i].Id))
 	}
 
 	allSpecial := AllSpecial{
