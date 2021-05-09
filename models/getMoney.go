@@ -100,7 +100,7 @@ func FinishTask(task string, userID uint) error {
 	tx := db.Begin()
 
 	switch task {
-	case "1" :
+	case "1":
 		//login
 		var userother statements.UserOther
 		result := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).First(&userother)
@@ -110,17 +110,17 @@ func FinishTask(task string, userID uint) error {
 		if userother.Lo1 != 1 {
 			t := time.Now()
 			t_zero := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location()).Unix()
-			t_to_tomorrow := 24*60*60 - (t.Unix() - t_zero)		
+			t_to_tomorrow := 24*60*60 - (t.Unix() - t_zero)
 			redis_cli := setting.RedisClient
 			logined := !redis_cli.SetNX(fmt.Sprintf("finish_lo1_id:%d", userID), 0, time.Duration(t_to_tomorrow)*time.Second).Val()
-			
+
 			if !logined {
 				err2 := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).Update("lo1", 1).Error
 				if err2 != nil {
 					tx.Rollback()
 					return err2
 				}
-				
+
 				var user statements.User
 				result := tx.Model(&statements.User{}).Where("id= ?", userID).First(&user)
 				if result.Error != nil {
@@ -137,7 +137,7 @@ func FinishTask(task string, userID uint) error {
 			}
 		}
 		break
-	case "2" :
+	case "2":
 		//vod
 		var userother statements.UserOther
 		result := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).First(&userother)
@@ -147,17 +147,17 @@ func FinishTask(task string, userID uint) error {
 		if userother.Lo2 != 1 {
 			t := time.Now()
 			t_zero := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location()).Unix()
-			t_to_tomorrow := 24*60*60 - (t.Unix() - t_zero)		
+			t_to_tomorrow := 24*60*60 - (t.Unix() - t_zero)
 			redis_cli := setting.RedisClient
 			voded := !redis_cli.SetNX(fmt.Sprintf("finish_lo2_id:%d", userID), 0, time.Duration(t_to_tomorrow)*time.Second).Val()
-			
+
 			if !voded {
 				err2 := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).Update("lo2", 1).Error
 				if err2 != nil {
 					tx.Rollback()
 					return err2
 				}
-				
+
 				var user statements.User
 				result := tx.Model(&statements.User{}).Where("id= ?", userID).First(&user)
 				if result.Error != nil {
@@ -174,7 +174,7 @@ func FinishTask(task string, userID uint) error {
 			}
 		}
 		break
-	case "3" :
+	case "3":
 		//healing
 		var userother statements.UserOther
 		result := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).First(&userother)
@@ -184,17 +184,17 @@ func FinishTask(task string, userID uint) error {
 		if userother.Lo3 != 1 {
 			t := time.Now()
 			t_zero := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location()).Unix()
-			t_to_tomorrow := 24*60*60 - (t.Unix() - t_zero)		
+			t_to_tomorrow := 24*60*60 - (t.Unix() - t_zero)
 			redis_cli := setting.RedisClient
 			healed := !redis_cli.SetNX(fmt.Sprintf("finish_lo3_id:%d", userID), 0, time.Duration(t_to_tomorrow)*time.Second).Val()
-			
+
 			if !healed {
 				err2 := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).Update("lo3", 1).Error
 				if err2 != nil {
 					tx.Rollback()
 					return err2
 				}
-				
+
 				var user statements.User
 				result := tx.Model(&statements.User{}).Where("id= ?", userID).First(&user)
 				if result.Error != nil {
@@ -211,7 +211,7 @@ func FinishTask(task string, userID uint) error {
 			}
 		}
 		break
-	case "4" :
+	case "4":
 		//singHome
 		var userother statements.UserOther
 		result := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).First(&userother)
@@ -221,17 +221,17 @@ func FinishTask(task string, userID uint) error {
 		if userother.Lo4 != 1 {
 			t := time.Now()
 			t_zero := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location()).Unix()
-			t_to_tomorrow := 24*60*60 - (t.Unix() - t_zero)		
+			t_to_tomorrow := 24*60*60 - (t.Unix() - t_zero)
 			redis_cli := setting.RedisClient
 			sang := !redis_cli.SetNX(fmt.Sprintf("finish_lo4_id:%d", userID), 0, time.Duration(t_to_tomorrow)*time.Second).Val()
-			
+
 			if !sang {
 				err2 := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).Update("lo4", 1).Error
 				if err2 != nil {
 					tx.Rollback()
 					return err2
 				}
-				
+
 				var user statements.User
 				result := tx.Model(&statements.User{}).Where("id= ?", userID).First(&user)
 				if result.Error != nil {
@@ -248,7 +248,7 @@ func FinishTask(task string, userID uint) error {
 			}
 		}
 		break
-	case "5" :
+	case "5":
 		//praise
 		var userother statements.UserOther
 		result := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).First(&userother)
@@ -258,17 +258,17 @@ func FinishTask(task string, userID uint) error {
 		if userother.Lo5 != 1 {
 			t := time.Now()
 			t_zero := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location()).Unix()
-			t_to_tomorrow := 24*60*60 - (t.Unix() - t_zero)		
+			t_to_tomorrow := 24*60*60 - (t.Unix() - t_zero)
 			redis_cli := setting.RedisClient
 			praised := !redis_cli.SetNX(fmt.Sprintf("finish_lo5_id:%d", userID), 0, time.Duration(t_to_tomorrow)*time.Second).Val()
-			
+
 			if !praised {
 				err2 := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).Update("lo5", 1).Error
 				if err2 != nil {
 					tx.Rollback()
 					return err2
 				}
-				
+
 				var user statements.User
 				result := tx.Model(&statements.User{}).Where("id= ?", userID).First(&user)
 				if result.Error != nil {
@@ -285,7 +285,7 @@ func FinishTask(task string, userID uint) error {
 			}
 		}
 		break
-	case "6" :
+	case "6":
 		//share
 		var userother statements.UserOther
 		result := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).First(&userother)
@@ -295,17 +295,17 @@ func FinishTask(task string, userID uint) error {
 		if userother.Lo6 != 1 {
 			t := time.Now()
 			t_zero := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location()).Unix()
-			t_to_tomorrow := 24*60*60 - (t.Unix() - t_zero)		
+			t_to_tomorrow := 24*60*60 - (t.Unix() - t_zero)
 			redis_cli := setting.RedisClient
 			shared := !redis_cli.SetNX(fmt.Sprintf("finish_lo6_id:%d", userID), 0, time.Duration(t_to_tomorrow)*time.Second).Val()
-			
+
 			if !shared {
 				err2 := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).Update("lo6", 1).Error
 				if err2 != nil {
 					tx.Rollback()
 					return err2
 				}
-				
+
 				var user statements.User
 				result := tx.Model(&statements.User{}).Where("id= ?", userID).First(&user)
 				if result.Error != nil {
@@ -336,7 +336,6 @@ func LotteryDraw(userID uint, bd []int, bdstr string) (GetPrize, error) {
 
 	rand.Seed(time.Now().UnixNano())
 	prop := rand.Intn(999)
-	// log.Println(prop)
 
 	var black GetPrize
 
@@ -353,109 +352,139 @@ func LotteryDraw(userID uint, bd []int, bdstr string) (GetPrize, error) {
 		return black, result0.Error
 	}
 
-	// log.Println(user.Money)
+	var count int
 
 	if user.Money >= 100 {
-		// t := time.Now()
-		// t_zero := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location()).Unix()
-		// t_to_tomorrow := 24*60*60 - (t.Unix() - t_zero)		
-		
 		t_to_duration := 1
 		redis_cli := setting.RedisClient
 		draw_lottery := !redis_cli.SetNX(fmt.Sprintf("draw_lottery_id:%d", userID), 0, time.Duration(t_to_duration)*time.Second).Val()
 
 		if !draw_lottery {
-			LOOP:
-			for i := 0; i < len(prize); i++ {
-				if prop <= prize[i].Weight && prize[i].Count > 0 {
-					responseLottery = GetPrize{
-						Id:    prize[i].Id,
-						Name:  prize[i].Name,
-						Photo: prize[i].Photo,
-					}
+			CountFirst := tx.Model(&statements.Lottery{}).Where("user_id = ?", userID).Count(&count).Error
+			if CountFirst != nil {
+				tx.Rollback()
+			}
+			//首次抽奖得个人背景
+			if count == 0 {
+				bdstr = "1,2"
+				result2 := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).Update("ava_background", bdstr).Error
+				if result2 != nil {
+					tx.Rollback()
+				}
+				responseLottery = GetPrize{
+					Id:    5,
+					Name:  "个人页背景",
+					Photo: "444.jpg",
+				}
+				//存入我的奖品
+				var lot statements.Lottery
+				lot.PrizeId = 5
+				lot.UserId = userID
+				if result4 := tx.Model(&statements.Lottery{}).Create(&lot).Error; err != nil {
+					tx.Rollback()
+					log.Println(5)
+					return black, result4
+				}
+				//修改剩余积分
+				user.Money = user.Money - 100
+				err2 := tx.Save(&user).Error
+				if err2 != nil {
+					tx.Rollback()
+				}
+			} else {
+				LOOP:
+				for i := 0; i < len(prize); i++ {
+					if prop <= prize[i].Weight && prize[i].Count > 0 {
+						responseLottery = GetPrize{
+							Id:    prize[i].Id,
+							Name:  prize[i].Name,
+							Photo: prize[i].Photo,
+						}
 	
-					//增加背景图
-					if prize[i].Id == 5 {
-						bdcount := len(bd)
-						if bdcount == 6 {
-							i = i + 1
-							responseLottery = GetPrize{
-								Id:    prize[i].Id,
-								Name:  prize[i].Name,
-								Photo: prize[i].Photo,
-							}		
-						} else {
-							bdstr = bdstr + "," + strconv.Itoa(len(bd) + 1)
-							result2 := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).Update("ava_background", bdstr).Error
-							if result2 != nil {
+						//增加背景图
+						if prize[i].Id == 5 {
+							bdcount := len(bd)
+							if bdcount == 6 {
+								i = i + 1
+								responseLottery = GetPrize{
+									Id:    prize[i].Id,
+									Name:  prize[i].Name,
+									Photo: prize[i].Photo,
+								}
+							} else {
+								bdstr = bdstr + "," + strconv.Itoa(len(bd)+1)
+								result2 := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).Update("ava_background", bdstr).Error
+								if result2 != nil {
+									tx.Rollback()
+								}
+							}
+						}
+	
+						//增加匿名次数
+						if prize[i].Id == 6 {
+							var anonymous statements.UserOther
+							result1 := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).First(&anonymous)
+							if result1.Error != nil {
+								log.Println(2)
+								return black, result1.Error
+							}
+							anonymous.RemainHideName = anonymous.RemainHideName + 1
+							err0 := tx.Save(&anonymous).Error
+							if err0 != nil {
 								tx.Rollback()
 							}
 						}
-					}
 	
-					//增加匿名次数
-					if prize[i].Id == 6 {
-						var anonymous statements.UserOther
-						result1 := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).First(&anonymous)
-						if result1.Error != nil {
-							log.Println(2)
-							return black, result1.Error
+						//增加点歌次数
+						if prize[i].Id == 7 {
+							var vod_count statements.UserOther
+							result1 := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).First(&vod_count)
+							if result1.Error != nil {
+								log.Println(3)
+								return black, result1.Error
+							}
+							vod_count.RemainSing = vod_count.RemainSing + 1
+							err0 := tx.Save(&vod_count).Error
+							if err0 != nil {
+								tx.Rollback()
+							}
 						}
-						anonymous.RemainHideName = anonymous.RemainHideName + 1
-						err0 := tx.Save(&anonymous).Error
-						if err0 != nil {
+	
+						//修改剩余数量
+						var count statements.Prize
+						result3 := tx.Model(&statements.Prize{}).Where("id = ?", uint(prize[i].Id)).First(&count)
+						if result3.Error != nil {
+							log.Println(4)
+							return black, result3.Error
+						}
+						count.Count = count.Count - 1
+						err1 := tx.Save(&count).Error
+						if err1 != nil {
 							tx.Rollback()
 						}
-					}
 	
-					//增加点歌次数
-					if prize[i].Id == 7 {
-						var vod_count statements.UserOther
-						result1 := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).First(&vod_count)
-						if result1.Error != nil {
-							log.Println(3)
-							return black, result1.Error
+						//存入我的奖品
+						var lot statements.Lottery
+						lot.PrizeId = uint(prize[i].Id)
+						lot.UserId = userID
+						if result4 := tx.Model(&statements.Lottery{}).Create(&lot).Error; err != nil {
+							tx.Rollback()
+							log.Println(5)
+							return black, result4
 						}
-						vod_count.RemainSing = vod_count.RemainSing + 1
-						err0 := tx.Save(&vod_count).Error
-						if err0 != nil {
+	
+						//修改剩余积分
+						user.Money = user.Money - 100
+						err2 := tx.Save(&user).Error
+						if err2 != nil {
 							tx.Rollback()
 						}
+						break LOOP
 					}
-	
-					//修改剩余数量
-					var count statements.Prize
-					result3 := tx.Model(&statements.Prize{}).Where("id = ?", uint(prize[i].Id)).First(&count)
-					if result3.Error != nil {
-						log.Println(4)
-						return black, result3.Error
-					}
-					count.Count = count.Count - 1
-					err1 := tx.Save(&count).Error
-					if err1 != nil {
-						tx.Rollback()
-					}
-	
-					//存入我的奖品
-					var lot statements.Lottery
-					lot.PrizeId = uint(prize[i].Id)
-					lot.UserId = userID
-					if result4 := tx.Model(&statements.Lottery{}).Create(&lot).Error; err != nil {
-						tx.Rollback()
-						log.Println(5)
-						return black, result4
-					}
-	
-					//修改剩余积分
-					user.Money = user.Money - 100
-					err2 := tx.Save(&user).Error
-					if err2 != nil {
-						tx.Rollback()
-					}
-					break LOOP
 				}
-			}
 	
+	
+			}
 		}
 	} else {
 		log.Println(result0)
