@@ -35,7 +35,27 @@ definitions:
       trueName:
         type: string
     type: object
-  controller.PersonalPage:
+  controller.Message:
+    properties:
+      content:
+        type: string
+      fromUserID:
+        type: integer
+      id:
+        type: string
+      time:
+        type: string
+      toUserID:
+        type: integer
+      type:
+        type: integer
+      url:
+        type: string
+    required:
+    - content
+    - toUserID
+    type: object
+  controller.MyPersonalPage:
     properties:
       Songs:
         items:
@@ -45,10 +65,14 @@ definitions:
         items:
           $ref: '#/definitions/models.Admire'
         type: array
+      avaBackground:
+        items:
+          type: integer
+        type: array
       avatar:
         type: string
       background:
-        type: string
+        type: integer
       hide_number:
         type: integer
       more:
@@ -69,12 +93,44 @@ definitions:
         type: integer
       setting3:
         type: integer
+      sex:
+        type: integer
       truename:
+        type: string
+    type: object
+  controller.OthersPersonalPage:
+    properties:
+      Songs:
+        items:
+          $ref: '#/definitions/models.Songs'
+        type: array
+      admire:
+        items:
+          $ref: '#/definitions/models.Admire'
+        type: array
+      avatar:
+        type: string
+      background:
+        type: integer
+      more:
+        type: string
+      name:
+        type: string
+      requestSongs:
+        items:
+          $ref: '#/definitions/models.RequestSongs'
+        type: array
+      school:
         type: string
     type: object
   controller.PhoneHealing:
     properties:
       phone:
+        type: string
+    type: object
+  controller.Postbox:
+    properties:
+      postbox:
         type: string
     type: object
   controller.PutUserInf:
@@ -108,15 +164,6 @@ definitions:
       remainHide:
         type: integer
       remainSing:
-        type: integer
-    type: object
-  controller.ServerMsg:
-    properties:
-      message:
-        type: string
-      time:
-        type: string
-      type:
         type: integer
     type: object
   controller.Tag:
@@ -215,6 +262,8 @@ definitions:
         type: string
       id:
         type: integer
+      isPraise:
+        type: boolean
       name:
         type: string
       photo:
@@ -268,13 +317,13 @@ definitions:
         type: string
       id:
         type: integer
+      isPraise:
+        type: boolean
       like:
         type: integer
       more:
         type: string
       name:
-        type: string
-      senduser:
         type: string
       sex:
         type: integer
@@ -293,17 +342,19 @@ definitions:
     type: object
   models.SongResp:
     properties:
-      praise:
-        type: integer
-      singer:
+      avatar:
         type: string
-      songName:
-        type: string
-      songid:
+      id:
         type: integer
+      like:
+        type: integer
+      name:
+        type: string
       source:
         type: string
       time:
+        type: string
+      user:
         type: string
     type: object
   models.Songs:
@@ -326,6 +377,8 @@ definitions:
     properties:
       avatar:
         type: string
+      background:
+        type: integer
       more:
         type: string
       userName:
@@ -335,14 +388,20 @@ definitions:
     type: object
   models.VodResp:
     properties:
+      avatar:
+        type: string
+      more:
+        type: string
+      name:
+        type: string
+      sex:
+        type: integer
       time:
+        type: string
+      user:
         type: string
       vodId:
         type: integer
-      vodName:
-        type: string
-      vodUser:
-        type: string
     type: object
 info:
   contact: {}
@@ -402,6 +461,11 @@ paths:
       - description: 1综合排序2最新发布
         in: query
         name: sort
+        required: true
+        type: string
+      - description: 页数
+        in: query
+        name: page
         required: true
         type: string
       - description: language
@@ -622,7 +686,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controller.PersonalPage'
+            $ref: '#/definitions/controller.MyPersonalPage'
         "403":
           description: Forbidden
           schema:
@@ -660,7 +724,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controller.PersonalPage'
+            $ref: '#/definitions/controller.OthersPersonalPage'
         "403":
           description: Forbidden
           schema:
@@ -705,7 +769,7 @@ paths:
           schema:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
-      - hobby
+      - user
     post:
       description: 爱好选择接口
       parameters:
@@ -727,7 +791,7 @@ paths:
           schema:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
-      - hobby
+      - user
   /api/user/phone:
     get:
       description: 用户手机
@@ -744,6 +808,29 @@ paths:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
       - heal
+  /api/user/postbox:
+    post:
+      description: 增加用户邮箱
+      parameters:
+      - description: 用户邮箱
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/controller.Postbox'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - user
   /api/user/rank:
     get:
       description: 用户排名
@@ -874,17 +961,17 @@ paths:
           schema:
             $ref: '#/definitions/e.ErrMsgResponse'
       tags:
-      - mypersonalpage
+      - user
   /broadcast:
     post:
       description: 广播
       parameters:
-      - description: 广播信息
+      - description: 广播信息(只要content)
         in: body
         name: json
         required: true
         schema:
-          $ref: '#/definitions/controller.ServerMsg'
+          $ref: '#/definitions/controller.Message'
       produces:
       - application/json
       responses:

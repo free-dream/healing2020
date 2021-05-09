@@ -101,7 +101,7 @@ func MysqltoChan() {
 //@Description 广播
 //@Tags message
 //@Produce json
-//@Param json body ServerMsg true "广播信息"
+//@Param json body Message true "广播信息(只要content)"
 //@Router /broadcast [post]
 //@Success 200 {object} e.ErrMsgResponse
 //@Failure 403 {object} e.ErrMsgResponse
