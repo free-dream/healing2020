@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strconv"
 	"time"
+    //"fmt"
 
 	"healing2020/models/statements"
 	"healing2020/pkg/setting"
@@ -52,6 +53,7 @@ func GetRecord(id string) ResultResp {
 		return resultResp
 	}
 	vodId := song.VodId
+    resultResp.VodId = vodId
 
 	var vod statements.Vod
 	db.Model(&statements.Vod{}).Where("id=?", vodId).First(&vod)
@@ -71,21 +73,24 @@ func GetRecord(id string) ResultResp {
 	resultResp.VodAvatar = user.Avatar
 
 	count := 0
-	recordsToVod := db.Model(&statements.Song{}).Where("vod_id = ?", vodId).Find(&song).Count(&count)
+    var allSong []statements.Song
+	recordsToVod := db.Model(&statements.Song{}).Where("vod_id = ?", vodId).Count(&count).Find(&allSong)
 	var recordResp []RecordResp = make([]RecordResp, count)
 
 	rows, _ := recordsToVod.Rows()
 
 	i := 0
 	for rows.Next() {
-		db.ScanRows(rows, &song)
-		recordResp[i].SongId = song.ID
-		recordResp[i].Praise = GetPraiseCount("song", song.ID)
-		recordResp[i].Source = song.Source
+        var songRows statements.Song
+		db.ScanRows(rows, &songRows)
+		recordResp[i].SongId = songRows.ID
+		recordResp[i].Praise = GetPraiseCount("song", songRows.ID)
+		recordResp[i].Source = songRows.Source
 
-		db.Model(&statements.User{}).Select("avatar,nick_name").Where("id = ?", song.UserId).First(&user)
-		recordResp[i].User = user.NickName
-		recordResp[i].SongAvatar = user.Avatar
+        var userRows statements.User
+		db.Model(&statements.User{}).Select("avatar,nick_name").Where("id = ?", song.UserId).First(&userRows)
+		recordResp[i].User = userRows.NickName
+		recordResp[i].SongAvatar = userRows.Avatar
 
 		i++
 	}
