@@ -39,7 +39,7 @@ func ResponseUser(userID uint) (statements.User, error) {
 	db := setting.MysqlConn()
 
 	var user statements.User
-	err := db.Select("id, sex, nick_name, campus, more, setting3, avatar").Where("id=?", userID).First(&user).Error
+	err := db.Where("id=?", userID).First(&user).Error
 	return user, err
 }
 
