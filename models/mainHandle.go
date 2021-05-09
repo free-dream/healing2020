@@ -212,7 +212,7 @@ func GetMainMsg(pageStr string,sort string, key string,tags string,userid uint) 
 
         //塞进是否点赞
         for i:=0;i<len(resultListen);i++ {
-            resultListen[i].IsPraise,_ = HasPraise(2,userid,resultListen[i].Id)
+            resultListen[i].IsPraise,_ = HasPraise(2,userid,resultListen[i].SongId)
         } 
 
         result.Sing = resultSing
@@ -250,7 +250,7 @@ func GetMainMsg(pageStr string,sort string, key string,tags string,userid uint) 
 
     //塞进是否点赞
     for i:=0;i<len(resultListen);i++ {
-        resultListen[i].IsPraise,_ = HasPraise(2,userid,resultListen[i].Id)
+        resultListen[i].IsPraise,_ = HasPraise(2,userid,resultListen[i].SongId)
     } 
 
     result.Sing = resultSing
