@@ -98,6 +98,11 @@ func MysqltoChan() {
 	}
 }
 
+type BroadcastReq struct {
+	Content string `json:"content" binding:"required"`
+	Hash    string `json:"hash" binding:"required"`
+}
+
 //@Title Broadcast
 //@Description 广播
 //@Tags message
@@ -113,9 +118,9 @@ func Broadcast(c *gin.Context) {
 		Type:       0,
 		FromUserID: 0,
 	}
-	c.BindJSON(&msg)
-	hash, ok := c.Get("hash")
-	if !ok || hash != getHash() {
+	var form BroadcastReq
+	c.ShouldBindJSON(&form)
+	if form.Hash != getHash() {
 		c.JSON(403, e.ErrMsgResponse{Message: "rejected"})
 		return
 	}
