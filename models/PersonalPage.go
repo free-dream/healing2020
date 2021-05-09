@@ -218,7 +218,7 @@ func ResponsePraise(userID uint) ([]Admire, error) {
 
 	//获取点赞对应条目
 	var praise []statements.Praise
-	err = db.Select("type, praise_id").Where("user_id=?", userID).Find(&praise).Error
+	err = db.Select("type, praise_id").Where("user_id = ? AND is_cancel = 0", userID).Find(&praise).Error
 	if err != nil {
 		return nil, err
 	}
