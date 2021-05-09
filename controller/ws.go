@@ -120,7 +120,11 @@ func Broadcast(c *gin.Context) {
 		FromUserID: 0,
 	}
 	var form BroadcastReq
-	c.ShouldBindJSON(&form)
+	err := c.ShouldBindJSON(&form)
+	if err != nil {
+		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
+		return
+	}
 	if form.Hash != getHash() {
 		c.JSON(403, e.ErrMsgResponse{Message: "rejected"})
 		return
