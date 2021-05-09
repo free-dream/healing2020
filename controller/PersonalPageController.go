@@ -86,6 +86,7 @@ func responsePage(c *gin.Context, user statements.User, my_others string) {
 	}
 	page.Background = userOther.Now
 	page.AvaBackground = SplitAvaBackgroundtoI(userOther.AvaBackground)
+	page.RemainHideName = userOther.RemainHideName
 
 	page.Vod, err = models.ResponseVod(user.ID)
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
@@ -183,7 +184,7 @@ func HideName(c *gin.Context) {
 		c.JSON(403, e.ErrMsgResponse{Message: "无法获取剩余匿名次数！"})
 		return
 	}
-	if userOther.RemainHideName == 0 {
+	if userOther.RemainHideName <= 0 {
 		c.JSON(403, e.ErrMsgResponse{Message: "已无剩余匿名次数！"})
 		return
 	}
