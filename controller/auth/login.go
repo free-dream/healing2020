@@ -209,9 +209,8 @@ func DisposableLogin(ctx *gin.Context) {
 	t_zero := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location()).Unix()
 	t_to_tomorrow := 24*60*60 - (t.Unix() - t_zero)
 	logined := !redis_cli.SetNX(fmt.Sprintf("healing2020:logined_user:%d", user.ID), 0, time.Duration(t_to_tomorrow)*time.Second).Val()
-
 	if !logined {
-		// TODO 加积分
+		models.FinishTask("1", user.ID)
 	}
 
 	redirectUrl := ctx.Query("redirect")
