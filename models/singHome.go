@@ -14,7 +14,8 @@ type AllSpecial struct {
 	Name      string `json:"name"`
 	Intro     string `json:"intro"`
 	MesNumber int    `json:"mesNumber"`
-	SingSong  []UserMessage
+	// HotSong   []UserMessage
+	SingSong []UserMessage
 }
 
 type UserMessage struct {
@@ -24,16 +25,16 @@ type UserMessage struct {
 
 	Id        int       `json:"song_id"`
 	CreatedAt time.Time `json:"time"`
-	Praise    string    `json:"praise"`
+	Praise    int       `json:"praise"`
 	Song      string    `json:"name"`
 	Record    string    `json:"source"`
 	IsPraise  bool      `json:"isPraise"`
 
 	//无用数据
-	Type   string `json:"type"`
-	Photo  string `json:"photo"`
-	Text   string `json:"text"`
-	NilId  string `json:"id"`
+	Type  string `json:"type"`
+	Photo string `json:"photo"`
+	Text  string `json:"text"`
+	NilId string `json:"id"`
 }
 
 func SingHome(subjectID uint) (AllSpecial, error) {
@@ -45,15 +46,40 @@ func SingHome(subjectID uint) (AllSpecial, error) {
 	err := db.Table("subject").Select("id, name, intro, photo").Where("id = ? ", subjectID).First(&singSubject).Error
 	var count int
 	err = db.Table("comment").Where("type = 1 and song_id = ?", subjectID).Count(&count).Error
-	//获取歌曲信息
+
+	// //获取热门歌曲信息
+	// var Hot []UserMessage
+	// err = db.Table("special").Select("user_id, id, created_at, praise, song, record").Where("subject_id = ? ", subjectID).Order("praise DESC").Limit(3).Scan(&Hot).Error
+	// //获取热门用户信息
+	// HotElse := make([]statements.User, len(Hot))
+	// for i := 0; i < len(Hot); i++ {
+	// 	err = db.Table("user").Select("nick_name, avatar").Where("id = ?", Hot[i].UserID).Scan(&HotElse[i]).Error
+	// }
+	// responseHot := make([]UserMessage, len(Hot))
+	// for i := 0; i < len(Hot); i++ {
+	// 	if Hot[i].Praise >= 5 {
+	// 		responseHot[i] = UserMessage{
+	// 			Nickname:  HotElse[i].NickName,
+	// 			Avatar:    HotElse[i].Avatar,
+	// 			UserID:    Hot[i].UserID,
+	// 			Id:        Hot[i].Id,
+	// 			CreatedAt: Hot[i].CreatedAt,
+	// 			Praise:    Hot[i].Praise,
+	// 			Song:      Hot[i].Song,
+	// 			Record:    Hot[i].Record,
+	// 		}
+	// 		responseHot[i].IsPraise, _ = HasPraise(3, Hot[i].UserID, uint(Hot[i].Id))
+	// 	}
+	// }
+
+	//获取列表歌曲信息
 	var SingHome []UserMessage
 	err = db.Table("special").Select("user_id, id, created_at, praise, song, record").Where("subject_id = ? ", subjectID).Order("created_at DESC").Scan(&SingHome).Error
-	//获取用户信息
+	//获取列表用户信息
 	UserElse := make([]statements.User, len(SingHome))
 	for i := 0; i < len(SingHome); i++ {
 		err = db.Table("user").Select("nick_name, avatar").Where("id = ?", SingHome[i].UserID).Scan(&UserElse[i]).Error
 	}
-
 	responseSing := make([]UserMessage, len(SingHome))
 	for i := 0; i < len(SingHome); i++ {
 		responseSing[i] = UserMessage{
@@ -74,7 +100,8 @@ func SingHome(subjectID uint) (AllSpecial, error) {
 		Name:      singSubject.Name,
 		Intro:     singSubject.Intro,
 		MesNumber: count,
-		SingSong:  responseSing,
+		// HotSong:   responseHot,
+		SingSong: responseSing,
 	}
 
 	return allSpecial, err
