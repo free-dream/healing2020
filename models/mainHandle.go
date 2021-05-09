@@ -115,18 +115,18 @@ func LoadSongMsg(sort string, key string,userTags string) []SongMsg{
         songList[i].Name = song.Name
 		songList[i].Style = song.Style
 		songList[i].Time = song.CreatedAt
-		userid := song.UserId
-		sendid := song.VodSend
+		userId := song.UserId
+		vodId := song.VodId
 
 		var user statements.User
-		db.Model(&statements.User{}).Select("nick_name,sex,avatar").Where("id=?", userid).Find(&user)
+		db.Model(&statements.User{}).Select("nick_name,sex,avatar").Where("id=?", userId).Find(&user)
 		songList[i].User = user.NickName
 		songList[i].Sex = user.Sex
 		songList[i].Avatar = user.Avatar
-		songList[i].UserId = userid
+		songList[i].UserId = userId
 
 		var vod statements.Vod
-		db.Model(&statements.Vod{}).Select("id,name,more").Where("id=?", sendid).Find(&vod)
+		db.Model(&statements.Vod{}).Select("id,name,more").Where("id=?", vodId).Find(&vod)
         songList[i].Id = vod.ID
 		songList[i].Name = vod.Name
 		songList[i].More = vod.More
