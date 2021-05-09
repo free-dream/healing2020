@@ -22,6 +22,7 @@ type Songs struct { //唱歌
 	Name      string    `json:"song"`
 	CreatedAt time.Time `json:"time"`
 	From      string    `json:"from"`
+	Praise    int       `json:"praise"`
 	IsPraise  bool      `json:"ispraise"`
 }
 type Admire struct { //点赞
@@ -148,10 +149,13 @@ func ResponseSongs(userID uint, myID uint) ([]Songs, error) {
 		switch value.From {
 		case "投递箱":
 			allSongs[key].IsPraise, _ = HasPraise(1, myID, value.ID)
+			allSongs[key].Praise = GetPraiseCount("deliver", value.ID)
 		case "治愈":
 			allSongs[key].IsPraise, _ = HasPraise(2, myID, value.ID)
+			allSongs[key].Praise = GetPraiseCount("song", value.ID)
 		case "歌房":
 			allSongs[key].IsPraise, _ = HasPraise(3, myID, value.ID)
+			allSongs[key].Praise = GetPraiseCount("special", value.ID)
 		}
 	}
 	return allSongs, nil
