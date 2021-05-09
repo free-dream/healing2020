@@ -110,12 +110,6 @@ func CreateRecord(id string, source string, uid uint) (string, error) {
 	userId := uid
 	status := 0
 
-	var userOther statements.UserOther
-	db.Select("remain_sing").Where("user_id = ?", uid).First(&userOther)
-	if userOther.RemainSing <= 0 {
-		return "", errors.New("已无点歌次数！")
-	}
-
 	tx := db.Begin()
 	var vod statements.Vod
 	result1 := tx.Model(&statements.Vod{}).Where("ID=?", vodId).First(&vod)
@@ -222,6 +216,11 @@ func AddPraise(userid uint, strId string, types string) (error, PraiseData) {
 func CreateVod(uid uint, singer string, style string, language string, name string, more string) error {
 	db := setting.MysqlConn()
 
+	var userOther statements.UserOther
+	db.Select("remain_sing").Where("user_id = ?", uid).First(&userOther)
+	if userOther.RemainSing <= 0 {
+		return errors.New("已无点歌次数！")
+	}
 	var vod statements.Vod
 	vod.UserId = uid
 	vod.More = more
