@@ -64,7 +64,7 @@ func Record(c *gin.Context) {
 // @Produce json
 // @Router /api/unlike [get]
 // @Param id query string true "type id"
-// @Param type query string true "1 song; 2 deliver"
+// @Param type query string true "1 deliver; 2 song;3 singHome"
 // @Success 200 {object} e.ErrMsgResponse
 // @Failure 403 {object} e.ErrMsgResponse
 func NoPraise(c *gin.Context) {
