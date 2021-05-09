@@ -275,6 +275,15 @@ var doc = `{
                                 "type": "string"
                             }
                         }
+                    },
+                    {
+                        "description": "1 自己可见,0 所有人可见",
+                        "name": "isHide",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
                     }
                 ],
                 "responses": {
@@ -415,7 +424,7 @@ var doc = `{
                     },
                     {
                         "type": "string",
-                        "description": "1 song; 2 deliver",
+                        "description": "1 deliver; 2 song;3 singHome",
                         "name": "type",
                         "in": "query",
                         "required": true
@@ -1130,6 +1139,9 @@ var doc = `{
                 "background": {
                     "type": "integer"
                 },
+                "ispraised": {
+                    "type": "integer"
+                },
                 "more": {
                     "type": "string"
                 },
@@ -1464,6 +1476,9 @@ var doc = `{
                 "singer": {
                     "type": "string"
                 },
+                "songId": {
+                    "type": "integer"
+                },
                 "source": {
                     "type": "string"
                 },
@@ -1515,6 +1530,9 @@ var doc = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "ispraise": {
+                    "type": "boolean"
                 },
                 "song": {
                     "type": "string"
