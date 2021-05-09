@@ -81,18 +81,18 @@ func LoadSongMsg(sort string, key string,userTags string) []SongMsg{
 	var result *gorm.DB
 	if key == "" || key == "推荐" {
         if sort == "0" {
-            result = db.Raw("select id,user_id,vod_send,name,praise,source,style,language,created_at from song order by rand()")
+            result = db.Raw("select id,user_id,vod_id,name,praise,source,style,language,created_at from song order by rand()")
             rows, _ = result.Rows()
         } else {
-            result = db.Raw("select id,user_id,vod_send,name,praise,source,style,language,created_at from song order by created_at desc")
+            result = db.Raw("select id,user_id,vod_id,name,praise,source,style,language,created_at from song order by created_at desc")
             rows, _ = result.Rows()
         }
 	} else {
 		if sort == "0" {
-			result = db.Raw("select id,user_id,vod_send,name,praise,source,style,language,created_at from song where style=? or language=? order by rand()", key, key)
+			result = db.Raw("select id,user_id,vod_id,name,praise,source,style,language,created_at from song where style=? or language=? order by rand()", key, key)
 			rows, _ = result.Rows()
 		} else {
-			result = db.Raw("select id,user_id,vod_send,name,praise,source,style,language,created_at from song where style=? or language=? order by created_at desc", key, key)
+			result = db.Raw("select id,user_id,vod_id,name,praise,source,style,language,created_at from song where style=? or language=? order by created_at desc", key, key)
 			rows, _ = result.Rows()
 		}
 	}
@@ -117,6 +117,7 @@ func LoadSongMsg(sort string, key string,userTags string) []SongMsg{
 		songList[i].Time = song.CreatedAt
 		userId := song.UserId
 		vodId := song.VodId
+        songList[i].Id = vodId
 
 		var user statements.User
 		db.Model(&statements.User{}).Select("nick_name,sex,avatar").Where("id=?", userId).Find(&user)
@@ -126,9 +127,7 @@ func LoadSongMsg(sort string, key string,userTags string) []SongMsg{
 		songList[i].UserId = userId
 
 		var vod statements.Vod
-		db.Model(&statements.Vod{}).Select("id,name,more").Where("id=?", vodId).Find(&vod)
-        songList[i].Id = vod.ID
-		songList[i].Name = vod.Name
+		db.Model(&statements.Vod{}).Select("more").Where("id=?", vodId).Find(&vod)
 		songList[i].More = vod.More
 
 		i++
