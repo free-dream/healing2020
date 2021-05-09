@@ -78,6 +78,7 @@ func GetRecord(id string) ResultResp {
 	var recordResp []RecordResp = make([]RecordResp, count)
 
 	rows, _ := recordsToVod.Rows()
+    defer rows.Close()
 
 	i := 0
 	for rows.Next() {

@@ -111,6 +111,7 @@ func LoadSongMsg(sort string, key string,userTags string) []SongMsg{
 		songList[i].Id = song.ID
 		songList[i].Like = GetPraiseCount("song",song.ID)
 		songList[i].Source = song.Source
+        songList[i].Name = song.Name
 		songList[i].Style = song.Style
 		songList[i].Time = song.CreatedAt
 		userid := song.UserId
@@ -139,7 +140,6 @@ func LoadVodMsg(sort string, key string,userTags string) []SongMsg {
     count := 0
     db.Raw("select count(*) from vod").Row().Scan(&count)
 	var vodList []SongMsg = make([]SongMsg, max(8,count))
-	i := 0
 
 	var rows *sql.Rows
 	var result *gorm.DB
@@ -167,6 +167,7 @@ func LoadVodMsg(sort string, key string,userTags string) []SongMsg {
 
 	defer rows.Close()
 
+	i := 0
 	for rows.Next() {
 		var vod statements.Vod
 		db.ScanRows(rows, &vod)
