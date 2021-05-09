@@ -1,0 +1,1583 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "2020治愈系",
+        "title": "healing2020",
+        "contact": {},
+        "version": "1.0"
+    },
+    "paths": {
+        "/api/deliver/rank": {
+            "get": {
+                "description": "投递页排行榜",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "rank"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.AllRank"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/like": {
+            "get": {
+                "description": "点赞",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "heal"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "type id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "1 song; 2 deliver",
+                        "name": "type",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/main/page": {
+            "get": {
+                "description": "首页数据",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "main"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "1综合排序2最新发布",
+                        "name": "sort",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "页数",
+                        "name": "page",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "language",
+                        "name": "language",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "style",
+                        "name": "style",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.MainMsg"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/main/search": {
+            "get": {
+                "description": "首页搜索",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "main"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "search form",
+                        "name": "search",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.SearchResp"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/qiniu/token": {
+            "get": {
+                "description": "获取七牛的upToken",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "qiniu"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.Token"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/record": {
+            "get": {
+                "description": "听录音",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "heal"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "record id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.RealResp"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "录音治愈发布",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "heal"
+                ],
+                "parameters": [
+                    {
+                        "description": "点歌单id",
+                        "name": "id",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "user name",
+                        "name": "name",
+                        "in": "body",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "server_id",
+                        "name": "server_id",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    {
+                        "description": "1 自己可见,0 所有人可见",
+                        "name": "isHide",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/record2": {
+            "post": {
+                "description": "Upload media_id arr then get record url",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "heal"
+                ],
+                "parameters": [
+                    {
+                        "description": "server_id",
+                        "name": "server_id",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.TransformMediaIdArrToUrlResp"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/register": {
+            "post": {
+                "description": "注册接口",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "parameters": [
+                    {
+                        "description": "用户注册数据",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.UserRegister"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/songs/rank": {
+            "get": {
+                "description": "每日歌曲排行榜",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "rank"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.AllRank"
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/unlike": {
+            "get": {
+                "description": "取消点赞",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "heal"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "type id",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "1 deliver; 2 song;3 singHome",
+                        "name": "type",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user": {
+            "get": {
+                "description": "已登录用户的个人页接口",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.MyPersonalPage"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "更新用户信息",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "parameters": [
+                    {
+                        "description": "更新的用户信息",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.PutUserInf"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/background": {
+            "put": {
+                "description": "修改个人背景",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "parameters": [
+                    {
+                        "description": "修改后的个人背景",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.ToSaveBackground"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/hobby": {
+            "get": {
+                "description": "获取用户爱好",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.Tag"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "爱好选择接口",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "parameters": [
+                    {
+                        "description": "用户爱好标签",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.Tag"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/phone": {
+            "get": {
+                "description": "用户手机",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "heal"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.PhoneHealing"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/postbox": {
+            "post": {
+                "description": "增加用户邮箱",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "parameters": [
+                    {
+                        "description": "用户邮箱",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.Postbox"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/rank": {
+            "get": {
+                "description": "用户排名",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "rank"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.UserRank"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/remainNum": {
+            "get": {
+                "description": "获取登录用户剩余点歌和匿名次数",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.RemainNum"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/user/{id}": {
+            "get": {
+                "description": "其它用户的个人页接口",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.OthersPersonalPage"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/usermodel": {
+            "get": {
+                "description": "获取用户模型，如果path不给id将获取自己的信息",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.GetUserResp"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/usermodel/{id}": {
+            "get": {
+                "description": "获取用户模型，如果path不给id将获取自己的信息",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.GetUserResp"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/vod": {
+            "post": {
+                "description": "点歌",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "heal"
+                ],
+                "parameters": [
+                    {
+                        "description": "song's name",
+                        "name": "songs",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.VodParams"
+                        }
+                    },
+                    {
+                        "description": "singer",
+                        "name": "singer",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/controller.VodParams"
+                        }
+                    },
+                    {
+                        "description": "备注",
+                        "name": "more",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/controller.VodParams"
+                        }
+                    },
+                    {
+                        "description": "style",
+                        "name": "style",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.VodParams"
+                        }
+                    },
+                    {
+                        "description": "language",
+                        "name": "language",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.VodParams"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/vod/hide_name": {
+            "put": {
+                "description": "匿名",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/broadcast": {
+            "post": {
+                "description": "广播",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "message"
+                ],
+                "parameters": [
+                    {
+                        "description": "广播信息(只要content)",
+                        "name": "json",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controller.Message"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/fake": {
+            "get": {
+                "description": "假登录接口",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "login"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "user id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "redirect url",
+                        "name": "redirect",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/auth.LoginStatus"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/e.ErrMsgResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "auth.LoginStatus": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.GetUserResp": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "campus": {
+                    "type": "string"
+                },
+                "hobby": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "money": {
+                    "type": "integer"
+                },
+                "more": {
+                    "type": "string"
+                },
+                "nickName": {
+                    "type": "string"
+                },
+                "openId": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "setting1": {
+                    "type": "integer"
+                },
+                "setting2": {
+                    "type": "integer"
+                },
+                "setting3": {
+                    "type": "integer"
+                },
+                "sex": {
+                    "type": "integer"
+                },
+                "trueName": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.Message": {
+            "type": "object",
+            "required": [
+                "content",
+                "toUserID"
+            ],
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "fromUserID": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "time": {
+                    "type": "string"
+                },
+                "toUserID": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "integer"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.MyPersonalPage": {
+            "type": "object",
+            "properties": {
+                "Songs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Songs"
+                    }
+                },
+                "admire": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Admire"
+                    }
+                },
+                "avaBackground": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "avatar": {
+                    "type": "string"
+                },
+                "background": {
+                    "type": "integer"
+                },
+                "hide_number": {
+                    "type": "integer"
+                },
+                "more": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "requestSongs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.RequestSongs"
+                    }
+                },
+                "school": {
+                    "type": "string"
+                },
+                "setting1": {
+                    "type": "integer"
+                },
+                "setting2": {
+                    "type": "integer"
+                },
+                "setting3": {
+                    "type": "integer"
+                },
+                "sex": {
+                    "type": "integer"
+                },
+                "truename": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.OthersPersonalPage": {
+            "type": "object",
+            "properties": {
+                "Songs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Songs"
+                    }
+                },
+                "admire": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Admire"
+                    }
+                },
+                "avatar": {
+                    "type": "string"
+                },
+                "background": {
+                    "type": "integer"
+                },
+                "ispraised": {
+                    "type": "integer"
+                },
+                "more": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "requestSongs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.RequestSongs"
+                    }
+                },
+                "school": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.PhoneHealing": {
+            "type": "object",
+            "properties": {
+                "phone": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.Postbox": {
+            "type": "object",
+            "properties": {
+                "postbox": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.PutUserInf": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "postbox": {
+                    "type": "string"
+                },
+                "setting1": {
+                    "type": "integer"
+                },
+                "setting2": {
+                    "type": "integer"
+                },
+                "setting3": {
+                    "type": "integer"
+                },
+                "signature": {
+                    "type": "string"
+                },
+                "truename": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.RealResp": {
+            "type": "object",
+            "properties": {
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.RemainNum": {
+            "type": "object",
+            "properties": {
+                "remainHide": {
+                    "type": "integer"
+                },
+                "remainSing": {
+                    "type": "integer"
+                }
+            }
+        },
+        "controller.Tag": {
+            "type": "object",
+            "properties": {
+                "tagInf": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "controller.ToSaveBackground": {
+            "type": "object",
+            "properties": {
+                "background": {
+                    "type": "integer"
+                }
+            }
+        },
+        "controller.Token": {
+            "type": "object",
+            "properties": {
+                "uptoken": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.TransformMediaIdArrToUrlResp": {
+            "type": "object",
+            "properties": {
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
+        "controller.UserRegister": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "realname": {
+                    "type": "string"
+                },
+                "school": {
+                    "type": "string"
+                },
+                "sex": {
+                    "type": "integer"
+                }
+            }
+        },
+        "controller.VodParams": {
+            "type": "object",
+            "required": [
+                "language",
+                "songs",
+                "style"
+            ],
+            "properties": {
+                "language": {
+                    "type": "string"
+                },
+                "more": {
+                    "type": "string"
+                },
+                "singer": {
+                    "type": "string"
+                },
+                "songs": {
+                    "type": "string"
+                },
+                "style": {
+                    "type": "string"
+                }
+            }
+        },
+        "e.ErrMsgResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Admire": {
+            "type": "object",
+            "properties": {
+                "from": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "number": {
+                    "type": "integer"
+                },
+                "song": {
+                    "type": "string"
+                },
+                "time": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.AllRank": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.Rank"
+                    }
+                },
+                "time": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.MainMsg": {
+            "type": "object",
+            "properties": {
+                "listen": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.SongMsg"
+                    }
+                },
+                "sing": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.SongMsg"
+                    }
+                }
+            }
+        },
+        "models.Rank": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isPraise": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "photo": {
+                    "type": "string"
+                },
+                "praise": {
+                    "type": "integer"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "time": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer"
+                },
+                "user": {
+                    "type": "string"
+                },
+                "userid": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.RequestSongs": {
+            "type": "object",
+            "properties": {
+                "hidename": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "song": {
+                    "type": "string"
+                },
+                "time": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.SearchResp": {
+            "type": "object",
+            "properties": {
+                "err": {
+                    "type": "string"
+                },
+                "song": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.SongResp"
+                    }
+                },
+                "user": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.UserResp"
+                    }
+                },
+                "vod": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.VodResp"
+                    }
+                }
+            }
+        },
+        "models.SongMsg": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isPraise": {
+                    "type": "boolean"
+                },
+                "like": {
+                    "type": "integer"
+                },
+                "more": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "sex": {
+                    "type": "integer"
+                },
+                "singer": {
+                    "type": "string"
+                },
+                "songId": {
+                    "type": "integer"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "style": {
+                    "type": "string"
+                },
+                "time": {
+                    "type": "string"
+                },
+                "user": {
+                    "type": "string"
+                },
+                "userid": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.SongResp": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "like": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "source": {
+                    "type": "string"
+                },
+                "time": {
+                    "type": "string"
+                },
+                "user": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.Songs": {
+            "type": "object",
+            "properties": {
+                "from": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "ispraise": {
+                    "type": "boolean"
+                },
+                "song": {
+                    "type": "string"
+                },
+                "time": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.UserRank": {
+            "type": "object",
+            "properties": {
+                "rank": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.UserResp": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "background": {
+                    "type": "integer"
+                },
+                "more": {
+                    "type": "string"
+                },
+                "userName": {
+                    "type": "string"
+                },
+                "userid": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.VodResp": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "more": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "sex": {
+                    "type": "integer"
+                },
+                "time": {
+                    "type": "string"
+                },
+                "user": {
+                    "type": "string"
+                },
+                "vodId": {
+                    "type": "integer"
+                }
+            }
+        }
+    }
+}

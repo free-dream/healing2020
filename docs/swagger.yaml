@@ -1,0 +1,1026 @@
+definitions:
+  auth.LoginStatus:
+    properties:
+      message:
+        type: string
+    type: object
+  controller.GetUserResp:
+    properties:
+      avatar:
+        type: string
+      campus:
+        type: string
+      hobby:
+        type: string
+      id:
+        type: integer
+      money:
+        type: integer
+      more:
+        type: string
+      nickName:
+        type: string
+      openId:
+        type: string
+      phone:
+        type: string
+      setting1:
+        type: integer
+      setting2:
+        type: integer
+      setting3:
+        type: integer
+      sex:
+        type: integer
+      trueName:
+        type: string
+    type: object
+  controller.Message:
+    properties:
+      content:
+        type: string
+      fromUserID:
+        type: integer
+      id:
+        type: string
+      time:
+        type: string
+      toUserID:
+        type: integer
+      type:
+        type: integer
+      url:
+        type: string
+    required:
+    - content
+    - toUserID
+    type: object
+  controller.MyPersonalPage:
+    properties:
+      Songs:
+        items:
+          $ref: '#/definitions/models.Songs'
+        type: array
+      admire:
+        items:
+          $ref: '#/definitions/models.Admire'
+        type: array
+      avaBackground:
+        items:
+          type: integer
+        type: array
+      avatar:
+        type: string
+      background:
+        type: integer
+      hide_number:
+        type: integer
+      more:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+      requestSongs:
+        items:
+          $ref: '#/definitions/models.RequestSongs'
+        type: array
+      school:
+        type: string
+      setting1:
+        type: integer
+      setting2:
+        type: integer
+      setting3:
+        type: integer
+      sex:
+        type: integer
+      truename:
+        type: string
+    type: object
+  controller.OthersPersonalPage:
+    properties:
+      Songs:
+        items:
+          $ref: '#/definitions/models.Songs'
+        type: array
+      admire:
+        items:
+          $ref: '#/definitions/models.Admire'
+        type: array
+      avatar:
+        type: string
+      background:
+        type: integer
+      ispraised:
+        type: integer
+      more:
+        type: string
+      name:
+        type: string
+      requestSongs:
+        items:
+          $ref: '#/definitions/models.RequestSongs'
+        type: array
+      school:
+        type: string
+    type: object
+  controller.PhoneHealing:
+    properties:
+      phone:
+        type: string
+    type: object
+  controller.Postbox:
+    properties:
+      postbox:
+        type: string
+    type: object
+  controller.PutUserInf:
+    properties:
+      avatar:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+      postbox:
+        type: string
+      setting1:
+        type: integer
+      setting2:
+        type: integer
+      setting3:
+        type: integer
+      signature:
+        type: string
+      truename:
+        type: string
+    type: object
+  controller.RealResp:
+    properties:
+      url:
+        type: string
+    type: object
+  controller.RemainNum:
+    properties:
+      remainHide:
+        type: integer
+      remainSing:
+        type: integer
+    type: object
+  controller.Tag:
+    properties:
+      tagInf:
+        items:
+          type: string
+        type: array
+    type: object
+  controller.ToSaveBackground:
+    properties:
+      background:
+        type: integer
+    type: object
+  controller.Token:
+    properties:
+      uptoken:
+        type: string
+    type: object
+  controller.TransformMediaIdArrToUrlResp:
+    properties:
+      url:
+        type: string
+    type: object
+  controller.UserRegister:
+    properties:
+      name:
+        type: string
+      phone:
+        type: string
+      realname:
+        type: string
+      school:
+        type: string
+      sex:
+        type: integer
+    type: object
+  controller.VodParams:
+    properties:
+      language:
+        type: string
+      more:
+        type: string
+      singer:
+        type: string
+      songs:
+        type: string
+      style:
+        type: string
+    required:
+    - language
+    - songs
+    - style
+    type: object
+  e.ErrMsgResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  models.Admire:
+    properties:
+      from:
+        type: string
+      id:
+        type: integer
+      number:
+        type: integer
+      song:
+        type: string
+      time:
+        type: string
+    type: object
+  models.AllRank:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/models.Rank'
+        type: array
+      time:
+        type: string
+    type: object
+  models.MainMsg:
+    properties:
+      listen:
+        items:
+          $ref: '#/definitions/models.SongMsg'
+        type: array
+      sing:
+        items:
+          $ref: '#/definitions/models.SongMsg'
+        type: array
+    type: object
+  models.Rank:
+    properties:
+      avatar:
+        type: string
+      id:
+        type: integer
+      isPraise:
+        type: boolean
+      name:
+        type: string
+      photo:
+        type: string
+      praise:
+        type: integer
+      source:
+        type: string
+      text:
+        type: string
+      time:
+        type: string
+      type:
+        type: integer
+      user:
+        type: string
+      userid:
+        type: integer
+    type: object
+  models.RequestSongs:
+    properties:
+      hidename:
+        type: integer
+      id:
+        type: integer
+      song:
+        type: string
+      time:
+        type: string
+    type: object
+  models.SearchResp:
+    properties:
+      err:
+        type: string
+      song:
+        items:
+          $ref: '#/definitions/models.SongResp'
+        type: array
+      user:
+        items:
+          $ref: '#/definitions/models.UserResp'
+        type: array
+      vod:
+        items:
+          $ref: '#/definitions/models.VodResp'
+        type: array
+    type: object
+  models.SongMsg:
+    properties:
+      avatar:
+        type: string
+      id:
+        type: integer
+      isPraise:
+        type: boolean
+      like:
+        type: integer
+      more:
+        type: string
+      name:
+        type: string
+      sex:
+        type: integer
+      singer:
+        type: string
+      songId:
+        type: integer
+      source:
+        type: string
+      style:
+        type: string
+      time:
+        type: string
+      user:
+        type: string
+      userid:
+        type: integer
+    type: object
+  models.SongResp:
+    properties:
+      avatar:
+        type: string
+      id:
+        type: integer
+      like:
+        type: integer
+      name:
+        type: string
+      source:
+        type: string
+      time:
+        type: string
+      user:
+        type: string
+    type: object
+  models.Songs:
+    properties:
+      from:
+        type: string
+      id:
+        type: integer
+      ispraise:
+        type: boolean
+      song:
+        type: string
+      time:
+        type: string
+    type: object
+  models.UserRank:
+    properties:
+      rank:
+        type: integer
+    type: object
+  models.UserResp:
+    properties:
+      avatar:
+        type: string
+      background:
+        type: integer
+      more:
+        type: string
+      userName:
+        type: string
+      userid:
+        type: integer
+    type: object
+  models.VodResp:
+    properties:
+      avatar:
+        type: string
+      more:
+        type: string
+      name:
+        type: string
+      sex:
+        type: integer
+      time:
+        type: string
+      user:
+        type: string
+      vodId:
+        type: integer
+    type: object
+info:
+  contact: {}
+  description: 2020治愈系
+  title: healing2020
+  version: "1.0"
+paths:
+  /api/deliver/rank:
+    get:
+      description: 投递页排行榜
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.AllRank'
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - rank
+  /api/like:
+    get:
+      description: 点赞
+      parameters:
+      - description: type id
+        in: query
+        name: id
+        required: true
+        type: string
+      - description: 1 song; 2 deliver
+        in: query
+        name: type
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - heal
+  /api/main/page:
+    get:
+      description: 首页数据
+      parameters:
+      - description: 1综合排序2最新发布
+        in: query
+        name: sort
+        required: true
+        type: string
+      - description: 页数
+        in: query
+        name: page
+        required: true
+        type: string
+      - description: language
+        in: query
+        name: language
+        type: string
+      - description: style
+        in: query
+        name: style
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.MainMsg'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - main
+  /api/main/search:
+    get:
+      description: 首页搜索
+      parameters:
+      - description: search form
+        in: query
+        name: search
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SearchResp'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - main
+  /api/qiniu/token:
+    get:
+      description: 获取七牛的upToken
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Token'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - qiniu
+  /api/record:
+    get:
+      description: 听录音
+      parameters:
+      - description: record id
+        in: query
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.RealResp'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - heal
+    post:
+      description: 录音治愈发布
+      parameters:
+      - description: 点歌单id
+        in: body
+        name: id
+        required: true
+        schema:
+          type: string
+      - description: user name
+        in: body
+        name: name
+        schema:
+          type: string
+      - description: server_id
+        in: body
+        name: server_id
+        required: true
+        schema:
+          items:
+            type: string
+          type: array
+      - description: 1 自己可见,0 所有人可见
+        in: body
+        name: isHide
+        required: true
+        schema:
+          type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - heal
+  /api/record2:
+    post:
+      description: Upload media_id arr then get record url
+      parameters:
+      - description: server_id
+        in: body
+        name: server_id
+        required: true
+        schema:
+          items:
+            type: string
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.TransformMediaIdArrToUrlResp'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - heal
+  /api/register:
+    post:
+      description: 注册接口
+      parameters:
+      - description: 用户注册数据
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/controller.UserRegister'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - user
+  /api/songs/rank:
+    get:
+      description: 每日歌曲排行榜
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.AllRank'
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - rank
+  /api/unlike:
+    get:
+      description: 取消点赞
+      parameters:
+      - description: type id
+        in: query
+        name: id
+        required: true
+        type: string
+      - description: 1 deliver; 2 song;3 singHome
+        in: query
+        name: type
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - heal
+  /api/user:
+    get:
+      description: 已登录用户的个人页接口
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.MyPersonalPage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - user
+    put:
+      description: 更新用户信息
+      parameters:
+      - description: 更新的用户信息
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/controller.PutUserInf'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - user
+  /api/user/{id}:
+    get:
+      description: 其它用户的个人页接口
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.OthersPersonalPage'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - user
+  /api/user/background:
+    put:
+      description: 修改个人背景
+      parameters:
+      - description: 修改后的个人背景
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/controller.ToSaveBackground'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - user
+  /api/user/hobby:
+    get:
+      description: 获取用户爱好
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.Tag'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - user
+    post:
+      description: 爱好选择接口
+      parameters:
+      - description: 用户爱好标签
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/controller.Tag'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - user
+  /api/user/phone:
+    get:
+      description: 用户手机
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.PhoneHealing'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - heal
+  /api/user/postbox:
+    post:
+      description: 增加用户邮箱
+      parameters:
+      - description: 用户邮箱
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/controller.Postbox'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - user
+  /api/user/rank:
+    get:
+      description: 用户排名
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.UserRank'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - rank
+  /api/user/remainNum:
+    get:
+      description: 获取登录用户剩余点歌和匿名次数
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.RemainNum'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - user
+  /api/usermodel:
+    get:
+      description: 获取用户模型，如果path不给id将获取自己的信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.GetUserResp'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - user
+  /api/usermodel/{id}:
+    get:
+      description: 获取用户模型，如果path不给id将获取自己的信息
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.GetUserResp'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - user
+  /api/vod:
+    post:
+      description: 点歌
+      parameters:
+      - description: song's name
+        in: body
+        name: songs
+        required: true
+        schema:
+          $ref: '#/definitions/controller.VodParams'
+      - description: singer
+        in: body
+        name: singer
+        schema:
+          $ref: '#/definitions/controller.VodParams'
+      - description: 备注
+        in: body
+        name: more
+        schema:
+          $ref: '#/definitions/controller.VodParams'
+      - description: style
+        in: body
+        name: style
+        required: true
+        schema:
+          $ref: '#/definitions/controller.VodParams'
+      - description: language
+        in: body
+        name: language
+        required: true
+        schema:
+          $ref: '#/definitions/controller.VodParams'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - heal
+  /api/vod/hide_name:
+    put:
+      description: 匿名
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - user
+  /broadcast:
+    post:
+      description: 广播
+      parameters:
+      - description: 广播信息(只要content)
+        in: body
+        name: json
+        required: true
+        schema:
+          $ref: '#/definitions/controller.Message'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - message
+  /fake:
+    get:
+      description: 假登录接口
+      parameters:
+      - description: user id
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: redirect url
+        in: query
+        name: redirect
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.LoginStatus'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/e.ErrMsgResponse'
+      tags:
+      - login
+swagger: "2.0"

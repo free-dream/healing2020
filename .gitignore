@@ -1,2 +1,13 @@
 /ventor
 /config
+/tmp
+healing2020
+main.exe
+main
+nohup.out
+healing2020.exe
+healing.log
+gin-bin
+*_test.go
+*.test
+media
