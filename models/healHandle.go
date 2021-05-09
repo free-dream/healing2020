@@ -98,7 +98,7 @@ func GetRecord(id string, myID uint) ResultResp {
 		recordResp[i].User = userRows.NickName
 		recordResp[i].SongAvatar = userRows.Avatar
 
-        recordResp[i].IsPraise,_ = HasPraise(1,myID,songRows.ID)
+        recordResp[i].IsPraise,_ = HasPraise(2,myID,songRows.ID)
 		i++
 	}
 	resultResp.AllSongs = recordResp
