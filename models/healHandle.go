@@ -71,6 +71,9 @@ func GetRecord(id string) ResultResp {
 	resultResp.VodAvatar = user.Avatar
 
 	if result.Error != nil {
+        if errors.Is(result.Error,gorm.ErrRecordNotFound) {
+            resultResp.Err = nil
+        }
 		return resultResp
 	}
 
