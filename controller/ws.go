@@ -129,6 +129,7 @@ func Broadcast(c *gin.Context) {
 		c.JSON(403, e.ErrMsgResponse{Message: "rejected"})
 		return
 	}
+	log.Printf("broadcasting: %s", form.Content)
 	msg.ID = tools.Md5String(msg.Time)
 	userCount, err := models.GetUserNum()
 	for i := 1; i <= userCount; i++ {
