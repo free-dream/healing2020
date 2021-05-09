@@ -52,6 +52,7 @@ func GetRecord(id string) ResultResp {
 		return resultResp
 	}
 	vodId := song.VodId
+    resultResp.VodId = vodId
 
 	var vod statements.Vod
 	db.Model(&statements.Vod{}).Where("id=?", vodId).First(&vod)
