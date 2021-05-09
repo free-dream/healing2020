@@ -87,9 +87,10 @@ func GetRecord(id string) ResultResp {
 		recordResp[i].Praise = GetPraiseCount("song", songRows.ID)
 		recordResp[i].Source = songRows.Source
 
-		db.Model(&statements.User{}).Select("avatar,nick_name").Where("id = ?", song.UserId).First(&user)
-		recordResp[i].User = user.NickName
-		recordResp[i].SongAvatar = user.Avatar
+        var userRows statements.User
+		db.Model(&statements.User{}).Select("avatar,nick_name").Where("id = ?", song.UserId).First(&userRows)
+		recordResp[i].User = userRows.NickName
+		recordResp[i].SongAvatar = userRows.Avatar
 
 		i++
 	}
