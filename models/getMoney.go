@@ -99,19 +99,26 @@ func FinishTask(task string, userID uint) error {
 	db := setting.MysqlConn()
 	tx := db.Begin()
 
+	var userother statements.UserOther
+	result := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).First(&userother)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	var user statements.User
+	result2 := tx.Model(&statements.User{}).Where("id= ?", userID).First(&user)
+	if result2.Error != nil {
+		return result2.Error
+	}
+
+	t := time.Now()
+	t_zero := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location()).Unix()
+	t_to_tomorrow := 24*60*60 - (t.Unix() - t_zero)
+	redis_cli := setting.RedisClient
+
 	switch task {
 	case "1":
-		//login
-		var userother statements.UserOther
-		result := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).First(&userother)
-		if result.Error != nil {
-			return result.Error
-		}
 		if userother.Lo1 != 1 {
-			t := time.Now()
-			t_zero := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location()).Unix()
-			t_to_tomorrow := 24*60*60 - (t.Unix() - t_zero)
-			redis_cli := setting.RedisClient
 			logined := !redis_cli.SetNX(fmt.Sprintf("finish_lo1_id:%d", userID), 0, time.Duration(t_to_tomorrow)*time.Second).Val()
 
 			if !logined {
@@ -121,11 +128,6 @@ func FinishTask(task string, userID uint) error {
 					return err2
 				}
 
-				var user statements.User
-				result := tx.Model(&statements.User{}).Where("id= ?", userID).First(&user)
-				if result.Error != nil {
-					return result.Error
-				}
 				if user.Money >= 0 {
 					user.Money = user.Money + 50
 					err3 := tx.Save(&user).Error
@@ -139,16 +141,7 @@ func FinishTask(task string, userID uint) error {
 		break
 	case "2":
 		//vod
-		var userother statements.UserOther
-		result := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).First(&userother)
-		if result.Error != nil {
-			return result.Error
-		}
 		if userother.Lo2 != 1 {
-			t := time.Now()
-			t_zero := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location()).Unix()
-			t_to_tomorrow := 24*60*60 - (t.Unix() - t_zero)
-			redis_cli := setting.RedisClient
 			voded := !redis_cli.SetNX(fmt.Sprintf("finish_lo2_id:%d", userID), 0, time.Duration(t_to_tomorrow)*time.Second).Val()
 
 			if !voded {
@@ -158,11 +151,6 @@ func FinishTask(task string, userID uint) error {
 					return err2
 				}
 
-				var user statements.User
-				result := tx.Model(&statements.User{}).Where("id= ?", userID).First(&user)
-				if result.Error != nil {
-					return result.Error
-				}
 				if user.Money >= 0 {
 					user.Money = user.Money + 15
 					err3 := tx.Save(&user).Error
@@ -176,16 +164,7 @@ func FinishTask(task string, userID uint) error {
 		break
 	case "3":
 		//healing
-		var userother statements.UserOther
-		result := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).First(&userother)
-		if result.Error != nil {
-			return result.Error
-		}
 		if userother.Lo3 != 1 {
-			t := time.Now()
-			t_zero := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location()).Unix()
-			t_to_tomorrow := 24*60*60 - (t.Unix() - t_zero)
-			redis_cli := setting.RedisClient
 			healed := !redis_cli.SetNX(fmt.Sprintf("finish_lo3_id:%d", userID), 0, time.Duration(t_to_tomorrow)*time.Second).Val()
 
 			if !healed {
@@ -195,11 +174,6 @@ func FinishTask(task string, userID uint) error {
 					return err2
 				}
 
-				var user statements.User
-				result := tx.Model(&statements.User{}).Where("id= ?", userID).First(&user)
-				if result.Error != nil {
-					return result.Error
-				}
 				if user.Money >= 0 {
 					user.Money = user.Money + 20
 					err3 := tx.Save(&user).Error
@@ -213,16 +187,7 @@ func FinishTask(task string, userID uint) error {
 		break
 	case "4":
 		//singHome
-		var userother statements.UserOther
-		result := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).First(&userother)
-		if result.Error != nil {
-			return result.Error
-		}
 		if userother.Lo4 != 1 {
-			t := time.Now()
-			t_zero := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location()).Unix()
-			t_to_tomorrow := 24*60*60 - (t.Unix() - t_zero)
-			redis_cli := setting.RedisClient
 			sang := !redis_cli.SetNX(fmt.Sprintf("finish_lo4_id:%d", userID), 0, time.Duration(t_to_tomorrow)*time.Second).Val()
 
 			if !sang {
@@ -232,11 +197,6 @@ func FinishTask(task string, userID uint) error {
 					return err2
 				}
 
-				var user statements.User
-				result := tx.Model(&statements.User{}).Where("id= ?", userID).First(&user)
-				if result.Error != nil {
-					return result.Error
-				}
 				if user.Money >= 0 {
 					user.Money = user.Money + 20
 					err3 := tx.Save(&user).Error
@@ -250,16 +210,7 @@ func FinishTask(task string, userID uint) error {
 		break
 	case "5":
 		//praise
-		var userother statements.UserOther
-		result := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).First(&userother)
-		if result.Error != nil {
-			return result.Error
-		}
 		if userother.Lo5 != 1 {
-			t := time.Now()
-			t_zero := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location()).Unix()
-			t_to_tomorrow := 24*60*60 - (t.Unix() - t_zero)
-			redis_cli := setting.RedisClient
 			praised := !redis_cli.SetNX(fmt.Sprintf("finish_lo5_id:%d", userID), 0, time.Duration(t_to_tomorrow)*time.Second).Val()
 
 			if !praised {
@@ -269,11 +220,6 @@ func FinishTask(task string, userID uint) error {
 					return err2
 				}
 
-				var user statements.User
-				result := tx.Model(&statements.User{}).Where("id= ?", userID).First(&user)
-				if result.Error != nil {
-					return result.Error
-				}
 				if user.Money >= 0 {
 					user.Money = user.Money + 10
 					err3 := tx.Save(&user).Error
@@ -287,16 +233,7 @@ func FinishTask(task string, userID uint) error {
 		break
 	case "6":
 		//share
-		var userother statements.UserOther
-		result := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).First(&userother)
-		if result.Error != nil {
-			return result.Error
-		}
 		if userother.Lo6 != 1 {
-			t := time.Now()
-			t_zero := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location()).Unix()
-			t_to_tomorrow := 24*60*60 - (t.Unix() - t_zero)
-			redis_cli := setting.RedisClient
 			shared := !redis_cli.SetNX(fmt.Sprintf("finish_lo6_id:%d", userID), 0, time.Duration(t_to_tomorrow)*time.Second).Val()
 
 			if !shared {
@@ -306,11 +243,6 @@ func FinishTask(task string, userID uint) error {
 					return err2
 				}
 
-				var user statements.User
-				result := tx.Model(&statements.User{}).Where("id= ?", userID).First(&user)
-				if result.Error != nil {
-					return result.Error
-				}
 				if user.Money >= 0 {
 					user.Money = user.Money + 10
 					err3 := tx.Save(&user).Error
