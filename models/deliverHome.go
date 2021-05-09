@@ -27,7 +27,7 @@ type AllDeliver struct {
 	Avatar      string `json:"avater"`
 }
 
-func DeliverHome(Type string) ([]AllDeliver, error) {
+func DeliverHome(Type string, myID uint) ([]AllDeliver, error) {
 	var err error
 	//连接mysql
 	db := setting.MysqlConn()
@@ -65,14 +65,14 @@ func DeliverHome(Type string) ([]AllDeliver, error) {
 			Nickname:    UserElse[i].NickName,
 			Avatar:      UserElse[i].Avatar,
 		}
-        responseDeliver[i].Deliverelse.IsPraise,_ = HasPraise(1,uint(deliverHome[i].UserID),uint(deliverHome[i].Id))
+        responseDeliver[i].Deliverelse.IsPraise,_ = HasPraise(1,myID,uint(deliverHome[i].Id))
 	}
 
 	return responseDeliver, err
 }
 
 //发送单个投递详情
-func SingleDeliver(DevId string) ([]AllDeliver, error) {
+func SingleDeliver(DevId string, myID uint) ([]AllDeliver, error) {
 	//连接mysql
 	db := setting.MysqlConn()
 
@@ -102,7 +102,7 @@ func SingleDeliver(DevId string) ([]AllDeliver, error) {
 			Nickname:    SingleElse[i].NickName,
 			Avatar:      SingleElse[i].Avatar,
 		}
-        responseSingle[i].Deliverelse.IsPraise,_ = HasPraise(1,uint(singleDeliver[i].UserID),uint(singleDeliver[i].Id))
+        responseSingle[i].Deliverelse.IsPraise,_ = HasPraise(1,myID,uint(singleDeliver[i].Id))
 	}
 	return responseSingle, err
 }
