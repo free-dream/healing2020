@@ -154,6 +154,7 @@ func GetDeliverRank(userid uint) ([]AllRank, string) {
         // 把是否点赞的项拼上
         for k:=0;k<len(rank);k++ {
             rank[k].IsPraise,_ = HasPraise(1,userid,rank[k].ID)
+            rank[k].Praise = GetPraiseCount("deliver",rank[k].ID)
         }
 		i = i + 0.01
 
