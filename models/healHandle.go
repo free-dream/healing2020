@@ -4,6 +4,7 @@ import (
 	"errors"
 	"strconv"
 	"time"
+    "sync"
 
 	//"fmt"
 
@@ -138,6 +139,9 @@ func CreateRecord(id string, source string, uid uint, isHide int) (string, error
 			return "", err
 		}
 	}
+    
+    FinishTask("3",userId)
+
 	return song.Name, tx.Commit().Error
 }
 
@@ -213,7 +217,41 @@ func AddPraise(userid uint, strId string, types string) (error, PraiseData) {
 
 	err := db.Model(&statements.Praise{}).Create(&praise).Error
 
+    if SyncLock(userid) {
+        FinishTask("5",userid)
+    }
+
 	return err, praiseData
+}
+
+func SyncLock(userid uint) bool {
+    var lck sync.Mutex
+    lck.Lock()
+    client := setting.RedisConn()
+    keyname := "healing2020:PraiseSign:"+strconv.Itoa(int(userid))
+    sign := client.Get(keyname)
+    if sign == nil {
+        client.Set(keyname,"1",0)
+        lck.Unlock()
+        return false
+    }
+    if sign.String() == "1" {
+        client.Set(keyname,"2",0)
+        lck.Unlock()
+        return false
+    }
+    if sign.String() == "2" {
+        client.Set(keyname,"3",0)
+        lck.Unlock()
+        return false
+    }
+    if sign.String() == "3" {
+        client.Del(keyname)
+        lck.Unlock()
+        return true
+    }
+    lck.Unlock()
+    return false
 }
 
 func CreateVod(uid uint, singer string, style string, language string, name string, more string) error {
@@ -232,6 +270,9 @@ func CreateVod(uid uint, singer string, style string, language string, name stri
 	vod.Style = style
 	vod.Language = language
 	err := db.Model(&statements.Vod{}).Create(&vod).Error
+
+    FinishTask("2",uid)
+
 	return err
 }
 
@@ -259,6 +300,9 @@ func GetPraiseCount(table string, id uint) int {
 	case "special":
 		types = "3"
 		break
+    case "comment":
+        types = "4"
+        break
 	}
 
 	count := 0

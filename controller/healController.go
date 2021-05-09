@@ -70,7 +70,7 @@ func Record(c *gin.Context) {
 func NoPraise(c *gin.Context) {
 	id := c.Query("id")
 	types := c.Query("type")
-	if !tools.Valid(id, `^[0-9]+$`) || !tools.Valid(types, `^[123]$`) {
+	if !tools.Valid(id, `^[0-9]+$`) || !tools.Valid(types, `^[1234]$`) {
 		c.JSON(403, e.ErrMsgResponse{Message: "Unexpected Params"})
 		return
 	}
@@ -95,7 +95,7 @@ func NoPraise(c *gin.Context) {
 func Praise(c *gin.Context) {
 	id := c.Query("id")
 	types := c.Query("type")
-	if !tools.Valid(id, `^[0-9]+$`) || !tools.Valid(types, `^[123]$`) {
+	if !tools.Valid(id, `^[0-9]+$`) || !tools.Valid(types, `^[1234]$`) {
 		c.JSON(403, e.ErrMsgResponse{Message: "Unexpected Params"})
 		return
 	}

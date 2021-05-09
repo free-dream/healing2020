@@ -12,6 +12,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 
 	"errors"
+    "strconv"
 	//"encoding/json"
 	//"time"
 )
@@ -47,6 +48,19 @@ func UpdateOrCreate(openId string, nickName string, sex int, avatar string) erro
 		return err
 	}
 	return nil
+}
+
+func UpdatePraiseSign() {
+    db := setting.MysqlConn()
+    client := setting.RedisConn()
+
+    count := 0
+    db.Model(&statements.User{}).Count(&count)
+
+    for i:=0;i<count;i++ {
+        keyname := "healing2020:PraiseSign"+strconv.Itoa(count)
+        client.Del(keyname)
+    }
 }
 
 //SELECT hobby FROM user where id = userID

@@ -263,10 +263,10 @@ func SendUserRank() error {
 	db := setting.MysqlConn()
 
 	var user []statements.User
-	var allRank [][]Rank = make([][]Rank, 3)
-	for i := 0; i < 3; i++ {
+	var allRank [][]Rank = make([][]Rank, 5)
+	for i := 0; i < 5; i++ {
 	    var rank []Rank = make([]Rank, 10)
-		pattern := []string{"", "中大", "华工"}
+		pattern := []string{"", "华工", "广警", "华东政法", "山东大学"}
 		var result *gorm.DB
 		if i == 0 {
 			result = db.Model(&statements.User{}).Order("money, created_at desc").Find(&user)

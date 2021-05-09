@@ -28,6 +28,10 @@ func CronInit() *cron.Cron {
 		models.UpdateRankCount()
 	})
 
+	c.AddFunc("1 0 0 * *", func() {
+		models.UpdatePraiseSign()
+	})
+
 	c.AddFunc("0 */4 * * *", func() {
 		models.SendMainMsg()
 	})
