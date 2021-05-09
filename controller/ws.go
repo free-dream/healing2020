@@ -99,6 +99,36 @@ func MysqltoChan() {
 	}
 }
 
+//持久化存储
+func (wsConn *WsConnection) MsgMysql() {
+	mysqlError := 0
+	for {
+		select {
+		case msg := <-MysqlCreate:
+			message := msgToSMessage(msg)
+			if models.SaveMessage(message) != nil {
+				MysqlCreate <- msg
+				mysqlError += 1
+			} else {
+				mysqlError = 0
+			}
+		case msg := <-MysqlDelete:
+			message := msgToSMessage(msg)
+			if models.DeleteMessage(message) != nil {
+				MysqlDelete <- msg
+				mysqlError += 1
+			} else {
+				mysqlError = 0
+			}
+		}
+		//if try to save or create mant times, close ws
+		if mysqlError > 10 {
+			log.Println("can not connect to the mysql, ws close")
+			wsConn.close()
+		}
+	}
+}
+
 type BroadcastReq struct {
 	Content string `json:"content" binding:"required"`
 	Hash    string `json:"hash" binding:"required"`
@@ -138,8 +168,9 @@ func Broadcast(c *gin.Context) {
 	// 开始广播
 	userCount, err := models.GetUserNum()
 	for i := 1; i <= userCount; i++ {
-		createUserMsgChan(uint(i))
 		msg.ToUserID = uint(i)
+		MysqlCreate <- &msg
+		createUserMsgChan(uint(i))
 		MessageQueue[i] <- &msg
 	}
 	err = models.CreateMailBox(msg.Content)
@@ -299,36 +330,6 @@ func (wsConn *WsConnection) readWs(c *gin.Context) {
 			wsConn.ws.WriteMessage(websocket.TextMessage, []byte("json.unmarshal failed"))
 			log.Println("rawData: " + string(rawData))
 			continue
-		}
-	}
-}
-
-//持久化存储
-func (wsConn *WsConnection) MsgMysql() {
-	mysqlError := 0
-	for {
-		select {
-		case msg := <-MysqlCreate:
-			message := msgToSMessage(msg)
-			if models.SaveMessage(message) != nil {
-				MysqlCreate <- msg
-				mysqlError += 1
-			} else {
-				mysqlError = 0
-			}
-		case msg := <-MysqlDelete:
-			message := msgToSMessage(msg)
-			if models.DeleteMessage(message) != nil {
-				MysqlDelete <- msg
-				mysqlError += 1
-			} else {
-				mysqlError = 0
-			}
-		}
-		//if try to save or create mant times, close ws
-		if mysqlError > 10 {
-			log.Println("can not connect to the mysql, ws close")
-			wsConn.close()
 		}
 	}
 }
