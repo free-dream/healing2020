@@ -40,7 +40,7 @@ type ResultResp struct {
 	Err       error `json:"err"`
 }
 
-func GetRecord(id string) ResultResp {
+func GetRecord(id string, myID uint) ResultResp {
 	intId, _ := strconv.Atoi(id)
 	vodId := uint(intId)
 
@@ -97,7 +97,7 @@ func GetRecord(id string) ResultResp {
 		recordResp[i].User = userRows.NickName
 		recordResp[i].SongAvatar = userRows.Avatar
 
-        recordResp[i].IsPraise,_ = HasPraise(1,songRows.UserId,songRows.ID)
+        recordResp[i].IsPraise,_ = HasPraise(1,myID,songRows.ID)
 		i++
 	}
 	resultResp.AllSongs = recordResp

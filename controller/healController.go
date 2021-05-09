@@ -47,7 +47,7 @@ func Record(c *gin.Context) {
 		c.JSON(403, e.ErrMsgResponse{Message: "Unexpected params"})
 		return
 	}
-	data := models.GetRecord(id)
+	data := models.GetRecord(id, tools.GetUser(c).ID)
 	if data.Err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: "Fail to get record"})
 		return
