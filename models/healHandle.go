@@ -214,7 +214,7 @@ func AddPraise(userid uint, strId string, types string) (error, PraiseData) {
 	var praiseData PraiseData
 	praiseData.Type = types
 	praiseData.MyID = userid
-    praiseData.TargetID = GetTargetId(types,id)
+    praiseData.TargetID = GetTargetId(typesInt,id)
 
 	var praise statements.Praise
 	praise.UserId = userid
@@ -231,6 +231,7 @@ func AddPraise(userid uint, strId string, types string) (error, PraiseData) {
 }
 
 func GetTargetId(types int,id uint) uint {
+    db := setting.MysqlConn()
     var targetId uint
     if types == 1 {
         db.Model(&statements.Deliver{}).Select("user_id").Where("id = ?",id).First(&targetId)
