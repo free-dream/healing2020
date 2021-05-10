@@ -135,7 +135,7 @@ type RecordParams struct {
 	Id       string   `json:"id" binding:"required"`
 	Name     string   `json:"name" binding:"required"`
 	ServerID []string `json:"server_id" binding:"required"`
-	IsHide   int      `json:"isHide binding:"required`
+	IsHide   int      `json:"isHide" binding:"required"`
 }
 
 // @Title AddRecord

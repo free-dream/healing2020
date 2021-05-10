@@ -33,6 +33,7 @@ type ResultResp struct {
 	Name      string    `json:"name"`
 	VodUser   string    `json:"vodUser"`
 	VodAvatar string    `json:"vodAvatar"`
+    VodUserId uint      `json:"vodUserId"`
 	Style     string    `json:"style"`
 	Language  string    `json:"language"`
 	AllSongs  []RecordResp
@@ -66,8 +67,9 @@ func GetRecord(id string, myID uint) ResultResp {
 
 	userId := vod.UserId
 	var user statements.User
-	db.Model(&statements.User{}).Select("sex, avatar,nick_name").Where("id =?", userId).First(&user)
+	db.Model(&statements.User{}).Select("id, sex, avatar,nick_name").Where("id =?", userId).First(&user)
 
+	resultResp.VodUserId = user.ID
 	resultResp.VodUser = user.NickName
 	resultResp.VodAvatar = user.Avatar
 
@@ -212,6 +214,7 @@ func AddPraise(userid uint, strId string, types string) (error, PraiseData) {
 	var praiseData PraiseData
 	praiseData.Type = types
 	praiseData.MyID = userid
+    praiseData.TargetID = GetTargetId(types,id)
 
 	var praise statements.Praise
 	praise.UserId = userid
@@ -225,6 +228,23 @@ func AddPraise(userid uint, strId string, types string) (error, PraiseData) {
     }
 
 	return err, praiseData
+}
+
+func GetTargetId(types int,id uint) uint {
+    var targetId uint
+    if types == 1 {
+        db.Model(&statements.Deliver{}).Select("user_id").Where("id = ?",id).First(&targetId)
+        return targetId
+    }
+    if types == 2 {
+        db.Model(&statements.Song{}).Select("user_id").Where("id = ?",id).First(&targetId)
+        return targetId
+    }
+    if types == 1 {
+        db.Model(&statements.Special{}).Select("user_id").Where("id = ?",id).First(&targetId)
+        return targetId
+    }
+    return 0
 }
 
 func SyncLock(userid uint) bool {
