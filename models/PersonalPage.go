@@ -18,7 +18,7 @@ type RequestSongs struct { //点歌
 	HideName  int       `json:"hidename"`
 }
 type Songs struct { //唱歌
-	ID        uint      `json:"id" gorm:"column:vod_id"`
+	ID        uint      `json:"id"`
 	Name      string    `json:"song"`
 	CreatedAt time.Time `json:"time"`
 	From      string    `json:"from"`
@@ -70,6 +70,23 @@ func handleDeliver(deliver []statements.Deliver) []statements.Deliver {
 }
 
 //ResponseSongs使用
+//将select到的song[]信息代入一个[]Songs结构
+func songToSongs(song []statements.Song) []Songs {
+	var s []Songs
+	for _, value := range song {
+		s = append(s, Songs{
+			ID:        value.VodId,
+			Name:      value.Name,
+			CreatedAt: value.CreatedAt,
+			From:      "治愈",
+			Praise:    GetPraiseCount("song", value.ID),
+			IsHide:    value.IsHide,
+		})
+	}
+	return s
+}
+
+//ResponseSongs使用
 //将select到的deliver[]信息代入一个[]Songs结构
 func deliverToSongs(deliver []statements.Deliver) []Songs {
 	var s []Songs
@@ -79,6 +96,7 @@ func deliverToSongs(deliver []statements.Deliver) []Songs {
 			Name:      value.TextField,
 			CreatedAt: value.CreatedAt,
 			From:      "投递箱",
+			Praise:    GetPraiseCount("deliver", value.ID),
 		})
 	}
 	return s
@@ -94,6 +112,7 @@ func specialToSongs(special []statements.Special) []Songs {
 			Name:      value.Song,
 			CreatedAt: value.CreatedAt,
 			From:      "歌房",
+			Praise:    GetPraiseCount("special", value.ID),
 		})
 	}
 	return s
@@ -107,15 +126,15 @@ func ResponseSongs(userID uint, myID uint) ([]Songs, error) {
 	db := setting.MysqlConn()
 
 	//获取唱歌信息
-	var singSongs []Songs
-	err = db.Table("song").Select("vod_id, name, created_at, is_hide").Where("user_id=?", userID).Scan(&singSongs).Error
+	var song []statements.Song
+	err = db.Select("id, vod_id, name, created_at, is_hide").Where("user_id=?", userID).Scan(&song).Error
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		return nil, err
 	}
 
 	//获取歌房专题歌曲信息
 	var special []statements.Special
-	err = db.Select("subject_id, song, created_at").Where("user_id=?", userID).Find(&special).Error
+	err = db.Select("id, subject_id, song, created_at").Where("user_id=?", userID).Find(&special).Error
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		return nil, err
 	}
@@ -128,13 +147,11 @@ func ResponseSongs(userID uint, myID uint) ([]Songs, error) {
 	}
 
 	//处理不同表select下来的信息, 转换为Songs类型
-	for key := range singSongs {
-		singSongs[key].From = "治愈"
-	}
+	songSongs := songToSongs(song)
 	specialSongs := specialToSongs(special)
 	deliverSongs := deliverToSongs(handleDeliver(deliver))
 	//合并数据
-	allSongs := append(append(singSongs, specialSongs...), deliverSongs...)
+	allSongs := append(append(songSongs, specialSongs...), deliverSongs...)
 	for key, value := range allSongs {
 		switch value.From {
 		case "投递箱":
