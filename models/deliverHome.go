@@ -57,7 +57,7 @@ func DeliverHome(pageStr string, Type string, myID uint) ([]AllDeliver, error) {
 	UserElse := make([]statements.User, len(deliverHome))
 	for i := 0; i < len(deliverHome); i++ {
 		err = db.Select("nick_name, avatar").Where("id = ?", deliverHome[i].UserID).Find(&UserElse[i]).Error
-		log.Println(deliverHome[i].UserID)
+		// log.Println(deliverHome[i].UserID)
 		if err != nil {
 			log.Println(err)
 			return nil, err
