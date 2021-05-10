@@ -26,6 +26,13 @@ import (
 var store redis.Store
 
 func InitRouter() *gin.Engine {
+	var test_prefix string
+
+	if tools.IsDebug() {
+		test_prefix = "/test"
+	} else {
+		test_prefix = ""
+	}
 	r := gin.Default()
 
 	f, _ := os.Create(tools.GetConfig("log", "location"))
@@ -46,12 +53,12 @@ func InitRouter() *gin.Engine {
 		r.Use(middleware.Cors())
 	}
 
-	r.GET("/wx/jump2wechat", auth.JumpToWechat)
-	r.GET("/wx/login", auth.DisposableLogin)
-	r.POST("/wx/oauth/*redirect", auth.WechatOAuth)
+	r.GET("/test/wx/jump2wechat", auth.JumpToWechat)
+	r.GET("/test/wx/login", auth.DisposableLogin)
+	r.POST("/test/wx/oauth/*redirect", auth.WechatOAuth)
 
 	//开发时按群组分类，并记得按swagger格式注释
-	api := r.Group("/api")
+	api := r.Group(test_prefix + "/api")
 	api.Use(middleware.IdentityCheck())
 
 	//qiniuToken
@@ -135,7 +142,9 @@ func InitRouter() *gin.Engine {
 	//god view
 
 	//login
-	//r.GET("/auth/fake/:id", auth.FakeLogin)
+	if tools.IsDebug() {
+		r.GET("/test/auth/fake/:id", auth.FakeLogin)
+	}
 
 	return r
 }

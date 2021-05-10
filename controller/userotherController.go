@@ -56,6 +56,7 @@ func GetRemainNum(c *gin.Context) {
 	}
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
+		return
 	} else {
 		c.JSON(200, responseInf)
 	}

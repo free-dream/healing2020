@@ -129,7 +129,12 @@ func FakeLogin(c *gin.Context) {
 
 func Jump(c *gin.Context) {
 	redirect := c.Query("redirect")
-	rawUrl := "https://healing2020.100steps.top/auth/login?redirect=" + redirect
+	var rawUrl string
+	if tools.IsDebug() {
+		rawUrl = "https://healing2020.100steps.top/test/auth/login?redirect=" + redirect
+	} else {
+		rawUrl = "https://healing2020.100steps.top/auth/login?redirect=" + redirect
+	}
 	redirectUrl := base64.StdEncoding.EncodeToString([]byte(rawUrl))
 	apiv3Url := "https://apiv3.100steps.top/api/bbtwoa/oauth/" + redirectUrl
 
@@ -142,7 +147,12 @@ func Jump(c *gin.Context) {
 // 微信授权起点在这个接口，这里会重定向到微信服务器
 func JumpToWechat(ctx *gin.Context) {
 	urlOfApiv3 := "https://apiv3.100steps.top"
-	urlOfOAuth := "https://healing2020.100steps.top/wx/oauth/" + url.QueryEscape(url.QueryEscape(ctx.Query("redirect")))
+	var urlOfOAuth string
+	if tools.IsDebug() {
+		urlOfOAuth = "https://healing2020.100steps.top/test/wx/oauth/" + url.QueryEscape(url.QueryEscape(ctx.Query("redirect")))
+	} else {
+		urlOfOAuth = "https://healing2020.100steps.top/wx/oauth/" + url.QueryEscape(url.QueryEscape(ctx.Query("redirect")))
+	}
 	appid := "wx293bc6f4ee88d87d"
 	// todo: redirect
 	url2b64 := base64.StdEncoding.EncodeToString([]byte(urlOfOAuth))
@@ -163,13 +173,20 @@ type WechatUser struct {
 func WechatOAuth(ctx *gin.Context) {
 	body := ctx.PostForm("body")
 	user := &WechatUser{}
-	json.Unmarshal([]byte(body), user)
+	err := json.Unmarshal([]byte(body), user)
+	if err != nil {
+		ctx.JSON(500, e.ErrMsgResponse{Message: err.Error()})
+	}
 	if user.OpenID == "" {
 		ctx.JSON(403, e.ErrMsgResponse{Message: "decoding userdata failed"})
 		return
 	}
 	loginToken[user.OpenID] = body
-	ctx.String(200, fmt.Sprintf("https://healing2020.100steps.top/wx/login?token=%s&redirect=%s", user.OpenID, ctx.Param("redirect")[1:]))
+	if tools.IsDebug() {
+		ctx.String(200, fmt.Sprintf("https://healing2020.100steps.top/test/wx/login?token=%s&redirect=%s", user.OpenID, ctx.Param("redirect")[1:]))
+	} else {
+		ctx.String(200, fmt.Sprintf("https://healing2020.100steps.top/wx/login?token=%s&redirect=%s", user.OpenID, ctx.Param("redirect")[1:]))
+	}
 }
 
 // apiv3通过一次性登陆地址重定向到此处，完成登录流程
@@ -216,7 +233,11 @@ func DisposableLogin(ctx *gin.Context) {
 
 	redirectUrl := ctx.Query("redirect")
 	if redirectUrl == "" {
-		ctx.Redirect(302, "https://healing2020.100steps.top")
+		if tools.IsDebug() {
+			ctx.Redirect(302, "https://healing2020.100steps.top/testfront/")
+		} else {
+			ctx.Redirect(302, "https://healing2020.100steps.top")
+		}
 	} else {
 		ctx.Redirect(302, redirectUrl)
 	}

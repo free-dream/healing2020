@@ -157,7 +157,7 @@ func LotteryDraw(userID uint, bd []int, bdstr string) (GetPrize, error) {
 				responseLottery = GetPrize{
 					Id:    5,
 					Name:  "个人页背景",
-					Photo: "444.jpg",
+					Photo: "static/prize5.jpeg",
 				}
 				//存入我的奖品
 				var lot statements.Lottery

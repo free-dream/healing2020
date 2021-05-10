@@ -122,6 +122,7 @@ func responsePage(c *gin.Context, user statements.User, my_others string) {
 			}
 		}
 		c.JSON(200, OthersPersonalPage{
+			UserID:     page.UserID,
 			NickName:   page.NickName,
 			Campus:     page.Campus,
 			More:       page.More,

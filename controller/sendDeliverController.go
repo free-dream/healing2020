@@ -3,12 +3,12 @@ package controller
 import (
 	"healing2020/models"
 	"healing2020/pkg/e"
+	"healing2020/pkg/tools"
 
 	"github.com/gin-gonic/gin"
 )
 
 type DeliverParams struct {
-	UserId    string `json:"userId" binding:"required"`
 	TextField   string `json:"textField"`
 	Photo     string `json:"photo"`
 	Record    string `json:"record"`
@@ -16,11 +16,13 @@ type DeliverParams struct {
 
 func PostDeliver(c *gin.Context) {
 	var params DeliverParams
+
+	userid := tools.GetUser(c).ID
 	if err := c.ShouldBind(&params); err != nil {
 		c.JSON(400, e.ErrMsgResponse{Message: "Uncomplete params"})
 		return
 	}
-	err := models.PostDeliver(params.UserId, params.TextField, params.Photo, params.Record)
+	err := models.PostDeliver(userid, params.TextField, params.Photo, params.Record)
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: "Fail to add deliver"})
 		return
