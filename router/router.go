@@ -135,7 +135,9 @@ func InitRouter() *gin.Engine {
 	//god view
 
 	//login
-	//r.GET("/auth/fake/:id", auth.FakeLogin)
+    if tools.IsDebug() {
+	    r.GET("/auth/fake/:id", auth.FakeLogin)
+    }
 
 	return r
 }
