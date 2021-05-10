@@ -64,7 +64,7 @@ func handleDeliver(deliver []statements.Deliver) []statements.Deliver {
 		if len(splitDeliver) <= 5 {
 			continue
 		}
-		deliver[key].TextField = strings.Join(splitDeliver[:5], "")
+		deliver[key].TextField = strings.Join(splitDeliver[:5], "") + "..."
 	}
 	return deliver
 }
