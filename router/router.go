@@ -53,9 +53,9 @@ func InitRouter() *gin.Engine {
 		r.Use(middleware.Cors())
 	}
 
-	r.GET("/test/wx/jump2wechat", auth.JumpToWechat)
-	r.GET("/test/wx/login", auth.DisposableLogin)
-	r.POST("/test/wx/oauth/*redirect", auth.WechatOAuth)
+	r.GET(test_prefix+"/wx/jump2wechat", auth.JumpToWechat)
+	r.GET(test_prefix+"/wx/login", auth.DisposableLogin)
+	r.POST(test_prefix+"/wx/oauth/*redirect", auth.WechatOAuth)
 
 	//开发时按群组分类，并记得按swagger格式注释
 	api := r.Group(test_prefix + "/api")
