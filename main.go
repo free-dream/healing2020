@@ -1,11 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"healing2020/controller"
 	"healing2020/models"
 	"healing2020/pkg/setting"
 	"healing2020/pkg/tools"
 	"healing2020/router"
+	"io/ioutil"
 	"log"
 	"syscall"
 
@@ -44,7 +46,9 @@ func main() {
 	routers := router.InitRouter()
 	server := endless.NewServer(port, routers)
 	server.BeforeBegin = func(add string) {
-		log.Printf("Actual pid is %d", syscall.Getpid())
+		pid := syscall.Getpid()
+		log.Printf("Actual pid is %d", pid)
+		ioutil.WriteFile("pid", []byte(fmt.Sprintf("%d", pid)), 0777)
 	}
 
 	if err := server.ListenAndServe(); err != nil {
