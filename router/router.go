@@ -26,6 +26,13 @@ import (
 var store redis.Store
 
 func InitRouter() *gin.Engine {
+	var test_prefix string
+
+	if tools.IsDebug() {
+		test_prefix = "/test"
+	} else {
+		test_prefix = ""
+	}
 	r := gin.Default()
 
 	f, _ := os.Create(tools.GetConfig("log", "location"))
@@ -40,18 +47,10 @@ func InitRouter() *gin.Engine {
 	if err != nil {
 		log.Panicln(err.Error())
 	}
-	r.Use(sessions.Sessions("healing2020_session", store))
+	r.Use(sessions.Sessions("healing2020_session"+test_prefix, store))
 
 	if tools.IsDebug() {
 		r.Use(middleware.Cors())
-	}
-
-	var test_prefix string
-
-	if tools.IsDebug() {
-		test_prefix = "/test"
-	} else {
-		test_prefix = ""
 	}
 
 	r.GET("/test/wx/jump2wechat", auth.JumpToWechat)
@@ -143,9 +142,9 @@ func InitRouter() *gin.Engine {
 	//god view
 
 	//login
-    if tools.IsDebug() {
-	    r.GET("/test/auth/fake/:id", auth.FakeLogin)
-    }
+	if tools.IsDebug() {
+		r.GET("/test/auth/fake/:id", auth.FakeLogin)
+	}
 
 	return r
 }
