@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"healing2020/pkg/e"
+	"healing2020/pkg/tools"
 )
 
 func IdentityCheck() gin.HandlerFunc {
@@ -35,6 +36,9 @@ func IdentityCheck() gin.HandlerFunc {
 }
 
 func startWith(rUrl string, uri string) bool {
+	if tools.IsDebug() {
+		uri = "/test" + uri
+	}
 	if len(uri) > len(rUrl) {
 		return false
 	}
