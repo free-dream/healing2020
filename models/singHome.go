@@ -38,8 +38,9 @@ type UserMessage struct {
 	NilId string `json:"id"`
 }
 
-func SingHome(belong string, pageStr string, subjectID uint, User_id string) (AllSpecial, error) {
+func SingHome(belong string, pageStr string, pageStr2 string, subjectID uint, User_id string) (AllSpecial, error) {
 	page, _ := strconv.Atoi(pageStr)
+	page2, _:= strconv.Atoi(pageStr2)
 	belongs, _ := strconv.Atoi(belong)
 	int2Id, _ := strconv.Atoi(User_id)
 	UserID := uint(int2Id)
@@ -53,8 +54,6 @@ func SingHome(belong string, pageStr string, subjectID uint, User_id string) (Al
 	err = db.Table("comment").Where("type = 1 and song_id = ?", subjectID).Count(&count).Error
 
 	var Hot []UserMessage
-	// HotElse := make([]statements.User, len(Hot))
-	// responseHot := make([]UserMessage, len(Hot))
 	var responseHot []UserMessage
 
 	//歌房进入
@@ -132,21 +131,21 @@ func SingHome(belong string, pageStr string, subjectID uint, User_id string) (Al
 		responseSing[i].IsPraise, _ = HasPraise(3, SingHome[i].UserID, uint(SingHome[i].Id))
 	}
 	var allSpecial AllSpecial
-	pageResponSing, err := Pagein(page, responseSing)
-
+	pageResponSing, err := PageinSong(page, responseSing)
+	pageResponHot, err := PageinHot(page2, responseHot)
 	allSpecial = AllSpecial{
 		ID:        singSubject.ID,
 		Name:      singSubject.Name,
 		Intro:     singSubject.Intro,
 		MesNumber: count,
-		HotSong:   responseHot,
+		HotSong:   pageResponHot,
 		SingSong:  pageResponSing,
 	}
 
 	return allSpecial, err
 }
 
-func Pagein(page int, data []UserMessage) ([]UserMessage, error) {
+func PageinSong(page int, data []UserMessage) ([]UserMessage, error) {
 	if (page-1)*20 > len(data) {
 		return nil, errors.New("page out of range")
 	}
@@ -157,6 +156,21 @@ func Pagein(page int, data []UserMessage) ([]UserMessage, error) {
 			break
 		}
 		result[i] = data[(page-1)*20+i]
+	}
+	return result, nil
+}
+
+func PageinHot(page int, data []UserMessage) ([]UserMessage, error) {
+	if (page-1)*10 > len(data) {
+		return nil, errors.New("page out of range")
+	}
+
+	var result []UserMessage = make([]UserMessage, 10)
+	for i := 0; i < 10; i++ {
+		if (page-1)*10+i >= len(data) {
+			break
+		}
+		result[i] = data[(page-1)*10+i]
 	}
 	return result, nil
 }

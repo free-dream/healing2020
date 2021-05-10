@@ -11,6 +11,7 @@ import (
 func SingHome(c *gin.Context) {
 	subject := c.Query("subject")
 	pageStr := c.Query("pageStr")
+	pageStr2 := c.Query("pageStr2")
 	belong := c.Query("belong")
 	User_id := c.Query("userid")
 
@@ -20,7 +21,7 @@ func SingHome(c *gin.Context) {
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
 		return
 	}
-	sub, _ := models.SingHome(belong, pageStr, subjectID, User_id)
+	sub, _ := models.SingHome(belong, pageStr, pageStr2, subjectID, User_id)
 	c.JSON(200, sub)
 }
 
