@@ -245,7 +245,8 @@ func GetSongRank(userid uint) ([]AllRank, string) {
 
         // 把是否点赞的项拼上
         for k:=0;k<len(rank);k++ {
-            rank[k].IsPraise,_ = HasPraise(1,userid,rank[k].ID)
+            rank[k].IsPraise,_ = HasPraise(2,userid,rank[k].ID)
+            rank[k].Praise = GetPraiseCount("song",rank[k].ID)
         }
 		i = i + 0.01
 
