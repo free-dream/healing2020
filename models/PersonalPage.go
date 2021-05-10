@@ -57,19 +57,6 @@ func ResponseVod(userID uint) ([]RequestSongs, error) {
 }
 
 //ResponseSongs使用
-//对deliver的返回进行处理，将deliver的textfield截至5个字
-func handleDeliver(deliver []statements.Deliver) []statements.Deliver {
-	for key := range deliver {
-		splitDeliver := strings.Split(deliver[key].TextField, "")
-		if len(splitDeliver) <= 5 {
-			continue
-		}
-		deliver[key].TextField = strings.Join(splitDeliver[:5], "") + "..."
-	}
-	return deliver
-}
-
-//ResponseSongs使用
 //将select到的song[]信息代入一个[]Songs结构
 func songToSongs(song []statements.Song) []Songs {
 	var s []Songs
@@ -90,7 +77,12 @@ func songToSongs(song []statements.Song) []Songs {
 //将select到的deliver[]信息代入一个[]Songs结构
 func deliverToSongs(deliver []statements.Deliver) []Songs {
 	var s []Songs
+	//截取deliver的textfield
 	for _, value := range deliver {
+		splitDeliver := strings.Split(value.TextField, "")
+		if len(splitDeliver) > 5 {
+			value.TextField = strings.Join(splitDeliver[:5], "") + "..."
+		}
 		s = append(s, Songs{
 			ID:        value.ID,
 			Name:      value.TextField,
@@ -149,7 +141,7 @@ func ResponseSongs(userID uint, myID uint) ([]Songs, error) {
 	//处理不同表select下来的信息, 转换为Songs类型
 	songSongs := songToSongs(song)
 	specialSongs := specialToSongs(special)
-	deliverSongs := deliverToSongs(handleDeliver(deliver))
+	deliverSongs := deliverToSongs(deliver)
 	//合并数据
 	allSongs := append(append(songSongs, specialSongs...), deliverSongs...)
 	for key, value := range allSongs {

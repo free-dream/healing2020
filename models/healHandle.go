@@ -3,6 +3,7 @@ package models
 import (
 	"errors"
 	"strconv"
+	"strings"
 	"time"
 
 	"fmt"
@@ -216,6 +217,20 @@ func AddPraise(userid uint, strId string, types string) (error, PraiseData) {
 	praiseData.Type = types
 	praiseData.MyID = userid
 	praiseData.TargetID = GetTargetId(typesInt, id)
+	if types == "1" {
+		var song statements.Song
+		db.Select("name").Where("id = ?", id).First(&song)
+		praiseData.Msg = song.Name
+	} else if types == "2" {
+		var deliver statements.Deliver
+		db.Select("text_field").Where("id = ?", id).First(&deliver)
+		//split deliver to 8
+		splitDeliver := strings.Split(deliver.TextField, "")
+		if len(splitDeliver) > 8 {
+			deliver.TextField = strings.Join(splitDeliver[:8], "") + "..."
+		}
+		praiseData.Msg = deliver.TextField
+	}
 
 	var praise statements.Praise
 	praise.UserId = userid
@@ -227,7 +242,7 @@ func AddPraise(userid uint, strId string, types string) (error, PraiseData) {
 	//if SyncLock(userid) {
 	//	FinishTask("5", userid)
 	//}
-    SyncLock(userid)
+	SyncLock(userid)
 
 	return err, praiseData
 }
@@ -256,10 +271,10 @@ func GetTargetId(types int, id uint) uint {
 
 func SyncLock(userid uint) {
 	client := setting.RedisConn()
-    num := client.Incr(fmt.Sprintf("healing2020:user:%d:praised",userid)).Val()
-    if num == 3 {
-        FinishTask("5",userid)
-    }
+	num := client.Incr(fmt.Sprintf("healing2020:user:%d:praised", userid)).Val()
+	if num == 3 {
+		FinishTask("5", userid)
+	}
 }
 
 func CreateVod(uid uint, singer string, style string, language string, name string, more string) error {
