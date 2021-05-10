@@ -16,11 +16,11 @@ func SingHome(c *gin.Context) {
 
 	userIDInt, err := strconv.Atoi(subject)
 	subjectID := uint(userIDInt)
-	sub, err := models.SingHome(belong, pageStr, subjectID, User_id)
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
 		return
 	}
+	sub, _ := models.SingHome(belong, pageStr, subjectID, User_id)
 	c.JSON(200, sub)
 }
 

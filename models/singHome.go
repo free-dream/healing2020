@@ -131,9 +131,10 @@ func SingHome(belong string, pageStr string, subjectID uint, User_id string) (Al
 		}
 		responseSing[i].IsPraise, _ = HasPraise(3, SingHome[i].UserID, uint(SingHome[i].Id))
 	}
+	var allSpecial AllSpecial
 	pageResponSing, err := Pagein(page, responseSing)
 
-	allSpecial := AllSpecial{
+	allSpecial = AllSpecial{
 		ID:        singSubject.ID,
 		Name:      singSubject.Name,
 		Intro:     singSubject.Intro,
