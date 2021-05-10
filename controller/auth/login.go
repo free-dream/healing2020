@@ -174,7 +174,11 @@ func WechatOAuth(ctx *gin.Context) {
 		return
 	}
 	loginToken[user.OpenID] = body
-	ctx.String(200, fmt.Sprintf("https://healing2020.100steps.top/wx/login?token=%s&redirect=%s", user.OpenID, ctx.Param("redirect")[1:]))
+	if tools.IsDebug() {
+		ctx.String(200, fmt.Sprintf("https://healing2020.100steps.top/test/wx/login?token=%s&redirect=%s", user.OpenID, ctx.Param("redirect")[1:]))
+	} else {
+		ctx.String(200, fmt.Sprintf("https://healing2020.100steps.top/wx/login?token=%s&redirect=%s", user.OpenID, ctx.Param("redirect")[1:]))
+	}
 }
 
 // apiv3通过一次性登陆地址重定向到此处，完成登录流程
