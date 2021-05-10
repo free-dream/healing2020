@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"healing2020/models"
 	"healing2020/pkg/e"
 	"healing2020/pkg/tools"
@@ -55,7 +54,6 @@ func Register(c *gin.Context) {
 	}
 	err := models.UpdateUser(c, userMap, userID)
 	if err != nil {
-		fmt.Println(err)
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.ERROR_USER_CREATE_FAIL)})
 		return
 	}
@@ -186,6 +184,7 @@ func NewHobby(c *gin.Context) {
 	err := models.UpdateUser(c, map[string]interface{}{"Hobby": hobby}, userID)
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.ERROR_USER_SAVE_FAIL)})
+		return
 	} else {
 		c.JSON(200, e.ErrMsgResponse{Message: e.GetMsg(e.SUCCESS)})
 	}
@@ -205,6 +204,7 @@ func GetHobby(c *gin.Context) {
 	t := Tag{TagInf: strings.Split(hobby, ",")}
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
+		return
 	} else {
 		c.JSON(200, t)
 	}
@@ -229,6 +229,7 @@ func PostPostbox(c *gin.Context) {
 	err := models.UpdateUser(c, map[string]interface{}{"Postbox": jsonInf.Postbox}, userID)
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: "更新邮箱失败！"})
+		return
 	} else {
 		c.JSON(200, e.ErrMsgResponse{Message: e.GetMsg(e.SUCCESS)})
 	}

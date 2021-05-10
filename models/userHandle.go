@@ -71,7 +71,7 @@ func UpdatePraiseSign() {
 	db.Model(&statements.User{}).Count(&count)
 
 	for i := 0; i < count; i++ {
-        keyname := "healing2020:user:" + strconv.Itoa(count)+":praised"
+		keyname := "healing2020:user:" + strconv.Itoa(count) + ":praised"
 		client.Del(keyname)
 	}
 }
@@ -108,16 +108,12 @@ func UpdateUser(c *gin.Context, userMap map[string]interface{}, userID uint) err
 	//连接mysql
 	db := setting.MysqlConn()
 
-	//开启事务
-	tx := db.Begin()
-	err := tx.Model(&statements.User{}).Where("id=?", userID).Update(userMap).Error
+	err := db.Model(&statements.User{}).Where("id=?", userID).Update(userMap).Error
 	if err != nil {
-		tx.Rollback()
 		return err
 	}
-	com := tx.Commit()
 	updateSession(c, db)
-	return com.Error
+	return nil
 }
 
 //获取用户数
