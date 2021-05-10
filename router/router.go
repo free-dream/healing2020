@@ -47,7 +47,7 @@ func InitRouter() *gin.Engine {
 	if err != nil {
 		log.Panicln(err.Error())
 	}
-	r.Use(sessions.Sessions("healing2020_session"+test_prefix, store))
+	r.Use(sessions.Sessions("healing2020_session", store))
 
 	if tools.IsDebug() {
 		r.Use(middleware.Cors())
