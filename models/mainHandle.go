@@ -191,6 +191,7 @@ func LoadVodMsg(sort string, key string,userTags string) []SongMsg {
 		vodList[i].Avatar = user.Avatar
 
         if vod.HideName == 1 {
+            vodList[i].UserId = 0
             vodList[i].User = "匿名用户"
             vodList[i].Avatar = tools.GetAvatarUrl(user.Sex)
         }
