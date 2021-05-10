@@ -117,9 +117,9 @@ func SendPraiseMsg(myID uint, targetID uint, myName string, types string, mainMs
 	}
 	content := myName + "点赞了您的" + types + mainMsg
 	msg := Message{
-		Type:       3,
+		Type:       1,
 		Time:       "",
-		FromUserID: myID,
+		FromUserID: 0,
 		ToUserID:   targetID,
 		Content:    content,
 		URL:        "",
@@ -135,7 +135,7 @@ type RecordParams struct {
 	Id       string   `json:"id" binding:"required"`
 	Name     string   `json:"name" binding:"required"`
 	ServerID []string `json:"server_id" binding:"required"`
-    IsHide   int      `json:"isHide binding:"required`
+	IsHide   int      `json:"isHide binding:"required`
 }
 
 // @Title AddRecord
@@ -156,10 +156,10 @@ func RecordHeal(c *gin.Context) {
 		c.JSON(400, e.ErrMsgResponse{Message: "Uncomplete params"})
 		return
 	}
-    if !tools.Valid(strconv.Itoa(params.IsHide),`^[01]$`) {
+	if !tools.Valid(strconv.Itoa(params.IsHide), `^[01]$`) {
 		c.JSON(400, e.ErrMsgResponse{Message: "Unexpected input"})
 		return
-    }
+	}
 	url, err := convertMediaIdArrToQiniuUrl(params.ServerID)
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: err.Error()})
