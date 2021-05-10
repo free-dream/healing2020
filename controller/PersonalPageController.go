@@ -15,6 +15,7 @@ import (
 )
 
 type MyPersonalPage struct {
+	UserID         uint                  `json:"user_id"`
 	NickName       string                `json:"name"`
 	Campus         string                `json:"school"`
 	More           string                `json:"more"`
@@ -34,12 +35,12 @@ type MyPersonalPage struct {
 }
 
 type OthersPersonalPage struct {
+	UserID     uint                  `json:"user_id"`
 	NickName   string                `json:"name"`
 	Campus     string                `json:"school"`
 	More       string                `json:"more"`
 	Avatar     string                `json:"avatar"`
 	Background int                   `json:"background"`
-	IsPraised  int                   `json:"ispraised"`
 	Vod        []models.RequestSongs `json:"requestSongs"`
 	Songs      []models.Songs        `json:"Songs"`
 	Praise     []models.Admire       `json:"admire"`
@@ -61,6 +62,7 @@ func responsePage(c *gin.Context, user statements.User, my_others string) {
 	myID := tools.GetUser(c).ID
 	//初始化返回数据
 	page := MyPersonalPage{
+		UserID:   user.ID,
 		NickName: user.NickName,
 		Campus:   user.Campus,
 		Sex:      user.Sex,
@@ -109,6 +111,16 @@ func responsePage(c *gin.Context, user statements.User, my_others string) {
 	if my_others == "my" {
 		c.JSON(200, page)
 	} else if my_others == "others" {
+		for key, value := range page.Songs {
+			if value.IsHide == 1 {
+				page.Songs = append(page.Songs[:key], page.Songs[(key+1):]...)
+			}
+		}
+		for key, value := range page.Vod {
+			if value.HideName == 1 {
+				page.Vod = append(page.Vod[:key], page.Vod[(key+1):]...)
+			}
+		}
 		c.JSON(200, OthersPersonalPage{
 			NickName:   page.NickName,
 			Campus:     page.Campus,

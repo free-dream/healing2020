@@ -4,9 +4,8 @@ import (
 	"errors"
 	"strconv"
 	"time"
-    "sync"
 
-	//"fmt"
+	"fmt"
 
 	"healing2020/models/statements"
 	"healing2020/pkg/setting"
@@ -25,7 +24,7 @@ type RecordResp struct {
 	User       string `json:"user"`
 	Source     string `json:"source"`
 	SongAvatar string `json:"songAvatar"`
-    IsPraise   bool   `json:"isPraise"`
+	IsPraise   bool   `json:"isPraise"`
 }
 type ResultResp struct {
 	VodId     uint      `json:"id"`
@@ -35,6 +34,7 @@ type ResultResp struct {
 	Name      string    `json:"name"`
 	VodUser   string    `json:"vodUser"`
 	VodAvatar string    `json:"vodAvatar"`
+	VodUserId uint      `json:"vodUserId"`
 	Style     string    `json:"style"`
 	Language  string    `json:"language"`
 	AllSongs  []RecordResp
@@ -68,10 +68,16 @@ func GetRecord(id string, myID uint) ResultResp {
 
 	userId := vod.UserId
 	var user statements.User
-	db.Model(&statements.User{}).Select("avatar,nick_name").Where("id =?", userId).First(&user)
+	db.Model(&statements.User{}).Select("id, sex, avatar,nick_name").Where("id =?", userId).First(&user)
 
+	resultResp.VodUserId = user.ID
 	resultResp.VodUser = user.NickName
 	resultResp.VodAvatar = user.Avatar
+
+	if vod.HideName == 1 {
+		resultResp.VodUser = "匿名用户"
+		resultResp.VodAvatar = tools.GetAvatarUrl(user.Sex)
+	}
 
 	count := 0
 	var allSong []statements.Song
@@ -98,7 +104,7 @@ func GetRecord(id string, myID uint) ResultResp {
 		recordResp[i].User = userRows.NickName
 		recordResp[i].SongAvatar = userRows.Avatar
 
-        recordResp[i].IsPraise,_ = HasPraise(2,myID,songRows.ID)
+		recordResp[i].IsPraise, _ = HasPraise(2, myID, songRows.ID)
 		i++
 	}
 	resultResp.AllSongs = recordResp
@@ -128,7 +134,7 @@ func CreateRecord(id string, source string, uid uint, isHide int) (string, error
 	song.Source = source
 	song.Style = vod.Style
 	song.Language = vod.Language
-    song.IsHide = isHide
+	song.IsHide = isHide
 
 	err := tx.Model(&statements.Song{}).Create(&song).Error
 	if err != nil {
@@ -139,8 +145,8 @@ func CreateRecord(id string, source string, uid uint, isHide int) (string, error
 			return "", err
 		}
 	}
-    
-    FinishTask("3",userId)
+
+	FinishTask("3", userId)
 
 	return song.Name, tx.Commit().Error
 }
@@ -209,6 +215,7 @@ func AddPraise(userid uint, strId string, types string) (error, PraiseData) {
 	var praiseData PraiseData
 	praiseData.Type = types
 	praiseData.MyID = userid
+	praiseData.TargetID = GetTargetId(typesInt, id)
 
 	var praise statements.Praise
 	praise.UserId = userid
@@ -217,41 +224,42 @@ func AddPraise(userid uint, strId string, types string) (error, PraiseData) {
 
 	err := db.Model(&statements.Praise{}).Create(&praise).Error
 
-    if SyncLock(userid) {
-        FinishTask("5",userid)
-    }
+	//if SyncLock(userid) {
+	//	FinishTask("5", userid)
+	//}
+    SyncLock(userid)
 
 	return err, praiseData
 }
 
-func SyncLock(userid uint) bool {
-    var lck sync.Mutex
-    lck.Lock()
-    client := setting.RedisConn()
-    keyname := "healing2020:PraiseSign:"+strconv.Itoa(int(userid))
-    sign := client.Get(keyname)
-    if sign == nil {
-        client.Set(keyname,"1",0)
-        lck.Unlock()
-        return false
+type Target struct {
+	TargetId uint `gorm:"column:user_id"`
+}
+
+func GetTargetId(types int, id uint) uint {
+	db := setting.MysqlConn()
+	var target Target
+	if types == 1 {
+		db.Table("deliver").Select("user_id").Where("id = ?", id).Scan(&target)
+		return target.TargetId
+	}
+	if types == 2 {
+		db.Table("song").Select("user_id").Where("id = ?", id).Scan(&target)
+		return target.TargetId
+	}
+	if types == 3 {
+		db.Table("special").Select("user_id").Where("id = ?", id).Scan(&target)
+		return target.TargetId
+	}
+	return 0
+}
+
+func SyncLock(userid uint) {
+	client := setting.RedisConn()
+    num := client.Incr(fmt.Sprintf("healing2020:user:%d:praised",userid)).Val()
+    if num == 3 {
+        FinishTask("5",userid)
     }
-    if sign.String() == "1" {
-        client.Set(keyname,"2",0)
-        lck.Unlock()
-        return false
-    }
-    if sign.String() == "2" {
-        client.Set(keyname,"3",0)
-        lck.Unlock()
-        return false
-    }
-    if sign.String() == "3" {
-        client.Del(keyname)
-        lck.Unlock()
-        return true
-    }
-    lck.Unlock()
-    return false
 }
 
 func CreateVod(uid uint, singer string, style string, language string, name string, more string) error {
@@ -271,7 +279,7 @@ func CreateVod(uid uint, singer string, style string, language string, name stri
 	vod.Language = language
 	err := db.Model(&statements.Vod{}).Create(&vod).Error
 
-    FinishTask("2",uid)
+	FinishTask("2", uid)
 
 	return err
 }
@@ -300,9 +308,9 @@ func GetPraiseCount(table string, id uint) int {
 	case "special":
 		types = "3"
 		break
-    case "comment":
-        types = "4"
-        break
+	case "comment":
+		types = "4"
+		break
 	}
 
 	count := 0

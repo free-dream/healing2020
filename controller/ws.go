@@ -15,7 +15,6 @@ import (
 	"healing2020/models"
 	"healing2020/models/statements"
 	"healing2020/pkg/e"
-	"healing2020/pkg/setting"
 	"healing2020/pkg/tools"
 )
 
@@ -47,6 +46,7 @@ var upGrader = websocket.Upgrader{
 	},
 }
 
+var mutex sync.Mutex
 var MessageQueue = make(map[int](chan *Message))
 var ACKchan = make(map[string](chan *ACK))
 var MysqlCreate = make(chan *Message, 1000)
@@ -68,13 +68,11 @@ func msgToSMessage(msg *Message) statements.Message {
 
 //create msg chan for user
 func createUserMsgChan(userID uint) {
-	redis_cli := setting.RedisClient
+	mutex.Lock()
 	if _, ok := MessageQueue[int(userID)]; !ok {
-		IsMsgChanIn := !redis_cli.SetNX(fmt.Sprintf("msgchan_id:%d", userID), 0, time.Duration(1)*time.Second).Val()
-		if !IsMsgChanIn {
-			MessageQueue[int(userID)] = make(chan *Message, 1000)
-		}
+		MessageQueue[int(userID)] = make(chan *Message, 1000)
 	}
+	mutex.Unlock()
 }
 
 //run in main.go

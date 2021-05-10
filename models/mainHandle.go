@@ -11,6 +11,7 @@ import (
 
 	"healing2020/models/statements"
 	"healing2020/pkg/setting"
+    "healing2020/pkg/tools"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
@@ -145,18 +146,18 @@ func LoadVodMsg(sort string, key string,userTags string) []SongMsg {
 	var result *gorm.DB
 	if key == "" || key == "推荐"{
         if sort == "0" {
-            result = db.Raw("select id,user_id,name,singer,more,style,language,created_at from vod where hide_name = 0 order by rand()")
+            result = db.Raw("select id,user_id,name,singer,more,style,language,created_at,hide_name from vod order by rand()")
             rows, _ = result.Rows()
         }else {
-            result = db.Raw("select id,user_id,name,singer,more,style,language,created_at from vod where hide_name = 0 order by created_at desc")
+            result = db.Raw("select id,user_id,name,singer,more,style,language,created_at,hide_name from vod order by created_at desc")
             rows, _ = result.Rows()
         }
 	} else {
 		if sort == "0" {
-			result = db.Raw("select id,user_id,name,singer,more,created_at,style,language from vod where hide_name = 0 and style=? or hide_name = 0 and language=? order by rand()", key, key)
+			result = db.Raw("select id,user_id,name,singer,more,created_at,style,language,hide_name from vod where style=? or language=? order by rand()", key, key)
 			rows, _ = result.Rows()
 		} else {
-			result = db.Raw("select id,user_id,name,singer,more,created_at,style,language from vod where hide_name = 0 and style=? or hide_name = 0 and language=? order by created_at desc", key, key)
+			result = db.Raw("select id,user_id,name,singer,more,created_at,style,language,hide_name from vod where style=? or language=? order by created_at desc", key, key)
 			rows, _ = result.Rows()
 		}
 	}
@@ -189,6 +190,12 @@ func LoadVodMsg(sort string, key string,userTags string) []SongMsg {
 		vodList[i].Sex = user.Sex
 		vodList[i].Avatar = user.Avatar
 
+        if vod.HideName == 1 {
+            vodList[i].UserId = 0
+            vodList[i].User = "匿名用户"
+            vodList[i].Avatar = tools.GetAvatarUrl(user.Sex)
+        }
+
 		i++
 	}
 
@@ -201,11 +208,10 @@ func GetMainMsg(pageStr string,sort string, key string,tags string,userid uint) 
     //推荐部分先发
     if tags != "" {
         listen := LoadSongMsg(sort,"推荐",tags)
-        resultListen,err1 := Paging(page,listen)
         sing := LoadVodMsg(sort,"推荐",tags)
-        resultSing,err2 := Paging(page,sing)
+        resultSing,resultListen,err := Paging(page,sing,listen)
 
-        if err1 != nil || err2 != nil {
+        if err != nil {
             return result,errors.New("page out of range")
         }
 
@@ -241,10 +247,9 @@ func GetMainMsg(pageStr string,sort string, key string,tags string,userid uint) 
 	var listen []SongMsg
 	json.Unmarshal(data1, &sing)
 	json.Unmarshal(data2, &listen)
-    resultSing,err1 := Paging(page,sing)
-    resultListen,err2 := Paging(page,listen)
+    resultSing,resultListen,err := Paging(page,sing,listen)
 
-    if err1 != nil || err2 != nil {
+    if err != nil {
         return result,errors.New("page out of range")
     }
 
@@ -260,19 +265,36 @@ func GetMainMsg(pageStr string,sort string, key string,tags string,userid uint) 
 	return result, nil
 }
 
-func Paging(page int,data []SongMsg) ([]SongMsg,error) {
-    if (page-1)*20 > len(data) {
-        return nil,errors.New("page out of range")
+func Paging(page int,data1 []SongMsg, data2 []SongMsg) ([]SongMsg,[]SongMsg,error) {
+    var result1 []SongMsg
+    var result2 []SongMsg
+    if (page-1)*20 > len(data1) {
+        result1 = make([]SongMsg,1)
+    } else {
+        result1 = make([]SongMsg,20)
     }
-
-    var result []SongMsg = make([]SongMsg,20)
+    if (page-1)*20 > len(data2) {
+        result2 = make([]SongMsg,1)
+    } else {
+        result2 = make([]SongMsg,20)
+    }
+    if len(result1) == 1 && len(result2) == 1 {
+        return result1,result2,errors.New("page out of page")
+    }
     for i:=0;i<20;i++ {
-        if (page-1)*20+i >= len(data) {
+        if (page-1)*20+i >= len(data1) {
             break
         }
-        result[i] = data[(page-1)*20+i]
+        result1[i] = data1[(page-1)*20+i]
     }
-    return result,nil
+    for i:=0;i<20;i++ {
+        if (page-1)*20+i >= len(data2) {
+            break
+        }
+        result2[i] = data2[(page-1)*20+i]
+    }
+
+    return result1,result2,nil
 }
 
 func isListNil(result *gorm.DB) bool {
@@ -378,7 +400,7 @@ func GetSearchResult(search string) SearchResp {
 	}
 
     var vodCount int = 0
-	result = db.Model(&statements.Vod{}).Where("name = ? and hide_name = 0", search).Select("id,created_at,user_id").Count(&vodCount)
+	result = db.Model(&statements.Vod{}).Where("name = ?", search).Select("id,created_at,user_id").Count(&vodCount)
 
 	if vodCount != 0 && result.Error == nil {
 		rows, _ := result.Rows()
@@ -400,6 +422,11 @@ func GetSearchResult(search string) SearchResp {
 			vodResp[i].VodUser = user.NickName
             vodResp[i].Avatar = user.Avatar
             vodResp[i].Sex = user.Sex
+
+            if vod.HideName == 1 {
+                vodResp[i].VodUser = "匿名用户"
+                vodResp[i].Avatar = tools.GetAvatarUrl(user.Sex)
+            }
 
 			i++
 		}

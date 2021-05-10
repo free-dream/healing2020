@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"healing2020/models/statements"
 	"healing2020/pkg/setting"
 	"strconv"
@@ -14,8 +15,9 @@ type AllSpecial struct {
 	Name      string `json:"name"`
 	Intro     string `json:"intro"`
 	MesNumber int    `json:"mesNumber"`
-	// HotSong   []UserMessage
-	SingSong []UserMessage
+	HotNumber int    `json:"hotNumber"`
+	HotSong   []UserMessage
+	SingSong  []UserMessage
 }
 
 type UserMessage struct {
@@ -37,7 +39,12 @@ type UserMessage struct {
 	NilId string `json:"id"`
 }
 
-func SingHome(subjectID uint) (AllSpecial, error) {
+func SingHome(belong string, pageStr string, pageStr2 string, subjectID uint, User_id string) (AllSpecial, error) {
+	page, _ := strconv.Atoi(pageStr)
+	page2, _ := strconv.Atoi(pageStr2)
+	belongs, _ := strconv.Atoi(belong)
+	int2Id, _ := strconv.Atoi(User_id)
+	UserID := uint(int2Id)
 	//连接mysql
 	db := setting.MysqlConn()
 
@@ -46,31 +53,64 @@ func SingHome(subjectID uint) (AllSpecial, error) {
 	err := db.Table("subject").Select("id, name, intro, photo").Where("id = ? ", subjectID).First(&singSubject).Error
 	var count int
 	err = db.Table("comment").Where("type = 1 and song_id = ?", subjectID).Count(&count).Error
+	var count2 int
 
-	// //获取热门歌曲信息
-	// var Hot []UserMessage
-	// err = db.Table("special").Select("user_id, id, created_at, praise, song, record").Where("subject_id = ? ", subjectID).Order("praise DESC").Limit(3).Scan(&Hot).Error
-	// //获取热门用户信息
-	// HotElse := make([]statements.User, len(Hot))
-	// for i := 0; i < len(Hot); i++ {
-	// 	err = db.Table("user").Select("nick_name, avatar").Where("id = ?", Hot[i].UserID).Scan(&HotElse[i]).Error
-	// }
-	// responseHot := make([]UserMessage, len(Hot))
-	// for i := 0; i < len(Hot); i++ {
-	// 	if Hot[i].Praise >= 5 {
-	// 		responseHot[i] = UserMessage{
-	// 			Nickname:  HotElse[i].NickName,
-	// 			Avatar:    HotElse[i].Avatar,
-	// 			UserID:    Hot[i].UserID,
-	// 			Id:        Hot[i].Id,
-	// 			CreatedAt: Hot[i].CreatedAt,
-	// 			Praise:    Hot[i].Praise,
-	// 			Song:      Hot[i].Song,
-	// 			Record:    Hot[i].Record,
-	// 		}
-	// 		responseHot[i].IsPraise, _ = HasPraise(3, Hot[i].UserID, uint(Hot[i].Id))
-	// 	}
-	// }
+	var Hot []UserMessage
+	var responseHot []UserMessage
+
+	//歌房进入
+	if belongs == 1 {
+		//获取热门歌曲信息
+		err = db.Table("special").Select("user_id, id, created_at, praise, song, record").Where("subject_id = ? ", subjectID).Order("praise DESC").Limit(3).Scan(&Hot).Error
+		//获取热门用户信息
+		HotElse := make([]statements.User, len(Hot))
+		for i := 0; i < len(Hot); i++ {
+			err = db.Table("user").Select("nick_name, avatar").Where("id = ?", Hot[i].UserID).Scan(&HotElse[i]).Error
+		}
+		responseHot = make([]UserMessage, len(Hot))
+		for i := 0; i < len(Hot); i++ {
+			if Hot[i].Praise >= 5 {
+				count2 = 1
+				count2 = count2 + 1
+				responseHot[i] = UserMessage{
+					Nickname:  HotElse[i].NickName,
+					Avatar:    HotElse[i].Avatar,
+					UserID:    Hot[i].UserID,
+					Id:        Hot[i].Id,
+					CreatedAt: Hot[i].CreatedAt,
+					Praise:    Hot[i].Praise,
+					Song:      Hot[i].Song,
+					Record:    Hot[i].Record,
+				}
+				responseHot[i].IsPraise, _ = HasPraise(3, Hot[i].UserID, uint(Hot[i].Id))
+			}
+		}
+	}
+
+	//个人页进入
+	if belongs == 2 {
+		//获取个人歌曲信息
+		err = db.Table("special").Select("user_id, id, created_at, praise, song, record").Where("subject_id = ? and user_id = ?", subjectID, UserID).Order("praise DESC").Count(&count2).Scan(&Hot).Error
+		//获取个人用户信息
+		HotElse := make([]statements.User, len(Hot))
+		for i := 0; i < len(Hot); i++ {
+			err = db.Table("user").Select("nick_name, avatar").Where("id = ?", UserID).Scan(&HotElse[i]).Error
+		}
+		responseHot = make([]UserMessage, len(Hot))
+		for i := 0; i < len(Hot); i++ {
+			responseHot[i] = UserMessage{
+				Nickname:  HotElse[i].NickName,
+				Avatar:    HotElse[i].Avatar,
+				UserID:    Hot[i].UserID,
+				Id:        Hot[i].Id,
+				CreatedAt: Hot[i].CreatedAt,
+				Praise:    Hot[i].Praise,
+				Song:      Hot[i].Song,
+				Record:    Hot[i].Record,
+			}
+			responseHot[i].IsPraise, _ = HasPraise(3, Hot[i].UserID, uint(Hot[i].Id))
+		}
+	}
 
 	//获取列表歌曲信息
 	var SingHome []UserMessage
@@ -94,17 +134,50 @@ func SingHome(subjectID uint) (AllSpecial, error) {
 		}
 		responseSing[i].IsPraise, _ = HasPraise(3, SingHome[i].UserID, uint(SingHome[i].Id))
 	}
-
-	allSpecial := AllSpecial{
+	var allSpecial AllSpecial
+	pageResponSing, err := PageinSong(page, responseSing)
+	pageResponHot, err := PageinHot(page2, responseHot)
+	allSpecial = AllSpecial{
 		ID:        singSubject.ID,
 		Name:      singSubject.Name,
 		Intro:     singSubject.Intro,
 		MesNumber: count,
-		// HotSong:   responseHot,
-		SingSong: responseSing,
+		HotNumber: count2,
+		HotSong:   pageResponHot,
+		SingSong:  pageResponSing,
 	}
 
 	return allSpecial, err
+}
+
+func PageinSong(page int, data []UserMessage) ([]UserMessage, error) {
+	if (page-1)*20 > len(data) {
+		return nil, errors.New("page out of range")
+	}
+
+	var result []UserMessage = make([]UserMessage, 20)
+	for i := 0; i < 20; i++ {
+		if (page-1)*20+i >= len(data) {
+			break
+		}
+		result[i] = data[(page-1)*20+i]
+	}
+	return result, nil
+}
+
+func PageinHot(page int, data []UserMessage) ([]UserMessage, error) {
+	if (page-1)*10 > len(data) {
+		return nil, errors.New("page out of range")
+	}
+
+	var result []UserMessage = make([]UserMessage, 10)
+	for i := 0; i < 10; i++ {
+		if (page-1)*10+i >= len(data) {
+			break
+		}
+		result[i] = data[(page-1)*10+i]
+	}
+	return result, nil
 }
 
 //发送歌房歌曲数据
@@ -120,8 +193,6 @@ func PostSpecial(Subject_id string, Song string, User_id string, Record string) 
 	tx := db.Begin()
 	if Song != "" {
 		var dev statements.Special
-		// var userother statements.UserOther
-
 		dev.SubjectId = subject_id
 		dev.Song = Song
 		dev.UserId = user_id

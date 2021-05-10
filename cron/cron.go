@@ -12,6 +12,7 @@ func CronInit() *cron.Cron {
 	c.AddFunc("0 */2 * * *", func() {
 		models.AutoSyncPraise()
 	})
+
 	c.AddFunc("1 */2 * * *", func() {
 		models.SendDeliverRank()
 	})
@@ -28,7 +29,7 @@ func CronInit() *cron.Cron {
 		models.UpdateRankCount()
 	})
 
-	c.AddFunc("1 0 0 * *", func() {
+	c.AddFunc("0 0 0 * *", func() {
 		models.UpdatePraiseSign()
 	})
 
@@ -36,9 +37,9 @@ func CronInit() *cron.Cron {
 		models.SendMainMsg()
 	})
 
-	c.AddFunc("0 0 0 * *", func() {
-		models.UpdateTask()
-	})
+	// c.AddFunc("0 0 0 * *", func() {
+	// 	models.UpdateTask()
+	// })
 	c.AddFunc("0 0 0 * *", func() {
 		models.UpdateRemainSingDay()
 	})

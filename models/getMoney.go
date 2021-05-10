@@ -16,15 +16,6 @@ type Money struct {
 	Money int `json:"money"`
 }
 
-type Task struct {
-	Lo1 int `json:"login"`
-	Lo2 int `json:"chooseSong"`
-	Lo3 int `json:"healing"`
-	Lo4 int `json:"singHome"`
-	Lo5 int `json:"praise"`
-	Lo6 int `json:"share"`
-}
-
 type GetPrize struct {
 	Id    int    `json:"id"`
 	Name  string `json:"name"`
@@ -73,24 +64,10 @@ func EarnMoney(userID uint) error {
 }
 
 //返回任务列表
-func GetTask(userID uint) ([]Task, error) {
-	//连接mysql
-	db := setting.MysqlConn()
-
-	//获取个人积分信息
-	var user []Task
-	err := db.Table("user_other").Select("lo1, lo2, lo3, lo4, lo5, lo6").Where("user_id= ? ", userID).First(&user).Error
-	return user, err
-}
-
-//更新每日任务
-func UpdateTask() error {
-	//连接mysql
-	db := setting.MysqlConn()
-
-	//更新每日任务
-	err := db.Table("user_other").Update(map[string]interface{}{"lo1": "0", "lo2": "0", "lo3": "0", "lo4": "0", "lo5": "0", "lo6": "0"}).Error
-	return err
+func GetTask(userID uint) ([]interface{}, error) {
+	redis_cli := setting.RedisClient
+	taskGet, err := redis_cli.MGet(fmt.Sprintf("%d:%d", userID, 1), fmt.Sprintf("%d:%d", userID, 2), fmt.Sprintf("%d:%d", userID, 3), fmt.Sprintf("%d:%d", userID, 4), fmt.Sprintf("%d:%d", userID, 5), fmt.Sprintf("%d:%d", userID, 6), ).Result()
+	return taskGet, err
 }
 
 //完成每日任务
@@ -111,149 +88,23 @@ func FinishTask(task string, userID uint) error {
 		return result2.Error
 	}
 
+	earnMoney := map[string]int {"1": 80, "2": 60, "3": 60, "4": 60, "5": 20, "6": 20}
+
 	t := time.Now()
 	t_zero := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location()).Unix()
 	t_to_tomorrow := 24*60*60 - (t.Unix() - t_zero)
 	redis_cli := setting.RedisClient
 
-	switch task {
-	case "1":
-		if userother.Lo1 != 1 {
-			logined := !redis_cli.SetNX(fmt.Sprintf("finish_lo1_id:%d", userID), 0, time.Duration(t_to_tomorrow)*time.Second).Val()
-
-			if !logined {
-				err2 := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).Update("lo1", 1).Error
-				if err2 != nil {
-					tx.Rollback()
-					return err2
-				}
-
-				if user.Money >= 0 {
-					user.Money = user.Money + 50
-					err3 := tx.Save(&user).Error
-					if err3 != nil {
-						tx.Rollback()
-						return err3
-					}
-				}
+	finished := redis_cli.Set(fmt.Sprintf("%d:%s", userID, task), true, time.Duration(t_to_tomorrow)*time.Second).Err()
+	if finished == nil {
+		if user.Money >= 0 {
+			user.Money = user.Money + earnMoney[task]
+			err3 := tx.Save(&user).Error
+			if err3 != nil {
+				tx.Rollback()
+				return err3
 			}
 		}
-		break
-	case "2":
-		//vod
-		if userother.Lo2 != 1 {
-			voded := !redis_cli.SetNX(fmt.Sprintf("finish_lo2_id:%d", userID), 0, time.Duration(t_to_tomorrow)*time.Second).Val()
-
-			if !voded {
-				err2 := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).Update("lo2", 1).Error
-				if err2 != nil {
-					tx.Rollback()
-					return err2
-				}
-
-				if user.Money >= 0 {
-					user.Money = user.Money + 15
-					err3 := tx.Save(&user).Error
-					if err3 != nil {
-						tx.Rollback()
-						return err3
-					}
-				}
-			}
-		}
-		break
-	case "3":
-		//healing
-		if userother.Lo3 != 1 {
-			healed := !redis_cli.SetNX(fmt.Sprintf("finish_lo3_id:%d", userID), 0, time.Duration(t_to_tomorrow)*time.Second).Val()
-
-			if !healed {
-				err2 := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).Update("lo3", 1).Error
-				if err2 != nil {
-					tx.Rollback()
-					return err2
-				}
-
-				if user.Money >= 0 {
-					user.Money = user.Money + 20
-					err3 := tx.Save(&user).Error
-					if err3 != nil {
-						tx.Rollback()
-						return err3
-					}
-				}
-			}
-		}
-		break
-	case "4":
-		//singHome
-		if userother.Lo4 != 1 {
-			sang := !redis_cli.SetNX(fmt.Sprintf("finish_lo4_id:%d", userID), 0, time.Duration(t_to_tomorrow)*time.Second).Val()
-
-			if !sang {
-				err2 := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).Update("lo4", 1).Error
-				if err2 != nil {
-					tx.Rollback()
-					return err2
-				}
-
-				if user.Money >= 0 {
-					user.Money = user.Money + 20
-					err3 := tx.Save(&user).Error
-					if err3 != nil {
-						tx.Rollback()
-						return err3
-					}
-				}
-			}
-		}
-		break
-	case "5":
-		//praise
-		if userother.Lo5 != 1 {
-			praised := !redis_cli.SetNX(fmt.Sprintf("finish_lo5_id:%d", userID), 0, time.Duration(t_to_tomorrow)*time.Second).Val()
-
-			if !praised {
-				err2 := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).Update("lo5", 1).Error
-				if err2 != nil {
-					tx.Rollback()
-					return err2
-				}
-
-				if user.Money >= 0 {
-					user.Money = user.Money + 10
-					err3 := tx.Save(&user).Error
-					if err3 != nil {
-						tx.Rollback()
-						return err3
-					}
-				}
-			}
-		}
-		break
-	case "6":
-		//share
-		if userother.Lo6 != 1 {
-			shared := !redis_cli.SetNX(fmt.Sprintf("finish_lo6_id:%d", userID), 0, time.Duration(t_to_tomorrow)*time.Second).Val()
-
-			if !shared {
-				err2 := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).Update("lo6", 1).Error
-				if err2 != nil {
-					tx.Rollback()
-					return err2
-				}
-
-				if user.Money >= 0 {
-					user.Money = user.Money + 10
-					err3 := tx.Save(&user).Error
-					if err3 != nil {
-						tx.Rollback()
-						return err3
-					}
-				}
-			}
-		}
-		break
 	}
 	return tx.Commit().Error
 }
@@ -324,7 +175,7 @@ func LotteryDraw(userID uint, bd []int, bdstr string) (GetPrize, error) {
 					tx.Rollback()
 				}
 			} else {
-				LOOP:
+			LOOP:
 				for i := 0; i < len(prize); i++ {
 					if prop <= prize[i].Weight && prize[i].Count > 0 {
 						responseLottery = GetPrize{
@@ -332,7 +183,7 @@ func LotteryDraw(userID uint, bd []int, bdstr string) (GetPrize, error) {
 							Name:  prize[i].Name,
 							Photo: prize[i].Photo,
 						}
-	
+
 						//增加背景图
 						if prize[i].Id == 5 {
 							bdcount := len(bd)
@@ -351,7 +202,7 @@ func LotteryDraw(userID uint, bd []int, bdstr string) (GetPrize, error) {
 								}
 							}
 						}
-	
+
 						//增加匿名次数
 						if prize[i].Id == 6 {
 							var anonymous statements.UserOther
@@ -366,7 +217,7 @@ func LotteryDraw(userID uint, bd []int, bdstr string) (GetPrize, error) {
 								tx.Rollback()
 							}
 						}
-	
+
 						//增加点歌次数
 						if prize[i].Id == 7 {
 							var vod_count statements.UserOther
@@ -381,7 +232,7 @@ func LotteryDraw(userID uint, bd []int, bdstr string) (GetPrize, error) {
 								tx.Rollback()
 							}
 						}
-	
+
 						//修改剩余数量
 						var count statements.Prize
 						result3 := tx.Model(&statements.Prize{}).Where("id = ?", uint(prize[i].Id)).First(&count)
@@ -394,7 +245,7 @@ func LotteryDraw(userID uint, bd []int, bdstr string) (GetPrize, error) {
 						if err1 != nil {
 							tx.Rollback()
 						}
-	
+
 						//存入我的奖品
 						var lot statements.Lottery
 						lot.PrizeId = uint(prize[i].Id)
@@ -404,7 +255,7 @@ func LotteryDraw(userID uint, bd []int, bdstr string) (GetPrize, error) {
 							log.Println(5)
 							return black, result4
 						}
-	
+
 						//修改剩余积分
 						user.Money = user.Money - 100
 						err2 := tx.Save(&user).Error
@@ -414,8 +265,7 @@ func LotteryDraw(userID uint, bd []int, bdstr string) (GetPrize, error) {
 						break LOOP
 					}
 				}
-	
-	
+
 			}
 		}
 	} else {

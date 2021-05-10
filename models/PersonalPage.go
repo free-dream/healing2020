@@ -24,6 +24,7 @@ type Songs struct { //唱歌
 	From      string    `json:"from"`
 	Praise    int       `json:"praise"`
 	IsPraise  bool      `json:"ispraise"`
+	IsHide    int       `json:"ishide"`
 }
 type Admire struct { //点赞
 	ID        uint      `json:"id"`
@@ -31,17 +32,6 @@ type Admire struct { //点赞
 	CreatedAt time.Time `json:"time"`
 	From      string    `json:"from"`
 	Praise    int       `json:"number"`
-}
-
-//获取其它用户信息接口用
-//select并根据id返回用户信息
-func ResponseUser(userID uint) (statements.User, error) {
-	//连接mysql
-	db := setting.MysqlConn()
-
-	var user statements.User
-	err := db.Where("id=?", userID).First(&user).Error
-	return user, err
 }
 
 //select并返回用户个人背景信息和剩余匿名次数
@@ -74,7 +64,7 @@ func handleDeliver(deliver []statements.Deliver) []statements.Deliver {
 		if len(splitDeliver) <= 5 {
 			continue
 		}
-		deliver[key].TextField = strings.Join(splitDeliver[:5], "")
+		deliver[key].TextField = strings.Join(splitDeliver[:5], "") + "..."
 	}
 	return deliver
 }
@@ -118,7 +108,7 @@ func ResponseSongs(userID uint, myID uint) ([]Songs, error) {
 
 	//获取唱歌信息
 	var singSongs []Songs
-	err = db.Table("song").Select("vod_id, name, created_at").Where("user_id=?", userID).Scan(&singSongs).Error
+	err = db.Table("song").Select("vod_id, name, created_at, is_hide").Where("user_id=?", userID).Scan(&singSongs).Error
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		return nil, err
 	}
