@@ -41,14 +41,14 @@ func DeliverHome(pageStr string, Type string, myID uint) ([]AllDeliver, error) {
 	if Type == "0" {
 		//获取投递信息
 		err := db.Table("deliver").Select("id, user_id, created_at, type, text_field, photo, record, praise").Order("created_at DESC").Scan(&deliverHome).Error
-		if err != nil {
+		if err != nil && !gorm.IsRecordNotFoundError(err) {
 			return nil, err
 		}
 	}
 	//随机排序
 	if Type == "1" {
 		err := db.Table("deliver").Select("id, user_id, created_at, type, text_field, photo, record, praise").Order("rand()").Scan(&deliverHome).Error
-		if err != nil {
+		if err != nil && !gorm.IsRecordNotFoundError(err) {
 			return nil, err
 		}
 	}
@@ -58,7 +58,7 @@ func DeliverHome(pageStr string, Type string, myID uint) ([]AllDeliver, error) {
 	for i := 0; i < len(deliverHome); i++ {
 		err = db.Select("nick_name, avatar").Where("id = ?", deliverHome[i].UserID).Find(&UserElse[i]).Error
 		// log.Println(deliverHome[i].UserID)
-		if err != nil {
+		if err != nil && !gorm.IsRecordNotFoundError(err) {
 			log.Println(err)
 			return nil, err
 		}
@@ -128,8 +128,8 @@ func SingleDeliver(DevId string, myID uint) ([]AllDeliver, error) {
 			Nickname:    SingleElse[i].NickName,
 			Avatar:      SingleElse[i].Avatar,
 		}
-		responseSingle[i].Deliverelse.IsPraise,_ = HasPraise(1,myID,uint(singleDeliver[i].Id))
-		responseSingle[i].Deliverelse.Praise = GetPraiseCount("deliver",uint(singleDeliver[i].Id))
+		responseSingle[i].Deliverelse.IsPraise, _ = HasPraise(1, myID, uint(singleDeliver[i].Id))
+		responseSingle[i].Deliverelse.Praise = GetPraiseCount("deliver", uint(singleDeliver[i].Id))
 	}
 	return responseSingle, err
 }
