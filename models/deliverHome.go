@@ -4,9 +4,11 @@ import (
 	"errors"
 	"healing2020/models/statements"
 	"healing2020/pkg/setting"
+	"log"
 	"strconv"
 	"time"
 
+	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
@@ -54,8 +56,10 @@ func DeliverHome(pageStr string, Type string, myID uint) ([]AllDeliver, error) {
 	//获取用户昵称
 	UserElse := make([]statements.User, len(deliverHome))
 	for i := 0; i < len(deliverHome); i++ {
-		err = db.Table("user").Select("nick_name, avatar").Where("id = ?", deliverHome[i].UserID).Scan(&UserElse[i]).Error
+		err = db.Select("nick_name, avatar").Where("id = ?", deliverHome[i].UserID).Find(&UserElse[i]).Error
+		// log.Println(deliverHome[i].UserID)
 		if err != nil {
+			log.Println(err)
 			return nil, err
 		}
 	}
@@ -67,13 +71,13 @@ func DeliverHome(pageStr string, Type string, myID uint) ([]AllDeliver, error) {
 			Nickname:    UserElse[i].NickName,
 			Avatar:      UserElse[i].Avatar,
 		}
-		responseDeliver[i].Deliverelse.IsPraise,_ = HasPraise(1,myID,uint(deliverHome[i].Id))
-        responseDeliver[i].Deliverelse.Praise = GetPraiseCount("deliver",uint(deliverHome[i].Id))
+		responseDeliver[i].Deliverelse.IsPraise, _ = HasPraise(1, myID, uint(deliverHome[i].Id))
+		responseDeliver[i].Deliverelse.Praise = GetPraiseCount("deliver", uint(deliverHome[i].Id))
 	}
-	
+
 	pageResponDeliver, err := Pageing(page, responseDeliver)
 	if err != nil {
-		return pageResponDeliver,errors.New("page out of range")
+		return pageResponDeliver, errors.New("page out of range")
 	}
 	return pageResponDeliver, err
 }
@@ -104,16 +108,16 @@ func SingleDeliver(DevId string, myID uint) ([]AllDeliver, error) {
 	var singleDeliver []User
 	//获取单个投递信息
 	err := db.Table("deliver").Select("id, user_id, created_at, type, text_field, photo, record, praise").Where("id = ? ", deliverId).First(&singleDeliver).Error
-	if err != nil {
+	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		return nil, err
 	}
 
 	//获取用户昵称
 	SingleElse := make([]statements.User, len(singleDeliver))
 	for i := 0; i < len(singleDeliver); i++ {
-		err2 := db.Table("user").Select("nick_name, avatar").Where("id = ?", singleDeliver[i].UserID).Scan(&SingleElse[i]).Error
-		if err2 != nil {
-			return nil, err2
+		err := db.Table("user").Select("nick_name, avatar").Where("id = ?", singleDeliver[i].UserID).Scan(&SingleElse[i]).Error
+		if err != nil && !gorm.IsRecordNotFoundError(err) {
+			return nil, err
 		}
 	}
 
@@ -125,7 +129,7 @@ func SingleDeliver(DevId string, myID uint) ([]AllDeliver, error) {
 			Avatar:      SingleElse[i].Avatar,
 		}
 		responseSingle[i].Deliverelse.IsPraise,_ = HasPraise(1,myID,uint(singleDeliver[i].Id))
-        responseSingle[i].Deliverelse.Praise = GetPraiseCount("deliver",uint(singleDeliver[i].Id))
+		responseSingle[i].Deliverelse.Praise = GetPraiseCount("deliver",uint(singleDeliver[i].Id))
 	}
 	return responseSingle, err
 }

@@ -3,14 +3,13 @@ package models
 import (
 	"healing2020/models/statements"
 	"healing2020/pkg/setting"
-	"strconv"
 
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
-func PostDeliver(UserId string, TextField string, Photo string, Record string) error {
-	intId, _ := strconv.Atoi(UserId)
-	userid := uint(intId)
+func PostDeliver(userid uint, TextField string, Photo string, Record string) error {
+	// intId, _ := strconv.Atoi(UserId)
+	// userid := uint(intId)
 	db := setting.MysqlConn()
 
 	// status := 0
