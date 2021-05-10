@@ -271,9 +271,9 @@ func SendUserRank() error {
 		pattern := []string{"", "华工", "广警", "华东政法", "山东大学"}
 		var result *gorm.DB
 		if i == 0 {
-			result = db.Model(&statements.User{}).Order("money, created_at desc").Find(&user)
+			result = db.Model(&statements.User{}).Order("money desc,created_at").Find(&user)
 		} else {
-			result = db.Model(&statements.User{}).Where("campus=?", pattern[i]).Order("money, created_at desc").Find(&user)
+			result = db.Model(&statements.User{}).Where("campus=?", pattern[i]).Order("money desc,created_at").Find(&user)
 		}
 		rows := result.RowsAffected
 		if rows == 0 {
