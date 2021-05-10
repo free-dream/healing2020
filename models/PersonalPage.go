@@ -161,7 +161,7 @@ func deliverToAdmire(deliver []statements.Deliver) []Admire {
 			Name:      value.TextField,
 			CreatedAt: value.CreatedAt,
 			From:      "投递箱",
-			Praise:    value.Praise,
+			Praise:    GetPraiseCount("deliver", value.ID),
 		})
 	}
 	return admire
@@ -177,7 +177,7 @@ func specialToAdmire(special []statements.Special) []Admire {
 			Name:      value.Song,
 			CreatedAt: value.CreatedAt,
 			From:      "歌房",
-			Praise:    value.Praise,
+			Praise:    GetPraiseCount("special", value.ID),
 		})
 	}
 	return admire
@@ -193,7 +193,7 @@ func songToAdmire(song []statements.Song) []Admire {
 			Name:      value.Name,
 			CreatedAt: value.CreatedAt,
 			From:      "治愈",
-			Praise:    value.Praise,
+			Praise:    GetPraiseCount("song", value.ID),
 		})
 	}
 	return admire
@@ -214,7 +214,6 @@ func getPraiseStructID(praise []statements.Praise) map[string][]uint {
 		case 3:
 			specialID = append(specialID, value.PraiseId)
 		}
-
 	}
 	return map[string][]uint{
 		"deliver": deliverID,
@@ -240,14 +239,14 @@ func ResponsePraise(userID uint) ([]Admire, error) {
 
 	//投递箱,type=1
 	var deliverInf []statements.Deliver
-	err = db.Select("id, text_field, created_at, praise").Where("id in (?)", allID["deliver"]).Find(&deliverInf).Error
+	err = db.Select("id, text_field, created_at").Where("id in (?)", allID["deliver"]).Find(&deliverInf).Error
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		return nil, err
 	}
 
 	//治愈,type=2
 	var songInf []statements.Song
-	err = db.Table("song").Select("vod_id, name, created_at, praise").Where("id in (?)", allID["heal"]).Scan(&songInf).Error
+	err = db.Select("id, vod_id, name, created_at").Where("id in (?)", allID["heal"]).Find(&songInf).Error
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		return nil, err
 	}
@@ -255,7 +254,7 @@ func ResponsePraise(userID uint) ([]Admire, error) {
 	//专题歌曲,type=3
 	//返回id为歌房id
 	var specialInf []statements.Special
-	err = db.Select("subject_id, song, created_at, praise").Where("id in (?)", allID["special"]).Find(&specialInf).Error
+	err = db.Select("id, subject_id, song, created_at").Where("id in (?)", allID["special"]).Find(&specialInf).Error
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		return nil, err
 	}
