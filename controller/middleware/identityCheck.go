@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"healing2020/pkg/e"
+	"healing2020/pkg/tools"
 )
 
 func IdentityCheck() gin.HandlerFunc {
@@ -24,7 +25,12 @@ func IdentityCheck() gin.HandlerFunc {
 				return
 			} else {
 				redirect := c.Query("redirect")
-				url := "https://healing2020.100steps.top/wx/jump2wechat?redirect=" + redirect
+				var url string
+				if tools.IsDebug() {
+					url = "https://healing2020.100steps.top/test/wx/jump2wechat?redirect=" + redirect
+				} else {
+					url = "https://healing2020.100steps.top/wx/jump2wechat?redirect=" + redirect
+				}
 				c.Redirect(302, url)
 				c.Abort()
 				return
@@ -35,6 +41,9 @@ func IdentityCheck() gin.HandlerFunc {
 }
 
 func startWith(rUrl string, uri string) bool {
+	if tools.IsDebug() {
+		uri = "/test" + uri
+	}
 	if len(uri) > len(rUrl) {
 		return false
 	}

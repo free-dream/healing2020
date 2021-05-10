@@ -216,7 +216,11 @@ func DisposableLogin(ctx *gin.Context) {
 
 	redirectUrl := ctx.Query("redirect")
 	if redirectUrl == "" {
-		ctx.Redirect(302, "https://healing2020.100steps.top")
+		if tools.IsDebug() {
+			ctx.Redirect(302, "https://healing2020.100steps.top/testfront/")
+		} else {
+			ctx.Redirect(302, "https://healing2020.100steps.top")
+		}
 	} else {
 		ctx.Redirect(302, redirectUrl)
 	}
