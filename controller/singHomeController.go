@@ -10,9 +10,13 @@ import (
 
 func SingHome(c *gin.Context) {
 	subject := c.Query("subject")
+	pageStr := c.Query("pageStr")
+	belong := c.Query("belong")
+	User_id := c.Query("userid")
+
 	userIDInt, err := strconv.Atoi(subject)
-	subjectID  := uint(userIDInt)
-	sub, err := models.SingHome(subjectID)
+	subjectID := uint(userIDInt)
+	sub, err := models.SingHome(belong, pageStr, subjectID, User_id)
 	if err != nil {
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
 		return
