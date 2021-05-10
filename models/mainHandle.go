@@ -201,11 +201,10 @@ func GetMainMsg(pageStr string,sort string, key string,tags string,userid uint) 
     //推荐部分先发
     if tags != "" {
         listen := LoadSongMsg(sort,"推荐",tags)
-        resultListen,err1 := Paging(page,listen)
         sing := LoadVodMsg(sort,"推荐",tags)
-        resultSing,err2 := Paging(page,sing)
+        resultSing,resultListen,err := Paging(page,sing,listen)
 
-        if err1 != nil || err2 != nil {
+        if err != nil {
             return result,errors.New("page out of range")
         }
 
@@ -241,10 +240,9 @@ func GetMainMsg(pageStr string,sort string, key string,tags string,userid uint) 
 	var listen []SongMsg
 	json.Unmarshal(data1, &sing)
 	json.Unmarshal(data2, &listen)
-    resultSing,err1 := Paging(page,sing)
-    resultListen,err2 := Paging(page,listen)
+    resultSing,resultListen,err := Paging(page,sing,listen)
 
-    if err1 != nil || err2 != nil {
+    if err != nil {
         return result,errors.New("page out of range")
     }
 
@@ -260,19 +258,36 @@ func GetMainMsg(pageStr string,sort string, key string,tags string,userid uint) 
 	return result, nil
 }
 
-func Paging(page int,data []SongMsg) ([]SongMsg,error) {
-    if (page-1)*20 > len(data) {
-        return nil,errors.New("page out of range")
+func Paging(page int,data1 []SongMsg, data2 []SongMsg) ([]SongMsg,[]SongMsg,error) {
+    var result1 []SongMsg
+    var result2 []SongMsg
+    if (page-1)*20 > len(data1) {
+        result1 = make([]SongMsg,1)
+    } else {
+        result1 = make([]SongMsg,20)
     }
-
-    var result []SongMsg = make([]SongMsg,20)
+    if (page-1)*20 > len(data2) {
+        result2 = make([]SongMsg,1)
+    } else {
+        result2 = make([]SongMsg,20)
+    }
+    if len(result1) == 1 && len(result2) == 1 {
+        return result1,result2,errors.New("page out of page")
+    }
     for i:=0;i<20;i++ {
-        if (page-1)*20+i >= len(data) {
+        if (page-1)*20+i >= len(data1) {
             break
         }
-        result[i] = data[(page-1)*20+i]
+        result1[i] = data1[(page-1)*20+i]
     }
-    return result,nil
+    for i:=0;i<20;i++ {
+        if (page-1)*20+i >= len(data2) {
+            break
+        }
+        result2[i] = data2[(page-1)*20+i]
+    }
+
+    return result1,result2,nil
 }
 
 func isListNil(result *gorm.DB) bool {
