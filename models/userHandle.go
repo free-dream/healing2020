@@ -43,7 +43,8 @@ func UpdateOrCreate(openId string, nickName string, sex int, avatar string) erro
 			result2 = tx.Model(&statements.User{}).Create(&user)
 			var userOther statements.UserOther
 			userOther.UserId = user.ID
-			userOther.RemainSing = 8 //点歌次数默认值
+			userOther.RemainSing = 8     //点歌次数默认值
+			userOther.RemainHideName = 0 //匿名次数默认值
 			tx.Model(&statements.UserOther{}).Create(&userOther)
 		} else {
 			result2 = tx.Model(&statements.User{}).Where("open_id=?", openId).Update(&user)
