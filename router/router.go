@@ -46,12 +46,20 @@ func InitRouter() *gin.Engine {
 		r.Use(middleware.Cors())
 	}
 
-	r.GET("/wx/jump2wechat", auth.JumpToWechat)
-	r.GET("/wx/login", auth.DisposableLogin)
-	r.POST("/wx/oauth/*redirect", auth.WechatOAuth)
+	var test_prefix string
+
+	if tools.IsDebug() {
+		test_prefix = "/test"
+	} else {
+		test_prefix = ""
+	}
+
+	r.GET("/test/wx/jump2wechat", auth.JumpToWechat)
+	r.GET("/test/wx/login", auth.DisposableLogin)
+	r.POST("/test/wx/oauth/*redirect", auth.WechatOAuth)
 
 	//开发时按群组分类，并记得按swagger格式注释
-	api := r.Group("/api")
+	api := r.Group(test_prefix + "/api")
 	api.Use(middleware.IdentityCheck())
 
 	//qiniuToken

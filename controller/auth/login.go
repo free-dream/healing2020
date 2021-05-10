@@ -129,7 +129,12 @@ func FakeLogin(c *gin.Context) {
 
 func Jump(c *gin.Context) {
 	redirect := c.Query("redirect")
-	rawUrl := "https://healing2020.100steps.top/auth/login?redirect=" + redirect
+	var rawUrl string
+	if tools.IsDebug() {
+		rawUrl = "https://healing2020.100steps.top/test/auth/login?redirect=" + redirect
+	} else {
+		rawUrl = "https://healing2020.100steps.top/auth/login?redirect=" + redirect
+	}
 	redirectUrl := base64.StdEncoding.EncodeToString([]byte(rawUrl))
 	apiv3Url := "https://apiv3.100steps.top/api/bbtwoa/oauth/" + redirectUrl
 
@@ -216,7 +221,11 @@ func DisposableLogin(ctx *gin.Context) {
 
 	redirectUrl := ctx.Query("redirect")
 	if redirectUrl == "" {
-		ctx.Redirect(302, "https://healing2020.100steps.top")
+		if tools.IsDebug() {
+			ctx.Redirect(302, "https://healing2020.100steps.top/testfront/")
+		} else {
+			ctx.Redirect(302, "https://healing2020.100steps.top")
+		}
 	} else {
 		ctx.Redirect(302, redirectUrl)
 	}

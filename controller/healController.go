@@ -117,7 +117,7 @@ func SendPraiseMsg(myID uint, targetID uint, myName string, types string, mainMs
 	}
 	content := myName + "点赞了您的" + types + mainMsg
 	msg := Message{
-		Type:       1,
+		Type:       2,
 		Time:       "",
 		FromUserID: 0,
 		ToUserID:   targetID,
