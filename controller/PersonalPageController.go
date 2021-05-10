@@ -122,6 +122,7 @@ func responsePage(c *gin.Context, user statements.User, my_others string) {
 			}
 		}
 		c.JSON(200, OthersPersonalPage{
+			UserID:     page.UserID,
 			NickName:   page.NickName,
 			Campus:     page.Campus,
 			More:       page.More,
@@ -166,6 +167,7 @@ func ResponseOthersPerponalPage(c *gin.Context) {
 	}
 	//查询id对应用户信息
 	user, err := models.ResponseUser(userID)
+	user.ID = userID
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})

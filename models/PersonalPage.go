@@ -127,7 +127,7 @@ func ResponseSongs(userID uint, myID uint) ([]Songs, error) {
 
 	//获取唱歌信息
 	var song []statements.Song
-	err = db.Select("id, vod_id, name, created_at, is_hide").Where("user_id=?", userID).Scan(&song).Error
+	err = db.Select("id, vod_id, name, created_at, is_hide").Where("user_id=?", userID).Find(&song).Error
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		return nil, err
 	}
