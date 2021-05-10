@@ -232,7 +232,7 @@ func AddPraise(userid uint, strId string, types string) (error, PraiseData) {
 }
 
 type Target struct {
-	targetId uint `gorm:"column:user_id"`
+	TargetId uint `gorm:"column:user_id"`
 }
 
 func GetTargetId(types int, id uint) uint {
@@ -240,15 +240,15 @@ func GetTargetId(types int, id uint) uint {
 	var target Target
 	if types == 1 {
 		db.Table("deliver").Select("user_id").Where("id = ?", id).Scan(&target)
-		return target.targetId
+		return target.TargetId
 	}
 	if types == 2 {
 		db.Table("song").Select("user_id").Where("id = ?", id).Scan(&target)
-		return target.targetId
+		return target.TargetId
 	}
-	if types == 1 {
+	if types == 3 {
 		db.Table("special").Select("user_id").Where("id = ?", id).Scan(&target)
-		return target.targetId
+		return target.TargetId
 	}
 	return 0
 }
