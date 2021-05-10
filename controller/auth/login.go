@@ -173,7 +173,10 @@ type WechatUser struct {
 func WechatOAuth(ctx *gin.Context) {
 	body := ctx.PostForm("body")
 	user := &WechatUser{}
-	json.Unmarshal([]byte(body), user)
+	err := json.Unmarshal([]byte(body), user)
+	if err != nil {
+		ctx.JSON(500, e.ErrMsgResponse{Message: err.Error()})
+	}
 	if user.OpenID == "" {
 		ctx.JSON(403, e.ErrMsgResponse{Message: "decoding userdata failed"})
 		return
