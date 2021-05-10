@@ -4,7 +4,6 @@ import (
 	"errors"
 	"strconv"
 	"time"
-    "sync"
 
 	//"fmt"
 
@@ -225,32 +224,25 @@ func AddPraise(userid uint, strId string, types string) (error, PraiseData) {
 }
 
 func SyncLock(userid uint) bool {
-    var lck sync.Mutex
-    lck.Lock()
     client := setting.RedisConn()
     keyname := "healing2020:PraiseSign:"+strconv.Itoa(int(userid))
     sign := client.Get(keyname)
     if sign == nil {
         client.Set(keyname,"1",0)
-        lck.Unlock()
         return false
     }
     if sign.String() == "1" {
         client.Set(keyname,"2",0)
-        lck.Unlock()
         return false
     }
     if sign.String() == "2" {
         client.Set(keyname,"3",0)
-        lck.Unlock()
         return false
     }
     if sign.String() == "3" {
         client.Del(keyname)
-        lck.Unlock()
         return true
     }
-    lck.Unlock()
     return false
 }
 
