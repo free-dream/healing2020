@@ -7,6 +7,7 @@ import (
 	"healing2020/pkg/tools"
 	"healing2020/router"
 	"log"
+	"syscall"
 
 	//"healing2020/controller"
 	"healing2020/cron"
@@ -42,6 +43,9 @@ func main() {
 	// soft restart support
 	routers := router.InitRouter()
 	server := endless.NewServer(port, routers)
+	server.BeforeBegin = func(add string) {
+		log.Printf("Actual pid is %d", syscall.Getpid())
+	}
 
 	if err := server.ListenAndServe(); err != nil {
 		log.Fatalln(err.Error())
