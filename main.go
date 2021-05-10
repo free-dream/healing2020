@@ -31,7 +31,7 @@ func main() {
 		models.SendUserRank()
 		models.SendSongRank()
 		models.SendMainMsg()
-		port = ":3012"
+		port = ":8003"
 	} else {
 		port = ":8001"
 	}
