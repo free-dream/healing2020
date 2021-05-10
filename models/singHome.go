@@ -15,6 +15,7 @@ type AllSpecial struct {
 	Name      string `json:"name"`
 	Intro     string `json:"intro"`
 	MesNumber int    `json:"mesNumber"`
+	HotNumber int    `json:"hotNumber"`
 	HotSong   []UserMessage
 	SingSong  []UserMessage
 }
@@ -40,7 +41,7 @@ type UserMessage struct {
 
 func SingHome(belong string, pageStr string, pageStr2 string, subjectID uint, User_id string) (AllSpecial, error) {
 	page, _ := strconv.Atoi(pageStr)
-	page2, _:= strconv.Atoi(pageStr2)
+	page2, _ := strconv.Atoi(pageStr2)
 	belongs, _ := strconv.Atoi(belong)
 	int2Id, _ := strconv.Atoi(User_id)
 	UserID := uint(int2Id)
@@ -52,6 +53,7 @@ func SingHome(belong string, pageStr string, pageStr2 string, subjectID uint, Us
 	err := db.Table("subject").Select("id, name, intro, photo").Where("id = ? ", subjectID).First(&singSubject).Error
 	var count int
 	err = db.Table("comment").Where("type = 1 and song_id = ?", subjectID).Count(&count).Error
+	var count2 int
 
 	var Hot []UserMessage
 	var responseHot []UserMessage
@@ -68,6 +70,8 @@ func SingHome(belong string, pageStr string, pageStr2 string, subjectID uint, Us
 		responseHot = make([]UserMessage, len(Hot))
 		for i := 0; i < len(Hot); i++ {
 			if Hot[i].Praise >= 5 {
+				count2 = 1
+				count2 = count2 + 1
 				responseHot[i] = UserMessage{
 					Nickname:  HotElse[i].NickName,
 					Avatar:    HotElse[i].Avatar,
@@ -86,7 +90,7 @@ func SingHome(belong string, pageStr string, pageStr2 string, subjectID uint, Us
 	//个人页进入
 	if belongs == 2 {
 		//获取个人歌曲信息
-		err = db.Table("special").Select("user_id, id, created_at, praise, song, record").Where("subject_id = ? and user_id = ?", subjectID, UserID).Order("praise DESC").Scan(&Hot).Error
+		err = db.Table("special").Select("user_id, id, created_at, praise, song, record").Where("subject_id = ? and user_id = ?", subjectID, UserID).Order("praise DESC").Count(&count2).Scan(&Hot).Error
 		//获取个人用户信息
 		HotElse := make([]statements.User, len(Hot))
 		for i := 0; i < len(Hot); i++ {
@@ -138,6 +142,7 @@ func SingHome(belong string, pageStr string, pageStr2 string, subjectID uint, Us
 		Name:      singSubject.Name,
 		Intro:     singSubject.Intro,
 		MesNumber: count,
+		HotNumber: count2,
 		HotSong:   pageResponHot,
 		SingSong:  pageResponSing,
 	}
