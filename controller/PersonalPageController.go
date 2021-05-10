@@ -15,6 +15,7 @@ import (
 )
 
 type MyPersonalPage struct {
+	UserID         uint                  `json:"user_id"`
 	NickName       string                `json:"name"`
 	Campus         string                `json:"school"`
 	More           string                `json:"more"`
@@ -34,6 +35,7 @@ type MyPersonalPage struct {
 }
 
 type OthersPersonalPage struct {
+	UserID     uint                  `json:"user_id"`
 	NickName   string                `json:"name"`
 	Campus     string                `json:"school"`
 	More       string                `json:"more"`
@@ -60,6 +62,7 @@ func responsePage(c *gin.Context, user statements.User, my_others string) {
 	myID := tools.GetUser(c).ID
 	//初始化返回数据
 	page := MyPersonalPage{
+		UserID:   user.ID,
 		NickName: user.NickName,
 		Campus:   user.Campus,
 		Sex:      user.Sex,
