@@ -51,7 +51,12 @@ func InitRouter() *gin.Engine {
 	r.POST("/wx/oauth/*redirect", auth.WechatOAuth)
 
 	//开发时按群组分类，并记得按swagger格式注释
-	api := r.Group("/api")
+	var api *gin.RouterGroup
+	if tools.IsDebug() {
+		api = r.Group("/test/api")
+	} else {
+		api = r.Group("/api")
+	}
 	api.Use(middleware.IdentityCheck())
 
 	//qiniuToken
