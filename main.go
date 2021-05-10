@@ -21,15 +21,19 @@ import (
 func main() {
 	defer setting.DB.Close()
 	defer setting.RedisClient.Close()
-    setting.RedisConnTest()
+	setting.RedisConnTest()
 	models.TableInit()
 	controller.MysqltoChan()
+	var port string
 	if tools.IsDebug() {
 		//controller.LoadTestData()
 		models.SendDeliverRank()
 		models.SendUserRank()
 		models.SendSongRank()
 		models.SendMainMsg()
+		port = ":3012"
+	} else {
+		port = ":3011"
 	}
 
 	c := cron.CronInit()
@@ -38,7 +42,7 @@ func main() {
 
 	// soft restart support
 	routers := router.InitRouter()
-	server := endless.NewServer(":3011", routers)
+	server := endless.NewServer(port, routers)
 
 	if err := server.ListenAndServe(); err != nil {
 		log.Fatalln(err.Error())
