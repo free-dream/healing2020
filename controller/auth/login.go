@@ -147,7 +147,12 @@ func Jump(c *gin.Context) {
 // 微信授权起点在这个接口，这里会重定向到微信服务器
 func JumpToWechat(ctx *gin.Context) {
 	urlOfApiv3 := "https://apiv3.100steps.top"
-	urlOfOAuth := "https://healing2020.100steps.top/wx/oauth/" + url.QueryEscape(url.QueryEscape(ctx.Query("redirect")))
+	var urlOfOAuth string
+	if tools.IsDebug() {
+		urlOfOAuth = "https://healing2020.100steps.top/test/wx/oauth/" + url.QueryEscape(url.QueryEscape(ctx.Query("redirect")))
+	} else {
+		urlOfOAuth = "https://healing2020.100steps.top/wx/oauth/" + url.QueryEscape(url.QueryEscape(ctx.Query("redirect")))
+	}
 	appid := "wx293bc6f4ee88d87d"
 	// todo: redirect
 	url2b64 := base64.StdEncoding.EncodeToString([]byte(urlOfOAuth))
