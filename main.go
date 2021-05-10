@@ -32,7 +32,7 @@ func main() {
 		models.SendMainMsg()
 		port = ":3012"
 	} else {
-		port = ":3011"
+		port = ":8001"
 	}
 
 	c := cron.CronInit()
