@@ -3,16 +3,24 @@ package setting
 import (
 	"github.com/go-redis/redis"
 	"healing2020/pkg/tools"
+    "strconv"
 )
 
 var RedisClient *redis.Client
 
 func init() {
 	addr := tools.GetConfig("redis", "addr")
+    dbStr := tools.GetConfig("redis", "db")
+    var db int
+    if dbStr == "" {
+        db = 0
+    } else {
+        db,_ = strconv.Atoi(dbStr)
+    }
 	RedisClient = redis.NewClient(&redis.Options{
 		Addr:         addr,
 		Password:     "",
-		DB:           0,
+		DB:           db,
 		PoolSize:     30,
 		MinIdleConns: 10,
 	})
