@@ -79,7 +79,7 @@ func DeliverHome(pageStr string, Type string, myID uint) ([]AllDeliver, error) {
 	if err != nil {
 		return pageResponDeliver, errors.New("page out of range")
 	}
-	return responseDeliver, err
+	return pageResponDeliver, err
 }
 
 func Pageing(page int, data []AllDeliver) ([]AllDeliver, error) {
