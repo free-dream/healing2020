@@ -71,7 +71,7 @@ func UpdatePraiseSign() {
 	db.Model(&statements.User{}).Count(&count)
 
 	for i := 0; i < count; i++ {
-		keyname := "healing2020:PraiseSign" + strconv.Itoa(count)
+        keyname := "healing2020:user:" + strconv.Itoa(count)+":praised"
 		client.Del(keyname)
 	}
 }

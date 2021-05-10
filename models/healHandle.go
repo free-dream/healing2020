@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	//"fmt"
+	"fmt"
 
 	"healing2020/models/statements"
 	"healing2020/pkg/setting"
@@ -224,9 +224,10 @@ func AddPraise(userid uint, strId string, types string) (error, PraiseData) {
 
 	err := db.Model(&statements.Praise{}).Create(&praise).Error
 
-	if SyncLock(userid) {
-		FinishTask("5", userid)
-	}
+	//if SyncLock(userid) {
+	//	FinishTask("5", userid)
+	//}
+    SyncLock(userid)
 
 	return err, praiseData
 }
@@ -253,27 +254,12 @@ func GetTargetId(types int, id uint) uint {
 	return 0
 }
 
-func SyncLock(userid uint) bool {
+func SyncLock(userid uint) {
 	client := setting.RedisConn()
-	keyname := "healing2020:PraiseSign:" + strconv.Itoa(int(userid))
-	sign := client.Get(keyname)
-	if sign == nil {
-		client.Set(keyname, "1", 0)
-		return false
-	}
-	if sign.String() == "1" {
-		client.Set(keyname, "2", 0)
-		return false
-	}
-	if sign.String() == "2" {
-		client.Set(keyname, "3", 0)
-		return false
-	}
-	if sign.String() == "3" {
-		client.Del(keyname)
-		return true
-	}
-	return false
+    num := client.Incr(fmt.Sprintf("healing2020:user:%d:praised",userid)).Val()
+    if num == 3 {
+        FinishTask("5",userid)
+    }
 }
 
 func CreateVod(uid uint, singer string, style string, language string, name string, more string) error {
