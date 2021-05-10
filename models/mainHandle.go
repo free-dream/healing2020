@@ -11,6 +11,7 @@ import (
 
 	"healing2020/models/statements"
 	"healing2020/pkg/setting"
+    "healing2020/pkg/tools"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
@@ -145,18 +146,18 @@ func LoadVodMsg(sort string, key string,userTags string) []SongMsg {
 	var result *gorm.DB
 	if key == "" || key == "推荐"{
         if sort == "0" {
-            result = db.Raw("select id,user_id,name,singer,more,style,language,created_at from vod where hide_name = 0 order by rand()")
+            result = db.Raw("select id,user_id,name,singer,more,style,language,created_at,hide_name from vod order by rand()")
             rows, _ = result.Rows()
         }else {
-            result = db.Raw("select id,user_id,name,singer,more,style,language,created_at from vod where hide_name = 0 order by created_at desc")
+            result = db.Raw("select id,user_id,name,singer,more,style,language,created_at,hide_name from vod order by created_at desc")
             rows, _ = result.Rows()
         }
 	} else {
 		if sort == "0" {
-			result = db.Raw("select id,user_id,name,singer,more,created_at,style,language from vod where hide_name = 0 and style=? or hide_name = 0 and language=? order by rand()", key, key)
+			result = db.Raw("select id,user_id,name,singer,more,created_at,style,language,hide_name from vod where style=? or language=? order by rand()", key, key)
 			rows, _ = result.Rows()
 		} else {
-			result = db.Raw("select id,user_id,name,singer,more,created_at,style,language from vod where hide_name = 0 and style=? or hide_name = 0 and language=? order by created_at desc", key, key)
+			result = db.Raw("select id,user_id,name,singer,more,created_at,style,language,hide_name from vod where style=? or language=? order by created_at desc", key, key)
 			rows, _ = result.Rows()
 		}
 	}
@@ -188,6 +189,11 @@ func LoadVodMsg(sort string, key string,userTags string) []SongMsg {
 		vodList[i].User = user.NickName
 		vodList[i].Sex = user.Sex
 		vodList[i].Avatar = user.Avatar
+
+        if vod.HideName == 1 {
+            vodList[i].User = "匿名用户"
+            vodList[i].Avatar = tools.GetAvatarUrl(user.Sex)
+        }
 
 		i++
 	}
@@ -393,7 +399,7 @@ func GetSearchResult(search string) SearchResp {
 	}
 
     var vodCount int = 0
-	result = db.Model(&statements.Vod{}).Where("name = ? and hide_name = 0", search).Select("id,created_at,user_id").Count(&vodCount)
+	result = db.Model(&statements.Vod{}).Where("name = ?", search).Select("id,created_at,user_id").Count(&vodCount)
 
 	if vodCount != 0 && result.Error == nil {
 		rows, _ := result.Rows()
@@ -415,6 +421,11 @@ func GetSearchResult(search string) SearchResp {
 			vodResp[i].VodUser = user.NickName
             vodResp[i].Avatar = user.Avatar
             vodResp[i].Sex = user.Sex
+
+            if vod.HideName == 1 {
+                vodResp[i].VodUser = "匿名用户"
+                vodResp[i].Avatar = tools.GetAvatarUrl(user.Sex)
+            }
 
 			i++
 		}

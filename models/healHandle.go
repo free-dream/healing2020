@@ -4,7 +4,6 @@ import (
 	"errors"
 	"strconv"
 	"time"
-
 	//"fmt"
 
 	"healing2020/models/statements"
@@ -67,10 +66,15 @@ func GetRecord(id string, myID uint) ResultResp {
 
 	userId := vod.UserId
 	var user statements.User
-	db.Model(&statements.User{}).Select("avatar,nick_name").Where("id =?", userId).First(&user)
+	db.Model(&statements.User{}).Select("sex, avatar,nick_name").Where("id =?", userId).First(&user)
 
 	resultResp.VodUser = user.NickName
 	resultResp.VodAvatar = user.Avatar
+
+    if vod.HideName == 1 {
+        resultResp.VodUser = "匿名用户"
+        resultResp.VodAvatar = tools.GetAvatarUrl(user.Sex)
+    }
 
 	count := 0
 	var allSong []statements.Song
