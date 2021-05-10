@@ -124,11 +124,11 @@ func SendPraiseMsg(myID uint, targetID uint, myName string, types string, mainMs
 		Content:    content,
 		URL:        "",
 	}
-	msgID := tools.Md5String(strconv.Itoa(int(myID)) + strconv.Itoa(int(targetID)) + msg.Time)
+	msgID := tools.Md5String(strconv.Itoa(int(myID)) + strconv.Itoa(int(targetID)) + time.Now().Format("2006-01-02 15:04:05"))
 	msg.ID = msgID
+	MysqlCreate <- &msg
 	createUserMsgChan(targetID) //in ws.go
 	MessageQueue[int(targetID)] <- &msg
-	MysqlCreate <- &msg
 }
 
 type RecordParams struct {
