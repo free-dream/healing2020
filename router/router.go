@@ -144,7 +144,7 @@ func InitRouter() *gin.Engine {
 
 	//login
     if tools.IsDebug() {
-	    r.GET("/auth/fake/:id", auth.FakeLogin)
+	    r.GET("/test/auth/fake/:id", auth.FakeLogin)
     }
 
 	return r
