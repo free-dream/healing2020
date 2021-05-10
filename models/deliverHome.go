@@ -19,6 +19,7 @@ type User struct {
 	Photo     string    `json:"photo"`
 	Record    string    `json:"record"`
 	Praise    int       `json:"praise"`
+	IsPraise  bool      `json:"isPraise"`
 }
 
 type AllDeliver struct {
@@ -27,7 +28,7 @@ type AllDeliver struct {
 	Avatar      string `json:"avater"`
 }
 
-func DeliverHome(pageStr string, Type string) ([]AllDeliver, error) {
+func DeliverHome(pageStr string, Type string, myID uint) ([]AllDeliver, error) {
 	page, _ := strconv.Atoi(pageStr)
 	var err error
 	//连接mysql
@@ -66,6 +67,8 @@ func DeliverHome(pageStr string, Type string) ([]AllDeliver, error) {
 			Nickname:    UserElse[i].NickName,
 			Avatar:      UserElse[i].Avatar,
 		}
+		responseDeliver[i].Deliverelse.IsPraise,_ = HasPraise(1,myID,uint(deliverHome[i].Id))
+        responseDeliver[i].Deliverelse.Praise = GetPraiseCount("deliver",uint(deliverHome[i].Id))
 	}
 	
 	pageResponDeliver, err := Pageing(page, responseDeliver)
@@ -91,7 +94,7 @@ func Pageing(page int, data []AllDeliver) ([]AllDeliver, error) {
 }
 
 //发送单个投递详情
-func SingleDeliver(DevId string) ([]AllDeliver, error) {
+func SingleDeliver(DevId string, myID uint) ([]AllDeliver, error) {
 	//连接mysql
 	db := setting.MysqlConn()
 
@@ -121,6 +124,8 @@ func SingleDeliver(DevId string) ([]AllDeliver, error) {
 			Nickname:    SingleElse[i].NickName,
 			Avatar:      SingleElse[i].Avatar,
 		}
+		responseSingle[i].Deliverelse.IsPraise,_ = HasPraise(1,myID,uint(singleDeliver[i].Id))
+        responseSingle[i].Deliverelse.Praise = GetPraiseCount("deliver",uint(singleDeliver[i].Id))
 	}
 	return responseSingle, err
 }
