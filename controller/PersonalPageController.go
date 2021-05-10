@@ -62,6 +62,7 @@ func responsePage(c *gin.Context, user statements.User, my_others string) {
 	myID := tools.GetUser(c).ID
 	//初始化返回数据
 	page := MyPersonalPage{
+		UserID:   user.ID,
 		NickName: user.NickName,
 		Campus:   user.Campus,
 		Sex:      user.Sex,
