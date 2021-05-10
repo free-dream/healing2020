@@ -331,7 +331,7 @@ func GetUserRank(id string) (UserRank, error) {
 	userId := uint(intId)
 	db := setting.MysqlConn()
 
-	rows, err := db.Model(&statements.User{}).Order("money created_at desc").Rows()
+	rows, err := db.Model(&statements.User{}).Order("money desc,created_at").Rows()
 	rank := 0
 	if err != nil {
 		return UserRank{}, err
