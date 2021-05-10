@@ -12,10 +12,22 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 
 	"errors"
-    "strconv"
+	"strconv"
 	//"encoding/json"
 	//"time"
 )
+
+//run in personalPagecontroller.go
+//run in userController.go
+//select并根据id返回用户信息
+func ResponseUser(userID uint) (statements.User, error) {
+	//连接mysql
+	db := setting.MysqlConn()
+
+	var user statements.User
+	err := db.Where("id=?", userID).First(&user).Error
+	return user, err
+}
 
 func UpdateOrCreate(openId string, nickName string, sex int, avatar string) error {
 	db := setting.MysqlConn()
@@ -51,16 +63,16 @@ func UpdateOrCreate(openId string, nickName string, sex int, avatar string) erro
 }
 
 func UpdatePraiseSign() {
-    db := setting.MysqlConn()
-    client := setting.RedisConn()
+	db := setting.MysqlConn()
+	client := setting.RedisConn()
 
-    count := 0
-    db.Model(&statements.User{}).Count(&count)
+	count := 0
+	db.Model(&statements.User{}).Count(&count)
 
-    for i:=0;i<count;i++ {
-        keyname := "healing2020:PraiseSign"+strconv.Itoa(count)
-        client.Del(keyname)
-    }
+	for i := 0; i < count; i++ {
+		keyname := "healing2020:PraiseSign" + strconv.Itoa(count)
+		client.Del(keyname)
+	}
 }
 
 //SELECT hobby FROM user where id = userID

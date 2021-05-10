@@ -39,7 +39,6 @@ type OthersPersonalPage struct {
 	More       string                `json:"more"`
 	Avatar     string                `json:"avatar"`
 	Background int                   `json:"background"`
-	IsPraised  int                   `json:"ispraised"`
 	Vod        []models.RequestSongs `json:"requestSongs"`
 	Songs      []models.Songs        `json:"Songs"`
 	Praise     []models.Admire       `json:"admire"`
@@ -109,6 +108,16 @@ func responsePage(c *gin.Context, user statements.User, my_others string) {
 	if my_others == "my" {
 		c.JSON(200, page)
 	} else if my_others == "others" {
+		for key, value := range page.Songs {
+			if value.IsHide == 1 {
+				page.Songs = append(page.Songs[:key], page.Songs[(key+1):]...)
+			}
+		}
+		for key, value := range page.Vod {
+			if value.HideName == 1 {
+				page.Vod = append(page.Vod[:key], page.Vod[(key+1):]...)
+			}
+		}
 		c.JSON(200, OthersPersonalPage{
 			NickName:   page.NickName,
 			Campus:     page.Campus,
