@@ -70,16 +70,6 @@ func GetTask(userID uint) ([]interface{}, error) {
 	return taskGet, err
 }
 
-//更新每日任务
-func UpdateTask() error {
-	//连接mysql
-	db := setting.MysqlConn()
-
-	//更新每日任务
-	err := db.Table("user_other").Update(map[string]interface{}{"lo1": "0", "lo2": "0", "lo3": "0", "lo4": "0", "lo5": "0", "lo6": "0"}).Error
-	return err
-}
-
 //完成每日任务
 func FinishTask(task string, userID uint) error {
 	//连接mysql
@@ -105,7 +95,7 @@ func FinishTask(task string, userID uint) error {
 	t_to_tomorrow := 24*60*60 - (t.Unix() - t_zero)
 	redis_cli := setting.RedisClient
 
-	finished := redis_cli.Set(fmt.Sprintf("%d:%s", userID, task), task, time.Duration(t_to_tomorrow)*time.Second).Err()
+	finished := redis_cli.Set(fmt.Sprintf("%d:%s", userID, task), true, time.Duration(t_to_tomorrow)*time.Second).Err()
 	if finished == nil {
 		if user.Money >= 0 {
 			user.Money = user.Money + earnMoney[task]
