@@ -29,7 +29,6 @@ func RedisConnTest() {
 		panic(err)
 	}
 	client.Set("healing2020:rankCount", 0, 0)
-	client.Close()
 }
 
 func RedisConn() *redis.Client {

@@ -21,6 +21,7 @@ import (
 func main() {
 	defer setting.DB.Close()
 	defer setting.RedisClient.Close()
+    setting.RedisConnTest()
 	models.TableInit()
 	controller.MysqltoChan()
 	if tools.IsDebug() {

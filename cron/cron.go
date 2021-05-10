@@ -12,6 +12,7 @@ func CronInit() *cron.Cron {
 	c.AddFunc("0 */2 * * *", func() {
 		models.AutoSyncPraise()
 	})
+
 	c.AddFunc("1 */2 * * *", func() {
 		models.SendDeliverRank()
 	})
