@@ -4,6 +4,7 @@ import (
 	"errors"
 	"healing2020/models/statements"
 	"healing2020/pkg/setting"
+	"healing2020/pkg/tools"
 	"log"
 	"strconv"
 	"time"
@@ -22,12 +23,16 @@ type User struct {
 	Record    string    `json:"record"`
 	Praise    int       `json:"praise"`
 	IsPraise  bool      `json:"isPraise"`
+	// Setting1  int 		`json:"setting1"`
+	// Sex       int  		`json:"sex"`
 }
 
 type AllDeliver struct {
 	Deliverelse User
 	Nickname    string `json:"nickname"`
 	Avatar      string `json:"avater"`
+	Setting1    int    `json:"setting1"`
+	Sex         int    `json:"sex"`
 }
 
 func DeliverHome(pageStr string, Type string, myID uint) ([]AllDeliver, error) {
@@ -59,19 +64,31 @@ func DeliverHome(pageStr string, Type string, myID uint) ([]AllDeliver, error) {
 	UserElse := make([]statements.User, len(deliverHome))
 	for i := 0; i < len(deliverHome); i++ {
 		// log.Println(deliverHome[i].UserID)
-			err = db.Table("user").Select("nick_name, avatar").Where("id = ?", deliverHome[i].UserID).Scan(&UserElse[i]).Error
-			if err != nil && !gorm.IsRecordNotFoundError(err) {
-				log.Println(err)
-				return nil, err
-			}
+		err = db.Table("user").Select("nick_name, avatar, setting1, sex").Where("id = ?", deliverHome[i].UserID).Scan(&UserElse[i]).Error
+		if err != nil && !gorm.IsRecordNotFoundError(err) {
+			log.Println(err)
+			return nil, err
+		}
 
+		if UserElse[i].Setting1 == 0 {
+			responseDeliver[i] = AllDeliver{
+				Deliverelse: deliverHome[i],
+				Nickname:    UserElse[i].NickName,
+				Avatar:      tools.GetAvatarUrl(UserElse[i].Sex),
+				Setting1:    UserElse[i].Setting1,
+				Sex:         UserElse[i].Sex,
+			}
+		} else {
 			responseDeliver[i] = AllDeliver{
 				Deliverelse: deliverHome[i],
 				Nickname:    UserElse[i].NickName,
 				Avatar:      UserElse[i].Avatar,
+				Setting1:    UserElse[i].Setting1,
+				Sex:         UserElse[i].Sex,
 			}
-			responseDeliver[i].Deliverelse.IsPraise, _ = HasPraise(1, myID, uint(deliverHome[i].Id))
-			responseDeliver[i].Deliverelse.Praise = GetPraiseCount("deliver", uint(deliverHome[i].Id))
+		}
+		responseDeliver[i].Deliverelse.IsPraise, _ = HasPraise(1, myID, uint(deliverHome[i].Id))
+		responseDeliver[i].Deliverelse.Praise = GetPraiseCount("deliver", uint(deliverHome[i].Id))
 	}
 
 	pageResponDeliver, err := Pageing(page, responseDeliver)
@@ -114,7 +131,7 @@ func SingleDeliver(DevId string, myID uint) ([]AllDeliver, error) {
 	//获取用户昵称
 	SingleElse := make([]statements.User, len(singleDeliver))
 	for i := 0; i < len(singleDeliver); i++ {
-		err := db.Table("user").Select("nick_name, avatar").Where("id = ?", singleDeliver[i].UserID).Scan(&SingleElse[i]).Error
+		err := db.Table("user").Select("nick_name, avatar, setting1, sex").Where("id = ?", singleDeliver[i].UserID).Scan(&SingleElse[i]).Error
 		if err != nil && !gorm.IsRecordNotFoundError(err) {
 			return nil, err
 		}
@@ -122,10 +139,22 @@ func SingleDeliver(DevId string, myID uint) ([]AllDeliver, error) {
 
 	responseSingle := make([]AllDeliver, len(singleDeliver))
 	for i := 0; i < len(singleDeliver); i++ {
-		responseSingle[i] = AllDeliver{
-			Deliverelse: singleDeliver[i],
-			Nickname:    SingleElse[i].NickName,
-			Avatar:      SingleElse[i].Avatar,
+		if SingleElse[i].Setting1 == 0 {
+			responseSingle[i] = AllDeliver{
+				Deliverelse: singleDeliver[i],
+				Nickname:    SingleElse[i].NickName,
+				Avatar:      tools.GetAvatarUrl(SingleElse[i].Sex),
+				Setting1:    SingleElse[i].Setting1,
+				Sex:         SingleElse[i].Sex,
+			}
+		} else {
+			responseSingle[i] = AllDeliver{
+				Deliverelse: singleDeliver[i],
+				Nickname:    SingleElse[i].NickName,
+				Avatar:      SingleElse[i].Avatar,
+				Setting1:    SingleElse[i].Setting1,
+				Sex:         SingleElse[i].Sex,
+			}
 		}
 		responseSingle[i].Deliverelse.IsPraise, _ = HasPraise(1, myID, uint(singleDeliver[i].Id))
 		responseSingle[i].Deliverelse.Praise = GetPraiseCount("deliver", uint(singleDeliver[i].Id))
