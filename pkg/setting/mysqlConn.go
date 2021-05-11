@@ -13,7 +13,7 @@ func init() {
 	user := tools.GetConfig("mysql", "user")
 	password := tools.GetConfig("mysql", "password")
 	port := tools.GetConfig("mysql", "port")
-	dbInfo := user + ":" + password + "@tcp(" + port + ")/" + dbName + "?charset=utf8mb4&parseTime=True&loc=Local"
+	dbInfo := user + ":" + password + "@tcp(" + port + ")/" + dbName + "?charset=utf8mb4&parseTime=True&loc=Local&timeout=10s"
 
 	//connect
 	var err error
