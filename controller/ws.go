@@ -109,26 +109,26 @@ func (wsConn *WsConnection) MsgMysql() {
 		select {
 		case msg := <-MysqlCreate:
 			message := msgToSMessage(msg)
-			if models.SaveMessage(message) != nil {
+			err := models.SaveMessage(message)
+			if err != nil {
 				MysqlCreate <- msg
 				mysqlError += 1
 			} else {
-				log.Println("存储msg失败！")
 				mysqlError = 0
 			}
 		case msg := <-MysqlDelete:
 			message := msgToSMessage(msg)
-			if models.DeleteMessage(message) != nil {
+			err := models.DeleteMessage(message)
+			if err != nil {
 				MysqlDelete <- msg
 				mysqlError += 1
 			} else {
-				log.Println("存储msg失败！")
 				mysqlError = 0
 			}
 		}
 		//if try to save or create mant times, close ws
 		if mysqlError > 10 {
-			log.Println("can not connect to the mysql, ws close")
+			log.Println("ws save fail many times, can not connect to the mysql, ws close")
 			wsConn.close()
 		}
 	}
@@ -257,7 +257,6 @@ func (wsConn *WsConnection) writeWs(c *gin.Context) {
 			select {
 			//if timeout 2s, drop msg back to the message chan
 			case <-time.After(time.Second * 2):
-				log.Println("timeout, msg is not be received")
 				timeoutNum += 1
 				createUserMsgChan(wsConn.userID)
 				MessageQueue[int(wsConn.userID)] <- msg
@@ -293,7 +292,6 @@ func (wsConn *WsConnection) readWs(c *gin.Context) {
 	for {
 		_, rawData, err := wsConn.ws.ReadMessage()
 		if err != nil {
-			log.Println("read ws fail, ws close")
 			wsConn.close()
 			return
 		}
@@ -332,7 +330,7 @@ func (wsConn *WsConnection) readWs(c *gin.Context) {
 				return
 			}
 		} else {
-			log.Println("json.unmarshal failed")
+			log.Println("ws json.unmarshal failed")
 			wsConn.ws.WriteMessage(websocket.TextMessage, []byte("json.unmarshal failed"))
 			log.Println("rawData: " + string(rawData))
 			continue
