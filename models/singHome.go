@@ -181,12 +181,12 @@ func PageinHot(page int, data []UserMessage) ([]UserMessage, error) {
 }
 
 //发送歌房歌曲数据
-func PostSpecial(Subject_id string, Song string, User_id string, Record string) error {
+func PostSpecial(Subject_id string, Song string, user_id uint, Record string) error {
 	intId, _ := strconv.Atoi(Subject_id)
 	subject_id := uint(intId)
 
-	int2Id, _ := strconv.Atoi(User_id)
-	user_id := uint(int2Id)
+	// int2Id, _ := strconv.Atoi(User_id)
+	// user_id := uint(int2Id)
 
 	db := setting.MysqlConn()
 
