@@ -339,6 +339,7 @@ type UserResp struct {
 
 type SongResp struct {
 	SongId   uint      `json:"songid"`
+    VodId    uint      `json:"vodid"`
 	SongName string    `json:"name"`
     Avatar   string    `json:"avatar"`
 	Praise   int       `json:"like"`
@@ -378,6 +379,7 @@ func GetSearchResult(search string) SearchResp {
             var song statements.Song
 			db.ScanRows(rows, &song)
 			songResp[i].SongId = song.ID
+            songResp[i].VodId  = song.VodId
 			songResp[i].Praise = GetPraiseCount("song",song.ID)
 			songResp[i].Source = song.Source
 			songResp[i].SongName = search
