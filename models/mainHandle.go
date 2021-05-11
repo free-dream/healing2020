@@ -353,6 +353,7 @@ type VodResp struct {
 	VodId   uint      `json:"vodid"`
 	VodName string    `json:"name"`
 	VodUser string    `json:"user"`
+    VodUserId string  `json:"vodUserId"`
 	Avatar  string    `json:"avatar"`
 	More    string    `json:"more"`
 	Sex     int       `json:"sex"`
@@ -419,6 +420,7 @@ func GetSearchResult(search string) SearchResp {
 			vodResp[i].VodName = search
 			vodResp[i].Time = vod.CreatedAt
 			vodResp[i].More = vod.More
+            vodResp[i].VodUserId = vod.UserId
 
 			var user statements.User
 			db.Model(&statements.User{}).Select("sex,more,avatar,nick_name").Where("id = ?", vod.UserId).First(&user)
