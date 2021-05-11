@@ -75,7 +75,7 @@ func responsePage(c *gin.Context, user statements.User, my_others string) {
 	}
 
 	// if user's setting3 == 0, back to default url
-	if user.Setting3 == 0 {
+	if user.Setting1 == 0 {
 		page.Avatar = tools.GetAvatarUrl(user.Sex)
 	}
 
