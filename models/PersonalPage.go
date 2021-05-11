@@ -46,13 +46,17 @@ func ResponseUserOther(userID uint) (statements.UserOther, error) {
 }
 
 //select并返回点歌信息
-func ResponseVod(userID uint) ([]RequestSongs, error) {
+func ResponseVod(userID uint, my_others string) ([]RequestSongs, error) {
 	//连接mysql
 	db := setting.MysqlConn()
-
-	//获取点歌信息
 	var allVod []RequestSongs
-	err := db.Table("vod").Select("id, name, created_at, hide_name").Where("user_id=?", userID).Scan(&allVod).Error
+	var err error
+	//获取点歌信息
+	if my_others == "my" {
+		err = db.Table("vod").Select("id, name, created_at, hide_name").Where("user_id = ?", userID).Scan(&allVod).Error
+	} else if my_others == "others" {
+		err = db.Table("vod").Select("id, name, created_at, hide_name").Where("user_id = ? And hide_name = 0", userID).Scan(&allVod).Error
+	}
 	return allVod, err
 }
 

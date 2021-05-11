@@ -90,12 +90,6 @@ func responsePage(c *gin.Context, user statements.User, my_others string) {
 	page.AvaBackground = SplitAvaBackgroundtoI(userOther.AvaBackground)
 	page.RemainHideName = userOther.RemainHideName
 
-	page.Vod, err = models.ResponseVod(user.ID)
-	if err != nil && !gorm.IsRecordNotFoundError(err) {
-		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
-		return
-	}
-
 	page.Praise, err = models.ResponsePraise(user.ID)
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
@@ -108,9 +102,19 @@ func responsePage(c *gin.Context, user statements.User, my_others string) {
 			c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
 			return
 		}
+		page.Vod, err = models.ResponseVod(user.ID, "my")
+		if err != nil && !gorm.IsRecordNotFoundError(err) {
+			c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
+			return
+		}
 		c.JSON(200, page)
 	} else if my_others == "others" {
 		page.Songs, err = models.ResponseSongs(user.ID, myID, "others") //加入了匿名无数据的条件
+		if err != nil && !gorm.IsRecordNotFoundError(err) {
+			c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
+			return
+		}
+		page.Vod, err = models.ResponseVod(user.ID, "others")
 		if err != nil && !gorm.IsRecordNotFoundError(err) {
 			c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
 			return
