@@ -301,6 +301,12 @@ func (wsConn *WsConnection) writeWs(c *gin.Context) {
 func (wsConn *WsConnection) readWs(c *gin.Context) {
 	userID := tools.GetUser(c).ID
 	for {
+
+		select {
+		case <-wsConn.closeChan:
+			return
+		default:
+		}
 		_, rawData, err := wsConn.ws.ReadMessage()
 		if err != nil {
 			wsConn.close()
@@ -343,10 +349,6 @@ func (wsConn *WsConnection) readWs(c *gin.Context) {
 			continue
 		}
 
-		select {
-		case <-wsConn.closeChan:
-			return
-		}
 	}
 }
 
