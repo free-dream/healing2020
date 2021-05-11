@@ -40,14 +40,14 @@ func DeliverHome(pageStr string, Type string, myID uint) ([]AllDeliver, error) {
 	//最新排序
 	if Type == "0" {
 		//获取投递信息
-		err := db.Table("deliver").Select("id, user_id, created_at, type, text_field, photo, record, praise").Order("created_at DESC").Scan(&deliverHome).Error
+		err := db.Table("deliver").Select("id, user_id, created_at, type, text_field, photo, record, praise").Not("user_id", 0).Order("created_at DESC").Scan(&deliverHome).Error
 		if err != nil && !gorm.IsRecordNotFoundError(err) {
 			return nil, err
 		}
 	}
 	//随机排序
 	if Type == "1" {
-		err := db.Table("deliver").Select("id, user_id, created_at, type, text_field, photo, record, praise").Order("rand()").Scan(&deliverHome).Error
+		err := db.Table("deliver").Select("id, user_id, created_at, type, text_field, photo, record, praise").Not("user_id", 0).Order("rand()").Scan(&deliverHome).Error
 		if err != nil && !gorm.IsRecordNotFoundError(err) {
 			return nil, err
 		}
@@ -57,25 +57,21 @@ func DeliverHome(pageStr string, Type string, myID uint) ([]AllDeliver, error) {
 
 	//获取用户昵称
 	UserElse := make([]statements.User, len(deliverHome))
-	j := 0
 	for i := 0; i < len(deliverHome); i++ {
-		log.Println(deliverHome[i].UserID)
-		if deliverHome[i].UserID != 0 {
+		// log.Println(deliverHome[i].UserID)
 			err = db.Table("user").Select("nick_name, avatar").Where("id = ?", deliverHome[i].UserID).Scan(&UserElse[i]).Error
 			if err != nil && !gorm.IsRecordNotFoundError(err) {
 				log.Println(err)
 				return nil, err
 			}
 
-			responseDeliver[j] = AllDeliver{
+			responseDeliver[i] = AllDeliver{
 				Deliverelse: deliverHome[i],
 				Nickname:    UserElse[i].NickName,
 				Avatar:      UserElse[i].Avatar,
 			}
-			responseDeliver[j].Deliverelse.IsPraise, _ = HasPraise(1, myID, uint(deliverHome[i].Id))
-			responseDeliver[j].Deliverelse.Praise = GetPraiseCount("deliver", uint(deliverHome[i].Id))
-			j = j+1
-		}
+			responseDeliver[i].Deliverelse.IsPraise, _ = HasPraise(1, myID, uint(deliverHome[i].Id))
+			responseDeliver[i].Deliverelse.Praise = GetPraiseCount("deliver", uint(deliverHome[i].Id))
 	}
 
 	pageResponDeliver, err := Pageing(page, responseDeliver)
