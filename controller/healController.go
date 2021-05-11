@@ -133,7 +133,7 @@ func SendPraiseMsg(myID uint, targetID uint, myName string, types string, mainMs
 
 type RecordParams struct {
 	Id       string   `json:"id" binding:"required"`
-	Name     string   `json:"name" binding:"required"`
+	Name     string   `json:"name"`
 	ServerID []string `json:"server_id" binding:"required"`
 	IsHide   int      `json:"isHide" binding:"required"`
 }
