@@ -55,7 +55,7 @@ func GetRemainNum(c *gin.Context) {
 		RemainHide: userOther.RemainHideName,
 	}
 	if err != nil {
-		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
+		c.JSON(500, e.ErrMsgResponse{Message: err.Error()})
 		return
 	} else {
 		c.JSON(200, responseInf)
