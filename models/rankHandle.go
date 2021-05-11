@@ -27,6 +27,7 @@ type Rank struct {
 	Time   string `json:"time"`
 	Praise int    `json:"praise"`
 	Name   string `json:"name"`
+    VodId  uint   `json:"vodid"`
     UserId uint   `json:"userid"`
     IsPraise bool `json:"isPraise"`
 }
@@ -198,6 +199,7 @@ func SendSongRank() error {
 		rank[i].Name = song[i].Name
 		rank[i].Praise = GetPraiseCount("song",song[i].ID)
 		rank[i].Time = date
+        rank[i].VodId = song[i].VodId
 		rank[i].Source = song[i].Source
 
 		userid := song[i].UserId
