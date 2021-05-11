@@ -113,6 +113,7 @@ func (wsConn *WsConnection) MsgMysql() {
 				MysqlCreate <- msg
 				mysqlError += 1
 			} else {
+				log.Println("存储msg失败！")
 				mysqlError = 0
 			}
 		case msg := <-MysqlDelete:
@@ -121,6 +122,7 @@ func (wsConn *WsConnection) MsgMysql() {
 				MysqlDelete <- msg
 				mysqlError += 1
 			} else {
+				log.Println("存储msg失败！")
 				mysqlError = 0
 			}
 		}
