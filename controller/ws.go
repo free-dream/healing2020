@@ -259,6 +259,7 @@ func (wsConn *WsConnection) writeWs(c *gin.Context) {
 			case <-time.After(time.Second * 2):
 				log.Println("timeout, msg is not be received")
 				timeoutNum += 1
+				createUserMsgChan(wsConn.userID)
 				MessageQueue[int(wsConn.userID)] <- msg
 				//if no response from front-end for long time, close ws
 				if timeoutNum > 10 {
