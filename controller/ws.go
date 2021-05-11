@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"sync"
 	"time"
 
@@ -192,7 +193,7 @@ func WsHandle(c *gin.Context) {
 
 	ws, err := upGrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
-		log.Println("ws init failed")
+		log.Println(strconv.Itoa(int(user.ID)) + "ws init failed")
 		return
 	}
 
