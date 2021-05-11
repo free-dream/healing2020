@@ -2,6 +2,7 @@ package router
 
 import (
 	"encoding/gob"
+	"time"
 	//"healing2020/models"
 	"healing2020/controller"
 	"healing2020/controller/auth"
@@ -40,6 +41,7 @@ func InitRouter() *gin.Engine {
 	gin.DefaultWriter = io.MultiWriter(f)
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
+	r.Use(middleware.Timeout(time.Second * 5))
 
 	// 注册sessions组件，使用redis作为驱动
 	gob.Register(tools.RedisUser{})
