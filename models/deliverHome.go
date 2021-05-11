@@ -53,26 +53,27 @@ func DeliverHome(pageStr string, Type string, myID uint) ([]AllDeliver, error) {
 		}
 	}
 
+	responseDeliver := make([]AllDeliver, len(deliverHome))
+
 	//获取用户昵称
 	UserElse := make([]statements.User, len(deliverHome))
 	for i := 0; i < len(deliverHome); i++ {
-		err = db.Select("nick_name, avatar").Where("id = ?", deliverHome[i].UserID).Find(&UserElse[i]).Error
-		// log.Println(deliverHome[i].UserID)
-		if err != nil && !gorm.IsRecordNotFoundError(err) {
-			log.Println(err)
-			return nil, err
+		if deliverHome[i].UserID != 0 {
+			err = db.Select("nick_name, avatar").Where("id = ?", deliverHome[i].UserID).Find(&UserElse[i]).Error
+			// log.Println(deliverHome[i].UserID)
+			if err != nil && !gorm.IsRecordNotFoundError(err) {
+				log.Println(err)
+				return nil, err
+			}
+			
+			responseDeliver[i] = AllDeliver{
+				Deliverelse: deliverHome[i],
+				Nickname:    UserElse[i].NickName,
+				Avatar:      UserElse[i].Avatar,
+			}
+			responseDeliver[i].Deliverelse.IsPraise, _ = HasPraise(1, myID, uint(deliverHome[i].Id))
+			responseDeliver[i].Deliverelse.Praise = GetPraiseCount("deliver", uint(deliverHome[i].Id))
 		}
-	}
-
-	responseDeliver := make([]AllDeliver, len(deliverHome))
-	for i := 0; i < len(deliverHome); i++ {
-		responseDeliver[i] = AllDeliver{
-			Deliverelse: deliverHome[i],
-			Nickname:    UserElse[i].NickName,
-			Avatar:      UserElse[i].Avatar,
-		}
-		responseDeliver[i].Deliverelse.IsPraise, _ = HasPraise(1, myID, uint(deliverHome[i].Id))
-		responseDeliver[i].Deliverelse.Praise = GetPraiseCount("deliver", uint(deliverHome[i].Id))
 	}
 
 	pageResponDeliver, err := Pageing(page, responseDeliver)
