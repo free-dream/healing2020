@@ -21,6 +21,7 @@ func GetPhone(info tools.RedisUser) string {
 
 type RecordResp struct {
 	SongId     uint   `json:"songId"`
+    SingerId   uint   `json:"singId"`
 	Praise     int    `json:"praise"`
 	User       string `json:"user"`
 	Source     string `json:"source"`
@@ -102,6 +103,7 @@ func GetRecord(id string, myID uint) ResultResp {
 
 		var userRows statements.User
 		db.Model(&statements.User{}).Select("avatar,nick_name").Where("id = ?", songRows.UserId).First(&userRows)
+        recordResp[i].SingId = userRows.ID
 		recordResp[i].User = userRows.NickName
 		recordResp[i].SongAvatar = userRows.Avatar
 
