@@ -103,7 +103,7 @@ func GetRecord(id string, myID uint) ResultResp {
 
 		var userRows statements.User
 		db.Model(&statements.User{}).Select("avatar,nick_name").Where("id = ?", songRows.UserId).First(&userRows)
-        recordResp[i].SingId = userRows.ID
+        recordResp[i].SingerId = userRows.ID
 		recordResp[i].User = userRows.NickName
 		recordResp[i].SongAvatar = userRows.Avatar
 
