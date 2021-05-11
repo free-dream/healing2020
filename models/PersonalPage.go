@@ -287,20 +287,16 @@ func ResponsePraise(userID uint) ([]Admire, error) {
 func HideName(vodID uint, userID uint) error {
 	db := setting.MysqlConn()
 
-	//开始更新事务
 	tx := db.Begin()
-
 	err := tx.Model(&statements.Vod{}).Where("id = ?", vodID).Update(statements.Vod{HideName: 1}).Error
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
-
 	err = tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).Update("remain_hide_name", gorm.Expr("remain_hide_name - ?", 1)).Error
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
-
 	return tx.Commit().Error
 }

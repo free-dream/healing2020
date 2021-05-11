@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"healing2020/models/statements"
 	"healing2020/pkg/setting"
 
@@ -12,12 +11,9 @@ import (
 func CreateMailBox(message string) error {
 	db := setting.MysqlConn()
 
-	tx := db.Begin()
-	err := tx.Model(&statements.Mailbox{}).Create(&statements.Mailbox{Message: message}).Error
+	err := db.Model(&statements.Mailbox{}).Create(&statements.Mailbox{Message: message}).Error
 	if err != nil {
-		fmt.Println(err)
-		tx.Rollback()
 		return err
 	}
-	return tx.Commit().Error
+	return nil
 }
