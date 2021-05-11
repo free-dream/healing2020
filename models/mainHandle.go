@@ -353,7 +353,7 @@ type VodResp struct {
 	VodId   uint      `json:"vodid"`
 	VodName string    `json:"name"`
 	VodUser string    `json:"user"`
-    VodUserId uint    `json:"vodUserId"`
+    VodUserId uint    `json:"userid"`
 	Avatar  string    `json:"avatar"`
 	More    string    `json:"more"`
 	Sex     int       `json:"sex"`
