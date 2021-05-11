@@ -76,6 +76,15 @@ func createUserMsgChan(userID uint) {
 	mutex.Unlock()
 }
 
+//create ack chan for message
+func createACKchan(msgID string) {
+	mutex.Lock()
+	if _, ok := ACKchan[msgID]; !ok {
+		ACKchan[msgID] = make(chan *ACK)
+	}
+	mutex.Unlock()
+}
+
 //run in main.go
 //turn message in mysql to chan
 func MysqltoChan() {
@@ -247,14 +256,11 @@ func (wsConn *WsConnection) writeWs(c *gin.Context) {
 			//send message
 			responseMsg, _ := json.Marshal(msg)
 			if err := wsConn.ws.WriteMessage(websocket.TextMessage, []byte(responseMsg)); err != nil {
-				log.Println("write websocket fail")
+				log.Println("write websocket fail " + strconv.Itoa(int(userID)))
 				wsConn.close()
 				return
 			}
-			//create ack chan for every message
-			if _, ok := ACKchan[msg.ID]; !ok {
-				ACKchan[msg.ID] = make(chan *ACK)
-			}
+			createACKchan(msg.ID)
 			select {
 			//if timeout 2s, drop msg back to the message chan
 			case <-time.After(time.Second * 2):
@@ -263,7 +269,7 @@ func (wsConn *WsConnection) writeWs(c *gin.Context) {
 				MessageQueue[int(wsConn.userID)] <- msg
 				//if no response from front-end for long time, close ws
 				if timeoutNum > 10 {
-					log.Println("no response from front-end for long time, ws close")
+					log.Println(strconv.Itoa(int(wsConn.userID)) + " no response from front-end for long time, ws close")
 					timeoutNum = 0
 					wsConn.close()
 					return
@@ -277,7 +283,7 @@ func (wsConn *WsConnection) writeWs(c *gin.Context) {
 					timeoutNum = 0
 					continue
 				} else {
-					log.Println("塞进该消息ack通道的ackID与消息不符合！")
+					log.Println("bad ackID:" + ack.ACKID + " 塞进该消息ack通道的ackID与消息不符合！")
 				}
 			}
 
@@ -307,7 +313,7 @@ func (wsConn *WsConnection) readWs(c *gin.Context) {
 
 		if receiveACK != (ACK{}) {
 			if _, ok := ACKchan[receiveACK.ACKID]; !ok {
-				log.Println("未知的ack报文")
+				log.Println("from:" + strconv.Itoa(int(userID)) + "未知的ack报文")
 				wsConn.ws.WriteMessage(websocket.TextMessage, []byte("未知的ack报文"))
 				continue
 			}
@@ -316,7 +322,7 @@ func (wsConn *WsConnection) readWs(c *gin.Context) {
 			//judge data FromUserID
 			if userID != data.FromUserID {
 				wsConn.ws.WriteMessage(websocket.TextMessage, []byte("FromUserID和用户id不同"))
-				log.Println("FromUserID is not same as userID")
+				log.Println("FromUserID " + strconv.Itoa(int(data.FromUserID)) + "is not same as userID " + strconv.Itoa(int(userID)))
 				data.FromUserID = userID
 			}
 			MysqlCreate <- &data

@@ -33,6 +33,7 @@ func UpdateOrCreate(openId string, nickName string, sex int, avatar string) erro
 	db := setting.MysqlConn()
 	err := db.Transaction(func(tx *gorm.DB) error {
 		var user statements.User
+		var userOther statements.UserOther
 		result := tx.Model(&statements.User{}).Where("open_id=?", openId).First(&user)
 		user.NickName = nickName
 		user.OpenId = openId
@@ -41,13 +42,21 @@ func UpdateOrCreate(openId string, nickName string, sex int, avatar string) erro
 		var result2 *gorm.DB
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			result2 = tx.Model(&statements.User{}).Create(&user)
-			var userOther statements.UserOther
 			userOther.UserId = user.ID
 			userOther.RemainSing = 8     //点歌次数默认值
 			userOther.RemainHideName = 0 //匿名次数默认值
-			tx.Model(&statements.UserOther{}).Create(&userOther)
+			tx.Create(&userOther)
 		} else {
 			result2 = tx.Model(&statements.User{}).Where("open_id=?", openId).Update(&user)
+			//judge userOther for userID exist
+			var count int
+			tx.Model(&statements.UserOther{}).Where("user_id = ?", user.ID).Count(&count)
+			if count == 0 {
+				userOther.UserId = user.ID
+				userOther.RemainHideName = 0
+				userOther.RemainSing = 8
+				tx.Create(&userOther)
+			}
 		}
 		// client := setting.RedisConn()
 		// dataByte,_ := json.Marshal(user)

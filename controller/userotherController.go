@@ -47,7 +47,6 @@ type RemainNum struct {
 //@Success 200 {object} RemainNum
 //@Failure 403 {object} e.ErrMsgResponse
 func GetRemainNum(c *gin.Context) {
-	//获取redis用户信息
 	userID := tools.GetUser(c).ID
 	userOther, err := models.SelectRemainNum(userID)
 	responseInf := RemainNum{
@@ -56,7 +55,6 @@ func GetRemainNum(c *gin.Context) {
 	}
 	if err != nil {
 		c.JSON(500, e.ErrMsgResponse{Message: err.Error()})
-		return
 	} else {
 		c.JSON(200, responseInf)
 	}
