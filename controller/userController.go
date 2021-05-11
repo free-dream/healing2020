@@ -54,7 +54,7 @@ func Register(c *gin.Context) {
 	}
 	err := models.UpdateUser(c, userMap, userID)
 	if err != nil {
-		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.ERROR_USER_CREATE_FAIL)})
+		c.JSON(500, e.ErrMsgResponse{Message: err.Error()})
 		return
 	}
 	c.JSON(200, e.ErrMsgResponse{Message: e.GetMsg(e.SUCCESS)})
@@ -87,7 +87,7 @@ func PutUser(c *gin.Context) {
 	}
 	err := models.UpdateUser(c, userMap, userID)
 	if err != nil {
-		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.ERROR_USER_SAVE_FAIL)})
+		c.JSON(500, e.ErrMsgResponse{Message: err.Error()})
 	} else {
 		c.JSON(200, e.ErrMsgResponse{Message: e.GetMsg(e.SUCCESS)})
 	}
@@ -183,7 +183,7 @@ func NewHobby(c *gin.Context) {
 	userID := tools.GetUser(c).ID
 	err := models.UpdateUser(c, map[string]interface{}{"Hobby": hobby}, userID)
 	if err != nil {
-		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.ERROR_USER_SAVE_FAIL)})
+		c.JSON(500, e.ErrMsgResponse{Message: err.Error()})
 		return
 	} else {
 		c.JSON(200, e.ErrMsgResponse{Message: e.GetMsg(e.SUCCESS)})
@@ -203,7 +203,7 @@ func GetHobby(c *gin.Context) {
 	hobby, err := models.SelectUserHobby(user.ID)
 	t := Tag{TagInf: strings.Split(hobby, ",")}
 	if err != nil {
-		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
+		c.JSON(500, e.ErrMsgResponse{Message: err.Error()})
 		return
 	} else {
 		c.JSON(200, t)
@@ -228,7 +228,7 @@ func PostPostbox(c *gin.Context) {
 	userID := tools.GetUser(c).ID
 	err := models.UpdateUser(c, map[string]interface{}{"Postbox": jsonInf.Postbox}, userID)
 	if err != nil {
-		c.JSON(403, e.ErrMsgResponse{Message: "更新邮箱失败！"})
+		c.JSON(500, e.ErrMsgResponse{Message: err.Error()})
 		return
 	} else {
 		c.JSON(200, e.ErrMsgResponse{Message: e.GetMsg(e.SUCCESS)})

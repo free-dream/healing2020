@@ -2,6 +2,7 @@ package controller
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
@@ -83,7 +84,7 @@ func responsePage(c *gin.Context, user statements.User, my_others string) {
 	//补充返回数据
 	userOther, err := models.ResponseUserOther(user.ID)
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
-		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
+		c.JSON(500, e.ErrMsgResponse{Message: err.Error()})
 		return
 	}
 	page.Background = userOther.Now
@@ -92,31 +93,31 @@ func responsePage(c *gin.Context, user statements.User, my_others string) {
 
 	page.Praise, err = models.ResponsePraise(user.ID)
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
-		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
+		c.JSON(500, e.ErrMsgResponse{Message: err.Error()})
 		return
 	}
 
 	if my_others == "my" {
 		page.Songs, err = models.ResponseSongs(user.ID, myID, "my")
 		if err != nil && !gorm.IsRecordNotFoundError(err) {
-			c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
+			c.JSON(500, e.ErrMsgResponse{Message: err.Error()})
 			return
 		}
 		page.Vod, err = models.ResponseVod(user.ID, "my")
 		if err != nil && !gorm.IsRecordNotFoundError(err) {
-			c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
+			c.JSON(500, e.ErrMsgResponse{Message: err.Error()})
 			return
 		}
 		c.JSON(200, page)
 	} else if my_others == "others" {
 		page.Songs, err = models.ResponseSongs(user.ID, myID, "others") //加入了匿名无数据的条件
 		if err != nil && !gorm.IsRecordNotFoundError(err) {
-			c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
+			c.JSON(500, err.Error())
 			return
 		}
 		page.Vod, err = models.ResponseVod(user.ID, "others")
 		if err != nil && !gorm.IsRecordNotFoundError(err) {
-			c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
+			c.JSON(500, err.Error())
 			return
 		}
 		c.JSON(200, OthersPersonalPage{
@@ -167,7 +168,7 @@ func ResponseOthersPerponalPage(c *gin.Context) {
 	user, err := models.ResponseUser(userID)
 	if err != nil {
 		fmt.Println(err)
-		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
+		c.JSON(500, e.ErrMsgResponse{Message: err.Error()})
 		return
 	}
 	responsePage(c, user, "others")
@@ -191,8 +192,8 @@ func HideName(c *gin.Context) {
 	userID := tools.GetUser(c).ID
 	userOther, err := models.ResponseUserOther(userID)
 	if err != nil {
-		fmt.Println(err)
-		c.JSON(403, e.ErrMsgResponse{Message: "无法获取剩余匿名次数！"})
+		log.Println(err)
+		c.JSON(500, e.ErrMsgResponse{Message: err.Error()})
 		return
 	}
 	if userOther.RemainHideName <= 0 {
@@ -202,8 +203,8 @@ func HideName(c *gin.Context) {
 
 	err = models.HideName(jsonInf.VodID, userID)
 	if err != nil {
-		fmt.Println(err)
-		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
+		log.Println(err)
+		c.JSON(500, e.ErrMsgResponse{Message: err.Error()})
 		return
 	}
 	c.JSON(200, e.ErrMsgResponse{Message: e.GetMsg(e.SUCCESS)})

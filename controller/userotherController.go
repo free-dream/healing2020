@@ -28,7 +28,7 @@ func ChangeBackground(c *gin.Context) {
 
 	err := models.UpdateUserOtherNow(userInf.ID, jsonInf.Background)
 	if err != nil {
-		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.ERROR_USER_SAVE_FAIL)})
+		c.JSON(500, e.ErrMsgResponse{Message: err.Error()})
 		return
 	}
 	c.JSON(200, e.ErrMsgResponse{Message: e.GetMsg(e.SUCCESS)})
