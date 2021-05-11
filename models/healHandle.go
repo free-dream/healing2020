@@ -120,11 +120,9 @@ func CreateRecord(id string, source string, uid uint, isHide int) (string, error
 	vodId := uint(intId)
 	db := setting.MysqlConn()
 	userId := uid
-	status := 0
 
-	tx := db.Begin()
 	var vod statements.Vod
-	result1 := tx.Model(&statements.Vod{}).Where("ID=?", vodId).First(&vod)
+	result1 := db.Model(&statements.Vod{}).Where("ID=?", vodId).First(&vod)
 	if result1.Error != nil {
 		return "", errors.New("vod_id is unvalid")
 	}
@@ -139,19 +137,11 @@ func CreateRecord(id string, source string, uid uint, isHide int) (string, error
 	song.Language = vod.Language
 	song.IsHide = isHide
 
-	err := tx.Model(&statements.Song{}).Create(&song).Error
-	if err != nil {
-		if status < 5 {
-			status++
-			tx.Rollback()
-		} else {
-			return "", err
-		}
-	}
+	err := db.Model(&statements.Song{}).Create(&song).Error
 
 	FinishTask("3", userId)
 
-	return song.Name, tx.Commit().Error
+	return song.Name, err
 }
 
 func HasPraise(types int, userid uint, id uint) (bool, uint) {
