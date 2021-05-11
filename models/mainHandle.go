@@ -367,7 +367,7 @@ func GetSearchResult(search string) SearchResp {
 	var vodResp []VodResp
 
 	var songCount int = 0
-    result := db.Model(&statements.Song{}).Where("name = ? and is_hide = 0", search).Select("id,source,created_at,user_id").Count(&songCount)
+    result := db.Model(&statements.Song{}).Where("name = ? and is_hide = 0", search).Select("id,vod_id,source,created_at,user_id").Count(&songCount)
 	if songCount != 0 && result.Error == nil {
 		rows, _ := result.Rows()
 		defer rows.Close()
