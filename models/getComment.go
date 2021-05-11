@@ -3,6 +3,7 @@ package models
 import (
 	"healing2020/models/statements"
 	"healing2020/pkg/setting"
+	"healing2020/pkg/tools"
 	"strconv"
 	"time"
 
@@ -13,16 +14,16 @@ type AllComment struct {
 	CommentResponse Comment
 	NickName        string `json:"nickname"`
 	Avatar          string `json:"avatar"`
-	IsPraise  bool      `json:"isPraise"`
+	IsPraise        bool   `json:"isPraise"`
 }
 
 type Comment struct {
-	Id 		  int 		`json:"comment_id"`
+	Id        int       `json:"comment_id"`
 	UserID    uint      `json:"UserID"`
 	Type      int       `json:"Type"`
 	CreatedAt time.Time `json:"created_at"`
 	Content   string    `json:"content"`
-	Praise    int    	`json:"praise"`
+	Praise    int       `json:"praise"`
 }
 
 func GetComment(strID string, Type string) ([]AllComment, error) {
@@ -50,7 +51,7 @@ func GetComment(strID string, Type string) ([]AllComment, error) {
 	//获取评论人昵称信息
 	commentName := make([]statements.User, len(commentElse))
 	for i := 0; i < len(commentElse); i++ {
-		err = db.Table("user").Select("nick_name, avatar").Where("id = ?", commentElse[i].UserID).First(&commentName[i]).Error
+		err = db.Table("user").Select("nick_name, avatar, setting1, sex").Where("id = ?", commentElse[i].UserID).First(&commentName[i]).Error
 		if err != nil {
 			return nil, err
 		}
@@ -58,10 +59,19 @@ func GetComment(strID string, Type string) ([]AllComment, error) {
 
 	responseComment := make([]AllComment, len(commentElse))
 	for i := 0; i < len(commentElse); i++ {
-		responseComment[i] = AllComment{
-			CommentResponse: commentElse[i],
-			NickName:        commentName[i].NickName,
-			Avatar:          commentName[i].Avatar,
+
+		if commentName[i].Setting1 == 0 {
+			responseComment[i] = AllComment{
+				CommentResponse: commentElse[i],
+				NickName:        commentName[i].NickName,
+				Avatar:          tools.GetAvatarUrl(commentName[i].Sex),
+			}
+		} else {
+			responseComment[i] = AllComment{
+				CommentResponse: commentElse[i],
+				NickName:        commentName[i].NickName,
+				Avatar:          commentName[i].Avatar,
+			}
 		}
 		responseComment[i].IsPraise, _ = HasPraise(4, commentElse[i].UserID, uint(commentElse[i].Id))
 	}
