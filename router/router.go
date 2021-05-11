@@ -7,6 +7,7 @@ import (
 	"healing2020/controller/auth"
 	"healing2020/controller/middleware"
 	_ "healing2020/docs"
+	"healing2020/pkg/e"
 	"healing2020/pkg/tools"
 	"log"
 
@@ -52,6 +53,11 @@ func InitRouter() *gin.Engine {
 	if tools.IsDebug() {
 		r.Use(middleware.Cors())
 	}
+
+	r.GET(test_prefix+"/ping", func(ctx *gin.Context) {
+		ctx.JSON(200, e.ErrMsgResponse{Message: "pong"})
+		return
+	})
 
 	r.GET(test_prefix+"/wx/jump2wechat", auth.JumpToWechat)
 	r.GET(test_prefix+"/wx/login", auth.DisposableLogin)
