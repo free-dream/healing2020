@@ -110,9 +110,9 @@ func Praise(c *gin.Context) {
 }
 
 func SendPraiseMsg(myID uint, targetID uint, myName string, types string, mainMsg string) {
-	if types == "1" {
+	if types == "2" {
 		types = "[治愈]:"
-	} else {
+	} else if types == "1" {
 		types = "[投递]:"
 	}
 	content := myName + "点赞了您的" + types + mainMsg
