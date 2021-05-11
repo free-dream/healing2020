@@ -272,7 +272,7 @@ func GetTargetId(types int, id uint) uint {
 func SyncLock(userid uint) {
 	client := setting.RedisConn()
 	num := client.Incr(fmt.Sprintf("healing2020:user:%d:praised", userid)).Val()
-	if num == 3 {
+	if num >= 3 {
 		FinishTask("5", userid)
 	}
 }
