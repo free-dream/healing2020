@@ -153,7 +153,7 @@ func RecordHeal(c *gin.Context) {
 	var params RecordParams
 	userID := tools.GetUser(c).ID
 	if err := c.ShouldBind(&params); err != nil {
-		c.JSON(400, e.ErrMsgResponse{Message: "Uncomplete params"})
+		c.JSON(400, e.ErrMsgResponse{Message: err.Error()})
 		return
 	}
 	if !tools.Valid(strconv.Itoa(params.IsHide), `^[01]$`) {
