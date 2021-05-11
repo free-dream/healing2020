@@ -192,12 +192,13 @@ func WechatOAuth(ctx *gin.Context) {
 // apiv3通过一次性登陆地址重定向到此处，完成登录流程
 func DisposableLogin(ctx *gin.Context) {
 	token := ctx.Query("token")
-	if token == "" || loginToken[token] == "" {
+	if _, ok := loginToken[token]; !ok || token == "" {
 		ctx.JSON(401, &e.ErrMsgResponse{Message: e.GetMsg(401)})
 		return
 	}
 	wechatUser := &WechatUser{}
 	json.Unmarshal([]byte(loginToken[token]), wechatUser)
+	delete(loginToken, token)
 	models.UpdateOrCreate(wechatUser.OpenID, wechatUser.Nickname, wechatUser.Sex, wechatUser.HeadImgUrl)
 	db := setting.MysqlConn()
 	var redisUser tools.RedisUser
