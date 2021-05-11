@@ -111,17 +111,24 @@ func specialToSongs(special []statements.Special) []Songs {
 }
 
 //select并返回用户唱歌信息
-func ResponseSongs(userID uint, myID uint) ([]Songs, error) {
+func ResponseSongs(userID uint, myID uint, my_others string) ([]Songs, error) {
 	var err error
 
 	//连接mysql
 	db := setting.MysqlConn()
 
-	//获取唱歌信息
 	var song []statements.Song
-	err = db.Select("id, vod_id, name, created_at, is_hide").Where("user_id=?", userID).Find(&song).Error
-	if err != nil && !gorm.IsRecordNotFoundError(err) {
-		return nil, err
+	//获取唱歌信息
+	if my_others == "my" {
+		err = db.Select("id, vod_id, name, created_at, is_hide").Where("user_id=?", userID).Find(&song).Error
+		if err != nil && !gorm.IsRecordNotFoundError(err) {
+			return nil, err
+		}
+	} else if my_others == "others" {
+		err = db.Select("id, vod_id, name, created_at, is_hide").Where("user_id=? AND is_hide = 0", userID).Find(&song).Error
+		if err != nil && !gorm.IsRecordNotFoundError(err) {
+			return nil, err
+		}
 	}
 
 	//获取歌房专题歌曲信息

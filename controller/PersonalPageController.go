@@ -96,12 +96,6 @@ func responsePage(c *gin.Context, user statements.User, my_others string) {
 		return
 	}
 
-	page.Songs, err = models.ResponseSongs(user.ID, myID)
-	if err != nil && !gorm.IsRecordNotFoundError(err) {
-		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
-		return
-	}
-
 	page.Praise, err = models.ResponsePraise(user.ID)
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
@@ -109,17 +103,17 @@ func responsePage(c *gin.Context, user statements.User, my_others string) {
 	}
 
 	if my_others == "my" {
+		page.Songs, err = models.ResponseSongs(user.ID, myID, "my")
+		if err != nil && !gorm.IsRecordNotFoundError(err) {
+			c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
+			return
+		}
 		c.JSON(200, page)
 	} else if my_others == "others" {
-		for key, value := range page.Songs {
-			if value.IsHide == 1 {
-				page.Songs = append(page.Songs[:key], page.Songs[(key+1):]...)
-			}
-		}
-		for key, value := range page.Vod {
-			if value.HideName == 1 {
-				page.Vod = append(page.Vod[:key], page.Vod[(key+1):]...)
-			}
+		page.Songs, err = models.ResponseSongs(user.ID, myID, "others") //加入了匿名无数据的条件
+		if err != nil && !gorm.IsRecordNotFoundError(err) {
+			c.JSON(403, e.ErrMsgResponse{Message: e.GetMsg(e.INVALID_PARAMS)})
+			return
 		}
 		c.JSON(200, OthersPersonalPage{
 			UserID:     page.UserID,
