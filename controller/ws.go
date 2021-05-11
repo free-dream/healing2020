@@ -135,12 +135,16 @@ func (wsConn *WsConnection) MsgMysql() {
 			} else {
 				mysqlError = 0
 			}
+		case <-wsConn.closeChan:
+			return
 		}
 		//if try to save or create mant times, close ws
 		if mysqlError > 10 {
 			log.Println("ws save fail many times, can not connect to the mysql, ws close")
 			wsConn.close()
+			return
 		}
+
 	}
 }
 
@@ -196,7 +200,7 @@ func Broadcast(c *gin.Context) {
 	c.JSON(200, e.ErrMsgResponse{Message: e.GetMsg(e.SUCCESS)})
 }
 
-//处理ws连接
+//处理ws连接，http协议升级
 func WsHandle(c *gin.Context) {
 	user := tools.GetUser(c)
 
@@ -311,14 +315,14 @@ func (wsConn *WsConnection) readWs(c *gin.Context) {
 		//log.Println(data)
 		//log.Println(receiveACK)
 
-		if receiveACK != (ACK{}) {
+		if receiveACK != (ACK{}) { //receive ack
 			if _, ok := ACKchan[receiveACK.ACKID]; !ok {
 				log.Println("from:" + strconv.Itoa(int(userID)) + "未知的ack报文")
 				wsConn.ws.WriteMessage(websocket.TextMessage, []byte("未知的ack报文"))
 				continue
 			}
 			ACKchan[receiveACK.ACKID] <- &receiveACK
-		} else if data != (Message{}) && data.Type == 2 {
+		} else if data != (Message{}) && data.Type == 2 { //receive msg data
 			//judge data FromUserID
 			if userID != data.FromUserID {
 				wsConn.ws.WriteMessage(websocket.TextMessage, []byte("FromUserID和用户id不同"))
@@ -331,16 +335,17 @@ func (wsConn *WsConnection) readWs(c *gin.Context) {
 			wsConn.ws.WriteMessage(websocket.TextMessage, []byte(responseACK))
 			//ready to response msg
 			createUserMsgChan(data.ToUserID)
-			select {
-			case MessageQueue[int(data.ToUserID)] <- &data:
-			case <-wsConn.closeChan:
-				return
-			}
-		} else {
+			MessageQueue[int(data.ToUserID)] <- &data
+		} else { //not ack or msg
 			log.Println("ws json.unmarshal failed")
 			wsConn.ws.WriteMessage(websocket.TextMessage, []byte("json.unmarshal failed"))
 			log.Println("rawData: " + string(rawData))
 			continue
+		}
+
+		select {
+		case <-wsConn.closeChan:
+			return
 		}
 	}
 }
