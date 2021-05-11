@@ -338,7 +338,7 @@ type UserResp struct {
 }
 
 type SongResp struct {
-	SongId   uint      `json:"id"`
+	SongId   uint      `json:"songid"`
 	SongName string    `json:"name"`
     Avatar   string    `json:"avatar"`
 	Praise   int       `json:"like"`
@@ -348,7 +348,7 @@ type SongResp struct {
 }
 
 type VodResp struct {
-	VodId   uint      `id`
+    VodId   uint      `json:"vodid"`
 	VodName string    `json:"name"`
 	VodUser string    `json:"user"`
     Avatar  string    `json:"avatar"`  
