@@ -57,22 +57,24 @@ func DeliverHome(pageStr string, Type string, myID uint) ([]AllDeliver, error) {
 
 	//获取用户昵称
 	UserElse := make([]statements.User, len(deliverHome))
+	j := 0
 	for i := 0; i < len(deliverHome); i++ {
+		log.Println(deliverHome[i].UserID)
 		if deliverHome[i].UserID != 0 {
-			err = db.Select("nick_name, avatar").Where("id = ?", deliverHome[i].UserID).Find(&UserElse[i]).Error
-			// log.Println(deliverHome[i].UserID)
+			err = db.Table("user").Select("nick_name, avatar").Where("id = ?", deliverHome[i].UserID).Scan(&UserElse[i]).Error
 			if err != nil && !gorm.IsRecordNotFoundError(err) {
 				log.Println(err)
 				return nil, err
 			}
-			
-			responseDeliver[i] = AllDeliver{
+
+			responseDeliver[j] = AllDeliver{
 				Deliverelse: deliverHome[i],
 				Nickname:    UserElse[i].NickName,
 				Avatar:      UserElse[i].Avatar,
 			}
-			responseDeliver[i].Deliverelse.IsPraise, _ = HasPraise(1, myID, uint(deliverHome[i].Id))
-			responseDeliver[i].Deliverelse.Praise = GetPraiseCount("deliver", uint(deliverHome[i].Id))
+			responseDeliver[j].Deliverelse.IsPraise, _ = HasPraise(1, myID, uint(deliverHome[i].Id))
+			responseDeliver[j].Deliverelse.Praise = GetPraiseCount("deliver", uint(deliverHome[i].Id))
+			j = j+1
 		}
 	}
 
