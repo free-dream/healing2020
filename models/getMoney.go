@@ -66,7 +66,7 @@ func EarnMoney(userID uint) error {
 //返回任务列表
 func GetTask(userID uint) ([]interface{}, error) {
 	redis_cli := setting.RedisClient
-	taskGet, err := redis_cli.MGet(fmt.Sprintf("%d:%d", userID, 1), fmt.Sprintf("%d:%d", userID, 2), fmt.Sprintf("%d:%d", userID, 3), fmt.Sprintf("%d:%d", userID, 4), fmt.Sprintf("%d:%d", userID, 5), fmt.Sprintf("%d:%d", userID, 6), ).Result()
+	taskGet, err := redis_cli.MGet(fmt.Sprintf("%d:%d", userID, 1), fmt.Sprintf("%d:%d", userID, 2), fmt.Sprintf("%d:%d", userID, 3), fmt.Sprintf("%d:%d", userID, 4), fmt.Sprintf("%d:%d", userID, 5), fmt.Sprintf("%d:%d", userID, 6)).Result()
 	return taskGet, err
 }
 
@@ -76,33 +76,32 @@ func FinishTask(task string, userID uint) error {
 	db := setting.MysqlConn()
 	tx := db.Begin()
 
-	var userother statements.UserOther
-	result := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).First(&userother)
-	if result.Error != nil {
-		return result.Error
-	}
-
 	var user statements.User
 	result2 := tx.Model(&statements.User{}).Where("id= ?", userID).First(&user)
 	if result2.Error != nil {
+		log.Println(1)
 		return result2.Error
 	}
 
-	earnMoney := map[string]int {"1": 80, "2": 60, "3": 60, "4": 60, "5": 20, "6": 20}
+	earnMoney := map[string]int{"1": 80, "2": 60, "3": 60, "4": 60, "5": 20, "6": 20}
 
 	t := time.Now()
 	t_zero := time.Date(t.Year(), t.Month(), t.Day(), 0, 0, 0, 0, t.Location()).Unix()
 	t_to_tomorrow := 24*60*60 - (t.Unix() - t_zero)
 	redis_cli := setting.RedisClient
 
-	finished := redis_cli.Set(fmt.Sprintf("%d:%s", userID, task), true, time.Duration(t_to_tomorrow)*time.Second).Err()
-	if finished == nil {
-		if user.Money >= 0 {
-			user.Money = user.Money + earnMoney[task]
-			err3 := tx.Save(&user).Error
-			if err3 != nil {
-				tx.Rollback()
-				return err3
+	e := redis_cli.SIsMember(fmt.Sprintf("%d:%s", userID, task), true).Err()
+	if e == nil {
+		finished := redis_cli.Set(fmt.Sprintf("%d:%s", userID, task), true, time.Duration(t_to_tomorrow)*time.Second).Err()
+		if finished == nil {
+			if user.Money >= 0 {
+				user.Money = user.Money + earnMoney[task]
+				err3 := tx.Save(&user).Error
+				if err3 != nil {
+					log.Println(2)
+					tx.Rollback()
+					return err3
+				}
 			}
 		}
 	}
