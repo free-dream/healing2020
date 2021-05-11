@@ -23,16 +23,12 @@ type User struct {
 	Record    string    `json:"record"`
 	Praise    int       `json:"praise"`
 	IsPraise  bool      `json:"isPraise"`
-	// Setting1  int 		`json:"setting1"`
-	// Sex       int  		`json:"sex"`
 }
 
 type AllDeliver struct {
 	Deliverelse User
 	Nickname    string `json:"nickname"`
 	Avatar      string `json:"avater"`
-	Setting1    int    `json:"setting1"`
-	Sex         int    `json:"sex"`
 }
 
 func DeliverHome(pageStr string, Type string, myID uint) ([]AllDeliver, error) {
@@ -75,16 +71,12 @@ func DeliverHome(pageStr string, Type string, myID uint) ([]AllDeliver, error) {
 				Deliverelse: deliverHome[i],
 				Nickname:    UserElse[i].NickName,
 				Avatar:      tools.GetAvatarUrl(UserElse[i].Sex),
-				Setting1:    UserElse[i].Setting1,
-				Sex:         UserElse[i].Sex,
 			}
 		} else {
 			responseDeliver[i] = AllDeliver{
 				Deliverelse: deliverHome[i],
 				Nickname:    UserElse[i].NickName,
 				Avatar:      UserElse[i].Avatar,
-				Setting1:    UserElse[i].Setting1,
-				Sex:         UserElse[i].Sex,
 			}
 		}
 		responseDeliver[i].Deliverelse.IsPraise, _ = HasPraise(1, myID, uint(deliverHome[i].Id))
@@ -144,16 +136,12 @@ func SingleDeliver(DevId string, myID uint) ([]AllDeliver, error) {
 				Deliverelse: singleDeliver[i],
 				Nickname:    SingleElse[i].NickName,
 				Avatar:      tools.GetAvatarUrl(SingleElse[i].Sex),
-				Setting1:    SingleElse[i].Setting1,
-				Sex:         SingleElse[i].Sex,
 			}
 		} else {
 			responseSingle[i] = AllDeliver{
 				Deliverelse: singleDeliver[i],
 				Nickname:    SingleElse[i].NickName,
 				Avatar:      SingleElse[i].Avatar,
-				Setting1:    SingleElse[i].Setting1,
-				Sex:         SingleElse[i].Sex,
 			}
 		}
 		responseSingle[i].Deliverelse.IsPraise, _ = HasPraise(1, myID, uint(singleDeliver[i].Id))
