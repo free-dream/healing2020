@@ -11,15 +11,11 @@ import (
 func UpdateUserOtherNow(userID uint, toSaveUserOther int) error {
 	db := setting.MysqlConn()
 
-	tx := db.Begin()
-	err := tx.Model(&statements.UserOther{}).Where("user_id = ?", userID).Update(statements.UserOther{Now: toSaveUserOther}).Error
-
+	err := db.Model(&statements.UserOther{}).Where("user_id = ?", userID).Update(statements.UserOther{Now: toSaveUserOther}).Error
 	if err != nil {
-		tx.Rollback()
 		return err
 	}
-
-	return tx.Commit().Error
+	return nil
 }
 
 //获取剩余点歌和匿名次数

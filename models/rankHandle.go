@@ -78,15 +78,12 @@ func SendDeliverRank() error {
 	//get from mysql
 	db := setting.MysqlConn()
 
-	status := 0
-	tx := db.Begin()
-
 	var deliver []statements.Deliver
 	year, mon, day := time.Now().Date()
 	date := strconv.Itoa(year) + "_" + monthTransfer(mon.String()) + "_" + dayTransfer(strconv.Itoa(day)) + "%"
 	//fmt.Println(date)
-	result := tx.Model(&statements.Deliver{}).Where("created_at LIKE ?", date).Order("praise, created_at desc").Find(&deliver)
-	err1 := errRollBack(tx, &status)
+	result := db.Model(&statements.Deliver{}).Where("created_at LIKE ?", date).Order("praise, created_at desc").Find(&deliver)
+	err1 := result.Error
 	if err1 != nil {
 		return err1
 	}
@@ -110,10 +107,8 @@ func SendDeliverRank() error {
 
 		userid := deliver[i].UserId
 		var user statements.User
-		status = 0
-		tx2 := db.Begin()
-		result2 := tx2.Model(&statements.User{}).Where("id=?", userid).First(&user)
-		err2 := errRollBack(result2, &status)
+		result2 := db.Model(&statements.User{}).Where("id=?", userid).First(&user)
+		err2 := result2.Error
 		if err2 != nil {
 			return err2
 		}
@@ -173,14 +168,11 @@ func SendSongRank() error {
 	//get from mysql
 	db := setting.MysqlConn()
 
-	status := 0
-	tx := db.Begin()
-
 	var song []statements.Song
 	year, mon, day := time.Now().Date()
 	date := strconv.Itoa(year) + "_" + monthTransfer(mon.String()) + "_" + dayTransfer(strconv.Itoa(day))
-	result := tx.Model(&statements.Song{}).Where("is_hide = 0 and created_at LIKE ?", date+"%").Order("praise, created_at desc").Find(&song)
-	err1 := errRollBack(tx, &status)
+	result := db.Model(&statements.Song{}).Where("is_hide = 0 and created_at LIKE ?", date+"%").Order("praise, created_at desc").Find(&song)
+	err1 := result.Error
 	if err1 != nil {
 		return err1
 	}
@@ -204,10 +196,8 @@ func SendSongRank() error {
 
 		userid := song[i].UserId
 		var user statements.User
-		status = 0
-		tx2 := db.Begin()
-		result2 := tx2.Model(&statements.User{}).Where("id=?", userid).First(&user)
-		err2 := errRollBack(result2, &status)
+		result2 := db.Model(&statements.User{}).Where("id=?", userid).First(&user)
+		err2 := result2.Error
 		if err2 != nil {
 			return err2
 		}

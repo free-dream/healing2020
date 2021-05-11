@@ -4,14 +4,15 @@ import (
 	"database/sql"
 	"encoding/json"
 	"strconv"
+
 	//"fmt"
-	"time"
 	"errors"
-    "strings"
+	"strings"
+	"time"
 
 	"healing2020/models/statements"
 	"healing2020/pkg/setting"
-    "healing2020/pkg/tools"
+	"healing2020/pkg/tools"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
@@ -19,25 +20,25 @@ import (
 
 type MainMsg struct {
 	Sing   []SongMsg `json:"sing"`
-	Listen []SongMsg `json"listen"`
+	Listen []SongMsg `json:"listen"`
 }
 
 type SongMsg struct {
-	User     string    `json:"user"`
-	Name     string    `json:"name"`
-	Avatar   string    `json:"avatar"`
-	Time     time.Time `json:"time"`
-	Sex      int       `json:"sex"`
-	More     string    `json:"more"`
+	User   string    `json:"user"`
+	Name   string    `json:"name"`
+	Avatar string    `json:"avatar"`
+	Time   time.Time `json:"time"`
+	Sex    int       `json:"sex"`
+	More   string    `json:"more"`
 
-	Id     uint   `json:"id"`
-    SongId uint   `json:"songId"`
-	Like   int    `json:"like"`
-	Style  string `json:"style"`
-	Source string `json:"source"`
-	Singer string `json:"singer"`
-	UserId  uint  `json:"userid"`
-    IsPraise bool `json:"isPraise"`
+	Id       uint   `json:"id"`
+	SongId   uint   `json:"songId"`
+	Like     int    `json:"like"`
+	Style    string `json:"style"`
+	Source   string `json:"source"`
+	Singer   string `json:"singer"`
+	UserId   uint   `json:"userid"`
+	IsPraise bool   `json:"isPraise"`
 }
 
 func SendMainMsg() {
@@ -49,8 +50,8 @@ func SendMainMsg() {
 	//var keyArr = []string{""}
 	for _, sort := range sortArr {
 		for _, key := range keyArr {
-			listenRaw := LoadSongMsg(sort, key,"")
-			singRaw := LoadVodMsg(sort, key,"")
+			listenRaw := LoadSongMsg(sort, key, "")
+			singRaw := LoadVodMsg(sort, key, "")
 			listen, _ := json.Marshal(listenRaw)
 			sing, _ := json.Marshal(singRaw)
 
@@ -71,23 +72,23 @@ func max(a int, b int) int {
 	}
 }
 
-func LoadSongMsg(sort string, key string,userTags string) []SongMsg{
+func LoadSongMsg(sort string, key string, userTags string) []SongMsg {
 	db := setting.MysqlConn()
-    count := 0
-    db.Raw("select count(*) from song").Row().Scan(&count)
-	var songList []SongMsg = make([]SongMsg, max(8,count))
+	count := 0
+	db.Raw("select count(*) from song").Row().Scan(&count)
+	var songList []SongMsg = make([]SongMsg, max(8, count))
 	i := 0
 
 	var rows *sql.Rows
 	var result *gorm.DB
 	if key == "" || key == "推荐" {
-        if sort == "0" {
-            result = db.Raw("select id,user_id,vod_id,name,praise,source,style,language,created_at from song where is_hide = 0 order by rand()")
-            rows, _ = result.Rows()
-        } else {
-            result = db.Raw("select id,user_id,vod_id,name,praise,source,style,language,created_at from song where is_hide = 0 order by created_at desc")
-            rows, _ = result.Rows()
-        }
+		if sort == "0" {
+			result = db.Raw("select id,user_id,vod_id,name,praise,source,style,language,created_at from song where is_hide = 0 order by rand()")
+			rows, _ = result.Rows()
+		} else {
+			result = db.Raw("select id,user_id,vod_id,name,praise,source,style,language,created_at from song where is_hide = 0 order by created_at desc")
+			rows, _ = result.Rows()
+		}
 	} else {
 		if sort == "0" {
 			result = db.Raw("select id,user_id,vod_id,name,praise,source,style,language,created_at from song where is_hide = 0 and style=? or is_hide = 0 and language=? order by rand()", key, key)
@@ -107,17 +108,17 @@ func LoadSongMsg(sort string, key string,userTags string) []SongMsg{
 	for rows.Next() {
 		var song statements.Song
 		db.ScanRows(rows, &song)
-        if key == "推荐" && !recommendFilter(song.Style,song.Language,userTags){
-            continue
-        }
+		if key == "推荐" && !recommendFilter(song.Style, song.Language, userTags) {
+			continue
+		}
 		songList[i].SongId = song.ID
 		songList[i].Source = song.Source
-        songList[i].Name = song.Name
+		songList[i].Name = song.Name
 		songList[i].Style = song.Style
 		songList[i].Time = song.CreatedAt
 		userId := song.UserId
 		vodId := song.VodId
-        songList[i].Id = vodId
+		songList[i].Id = vodId
 
 		var user statements.User
 		db.Model(&statements.User{}).Select("nick_name,sex,avatar").Where("id=?", userId).Find(&user)
@@ -136,22 +137,22 @@ func LoadSongMsg(sort string, key string,userTags string) []SongMsg{
 	return songList
 }
 
-func LoadVodMsg(sort string, key string,userTags string) []SongMsg {
+func LoadVodMsg(sort string, key string, userTags string) []SongMsg {
 	db := setting.MysqlConn()
-    count := 0
-    db.Raw("select count(*) from vod").Row().Scan(&count)
-	var vodList []SongMsg = make([]SongMsg, max(8,count))
+	count := 0
+	db.Raw("select count(*) from vod").Row().Scan(&count)
+	var vodList []SongMsg = make([]SongMsg, max(8, count))
 
 	var rows *sql.Rows
 	var result *gorm.DB
-	if key == "" || key == "推荐"{
-        if sort == "0" {
-            result = db.Raw("select id,user_id,name,singer,more,style,language,created_at,hide_name from vod order by rand()")
-            rows, _ = result.Rows()
-        }else {
-            result = db.Raw("select id,user_id,name,singer,more,style,language,created_at,hide_name from vod order by created_at desc")
-            rows, _ = result.Rows()
-        }
+	if key == "" || key == "推荐" {
+		if sort == "0" {
+			result = db.Raw("select id,user_id,name,singer,more,style,language,created_at,hide_name from vod order by rand()")
+			rows, _ = result.Rows()
+		} else {
+			result = db.Raw("select id,user_id,name,singer,more,style,language,created_at,hide_name from vod order by created_at desc")
+			rows, _ = result.Rows()
+		}
 	} else {
 		if sort == "0" {
 			result = db.Raw("select id,user_id,name,singer,more,created_at,style,language,hide_name from vod where style=? or language=? order by rand()", key, key)
@@ -172,15 +173,15 @@ func LoadVodMsg(sort string, key string,userTags string) []SongMsg {
 	for rows.Next() {
 		var vod statements.Vod
 		db.ScanRows(rows, &vod)
-        if key == "推荐" && !recommendFilter(vod.Style,vod.Language,userTags){
-            continue
-        }
+		if key == "推荐" && !recommendFilter(vod.Style, vod.Language, userTags) {
+			continue
+		}
 		vodList[i].Id = vod.ID
 		vodList[i].Name = vod.Name
 		vodList[i].More = vod.More
 		vodList[i].Time = vod.CreatedAt
 		vodList[i].Singer = vod.Singer
-        vodList[i].UserId = vod.UserId
+		vodList[i].UserId = vod.UserId
 
 		userid := vod.UserId
 
@@ -190,11 +191,11 @@ func LoadVodMsg(sort string, key string,userTags string) []SongMsg {
 		vodList[i].Sex = user.Sex
 		vodList[i].Avatar = user.Avatar
 
-        if vod.HideName == 1 {
-            vodList[i].UserId = 0
-            vodList[i].User = "匿名用户"
-            vodList[i].Avatar = tools.GetAvatarUrl(user.Sex)
-        }
+		if vod.HideName == 1 {
+			vodList[i].UserId = 0
+			vodList[i].User = "匿名用户"
+			vodList[i].Avatar = tools.GetAvatarUrl(user.Sex)
+		}
 
 		i++
 	}
@@ -202,30 +203,30 @@ func LoadVodMsg(sort string, key string,userTags string) []SongMsg {
 	return vodList
 }
 
-func GetMainMsg(pageStr string,sort string, key string,tags string,userid uint) (MainMsg, error) {
-    page,_ := strconv.Atoi(pageStr)
+func GetMainMsg(pageStr string, sort string, key string, tags string, userid uint) (MainMsg, error) {
+	page, _ := strconv.Atoi(pageStr)
 	var result MainMsg
-    //推荐部分先发
-    if tags != "" {
-        listen := LoadSongMsg(sort,"推荐",tags)
-        sing := LoadVodMsg(sort,"推荐",tags)
-        resultSing,resultListen,err := Paging(page,sing,listen)
+	//推荐部分先发
+	if tags != "" {
+		listen := LoadSongMsg(sort, "推荐", tags)
+		sing := LoadVodMsg(sort, "推荐", tags)
+		resultSing, resultListen, err := Paging(page, sing, listen)
 
-        if err != nil {
-            return result,errors.New("page out of range")
-        }
+		if err != nil {
+			return result, errors.New("page out of range")
+		}
 
-        //塞进是否点赞
-        for i:=0;i<len(resultListen);i++ {
-            resultListen[i].IsPraise,_ = HasPraise(2,userid,resultListen[i].SongId)
-            resultListen[i].Like = GetPraiseCount("song",resultListen[i].SongId)
-        } 
+		//塞进是否点赞
+		for i := 0; i < len(resultListen); i++ {
+			resultListen[i].IsPraise, _ = HasPraise(2, userid, resultListen[i].SongId)
+			resultListen[i].Like = GetPraiseCount("song", resultListen[i].SongId)
+		}
 
-        result.Sing = resultSing
-        result.Listen = resultListen
+		result.Sing = resultSing
+		result.Listen = resultListen
 
-        return result,nil
-    }
+		return result, nil
+	}
 
 	client := setting.RedisConn()
 	data1, err1 := client.Get("healing2020:Main:" + key + "SingMsg" + sort).Bytes()
@@ -247,54 +248,54 @@ func GetMainMsg(pageStr string,sort string, key string,tags string,userid uint) 
 	var listen []SongMsg
 	json.Unmarshal(data1, &sing)
 	json.Unmarshal(data2, &listen)
-    resultSing,resultListen,err := Paging(page,sing,listen)
+	resultSing, resultListen, err := Paging(page, sing, listen)
 
-    if err != nil {
-        return result,errors.New("page out of range")
-    }
+	if err != nil {
+		return result, errors.New("page out of range")
+	}
 
-    //塞进是否点赞
-    for i:=0;i<len(resultListen);i++ {
-        resultListen[i].IsPraise,_ = HasPraise(2,userid,resultListen[i].SongId)
-        resultListen[i].Like = GetPraiseCount("song",resultListen[i].SongId)
-    } 
+	//塞进是否点赞
+	for i := 0; i < len(resultListen); i++ {
+		resultListen[i].IsPraise, _ = HasPraise(2, userid, resultListen[i].SongId)
+		resultListen[i].Like = GetPraiseCount("song", resultListen[i].SongId)
+	}
 
-    result.Sing = resultSing
-    result.Listen = resultListen
+	result.Sing = resultSing
+	result.Listen = resultListen
 
 	return result, nil
 }
 
-func Paging(page int,data1 []SongMsg, data2 []SongMsg) ([]SongMsg,[]SongMsg,error) {
-    var result1 []SongMsg
-    var result2 []SongMsg
-    if (page-1)*20 > len(data1) {
-        result1 = make([]SongMsg,1)
-    } else {
-        result1 = make([]SongMsg,20)
-    }
-    if (page-1)*20 > len(data2) {
-        result2 = make([]SongMsg,1)
-    } else {
-        result2 = make([]SongMsg,20)
-    }
-    if len(result1) == 1 && len(result2) == 1 {
-        return result1,result2,errors.New("page out of page")
-    }
-    for i:=0;i<20;i++ {
-        if (page-1)*20+i >= len(data1) {
-            break
-        }
-        result1[i] = data1[(page-1)*20+i]
-    }
-    for i:=0;i<20;i++ {
-        if (page-1)*20+i >= len(data2) {
-            break
-        }
-        result2[i] = data2[(page-1)*20+i]
-    }
+func Paging(page int, data1 []SongMsg, data2 []SongMsg) ([]SongMsg, []SongMsg, error) {
+	var result1 []SongMsg
+	var result2 []SongMsg
+	if (page-1)*20 > len(data1) {
+		result1 = make([]SongMsg, 1)
+	} else {
+		result1 = make([]SongMsg, 20)
+	}
+	if (page-1)*20 > len(data2) {
+		result2 = make([]SongMsg, 1)
+	} else {
+		result2 = make([]SongMsg, 20)
+	}
+	if len(result1) == 1 && len(result2) == 1 {
+		return result1, result2, errors.New("page out of page")
+	}
+	for i := 0; i < 20; i++ {
+		if (page-1)*20+i >= len(data1) {
+			break
+		}
+		result1[i] = data1[(page-1)*20+i]
+	}
+	for i := 0; i < 20; i++ {
+		if (page-1)*20+i >= len(data2) {
+			break
+		}
+		result2[i] = data2[(page-1)*20+i]
+	}
 
-    return result1,result2,nil
+	return result1, result2, nil
 }
 
 func isListNil(result *gorm.DB) bool {
@@ -306,20 +307,20 @@ func isListNil(result *gorm.DB) bool {
 }
 
 func tagsSplit(tags string) []string {
-    // tags样式 "流行，国语，古风，..."
-    return strings.Split(tags,",")
+	// tags样式 "流行，国语，古风，..."
+	return strings.Split(tags, ",")
 }
 
-func recommendFilter(style string,language string,userTags string) bool {
-    // 把不是用户爱好的过滤
-    tags := tagsSplit(userTags)
-    for _,tag := range tags {
-        if tag == style || tag == language{
-            return true
-        }
-    }
+func recommendFilter(style string, language string, userTags string) bool {
+	// 把不是用户爱好的过滤
+	tags := tagsSplit(userTags)
+	for _, tag := range tags {
+		if tag == style || tag == language {
+			return true
+		}
+	}
 
-    return false
+	return false
 }
 
 type SearchResp struct {
@@ -334,14 +335,14 @@ type UserResp struct {
 	UserName string `json:"userName"`
 	Avatar   string `json:"avatar"`
 	More     string `json:"more"`
-    Bg       int    `json:"background"`
+	Bg       int    `json:"background"`
 }
 
 type SongResp struct {
 	SongId   uint      `json:"songid"`
-    VodId    uint      `json:"vodid"`
+	VodId    uint      `json:"vodid"`
 	SongName string    `json:"name"`
-    Avatar   string    `json:"avatar"`
+	Avatar   string    `json:"avatar"`
 	Praise   int       `json:"like"`
 	Source   string    `json:"source"`
 	Singer   string    `json:"user"`
@@ -349,12 +350,12 @@ type SongResp struct {
 }
 
 type VodResp struct {
-    VodId   uint      `json:"vodid"`
+	VodId   uint      `json:"vodid"`
 	VodName string    `json:"name"`
 	VodUser string    `json:"user"`
-    Avatar  string    `json:"avatar"`  
-    More    string    `json:"more"`
-    Sex     int       `json:"sex"`
+	Avatar  string    `json:"avatar"`
+	More    string    `json:"more"`
+	Sex     int       `json:"sex"`
 	Time    time.Time `json:"time"`
 }
 
@@ -367,7 +368,7 @@ func GetSearchResult(search string) SearchResp {
 	var vodResp []VodResp
 
 	var songCount int = 0
-    result := db.Model(&statements.Song{}).Where("name = ? and is_hide = 0", search).Select("id,vod_id,source,created_at,user_id").Count(&songCount)
+	result := db.Model(&statements.Song{}).Where("name = ? and is_hide = 0", search).Select("id,vod_id,source,created_at,user_id").Count(&songCount)
 	if songCount != 0 && result.Error == nil {
 		rows, _ := result.Rows()
 		defer rows.Close()
@@ -376,11 +377,11 @@ func GetSearchResult(search string) SearchResp {
 
 		i := 0
 		for rows.Next() {
-            var song statements.Song
+			var song statements.Song
 			db.ScanRows(rows, &song)
 			songResp[i].SongId = song.ID
-            songResp[i].VodId  = song.VodId
-			songResp[i].Praise = GetPraiseCount("song",song.ID)
+			songResp[i].VodId = song.VodId
+			songResp[i].Praise = GetPraiseCount("song", song.ID)
 			songResp[i].Source = song.Source
 			songResp[i].SongName = search
 			songResp[i].Time = song.CreatedAt
@@ -388,20 +389,20 @@ func GetSearchResult(search string) SearchResp {
 			var user statements.User
 			db.Model(&statements.User{}).Select("nick_name,avatar").Where("id = ?", song.UserId).First(&user)
 			songResp[i].Singer = user.NickName
-            songResp[i].Avatar = user.Avatar
+			songResp[i].Avatar = user.Avatar
 
 			i++
 		}
 	} else {
-        if result.Error != nil {
-		    searchResp.Err = result.Error.Error()
-        }
+		if result.Error != nil {
+			searchResp.Err = result.Error.Error()
+		}
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			searchResp.Err = ""
 		}
 	}
 
-    var vodCount int = 0
+	var vodCount int = 0
 	result = db.Model(&statements.Vod{}).Where("name = ?", search).Select("id,created_at,user_id").Count(&vodCount)
 
 	if vodCount != 0 && result.Error == nil {
@@ -412,36 +413,36 @@ func GetSearchResult(search string) SearchResp {
 
 		i := 0
 		for rows.Next() {
-	        var vod statements.Vod
+			var vod statements.Vod
 			db.ScanRows(rows, &vod)
 			vodResp[i].VodId = vod.ID
 			vodResp[i].VodName = search
 			vodResp[i].Time = vod.CreatedAt
-            vodResp[i].More = vod.More
+			vodResp[i].More = vod.More
 
 			var user statements.User
 			db.Model(&statements.User{}).Select("sex,more,avatar,nick_name").Where("id = ?", vod.UserId).First(&user)
 			vodResp[i].VodUser = user.NickName
-            vodResp[i].Avatar = user.Avatar
-            vodResp[i].Sex = user.Sex
+			vodResp[i].Avatar = user.Avatar
+			vodResp[i].Sex = user.Sex
 
-            if vod.HideName == 1 {
-                vodResp[i].VodUser = "匿名用户"
-                vodResp[i].Avatar = tools.GetAvatarUrl(user.Sex)
-            }
+			if vod.HideName == 1 {
+				vodResp[i].VodUser = "匿名用户"
+				vodResp[i].Avatar = tools.GetAvatarUrl(user.Sex)
+			}
 
 			i++
 		}
 	} else {
-        if result.Error != nil {
-		    searchResp.Err = result.Error.Error()
-        }
+		if result.Error != nil {
+			searchResp.Err = result.Error.Error()
+		}
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			searchResp.Err = ""
 		}
 	}
 
-    userCount := 0
+	userCount := 0
 	result = db.Model(&statements.User{}).Select("id,nick_name,more,avatar").Where("nick_name=? or true_name = ? or phone =?", search, search, search).Count(&userCount)
 	if userCount != 0 && result.Error == nil {
 		rows, _ := result.Rows()
@@ -451,22 +452,22 @@ func GetSearchResult(search string) SearchResp {
 
 		i := 0
 		for rows.Next() {
-	        var user statements.User
+			var user statements.User
 			db.ScanRows(rows, &user)
 			userResp[i].UserId = user.ID
 			userResp[i].More = user.More
 			userResp[i].Avatar = user.Avatar
 			userResp[i].UserName = user.NickName
 
-            var userOther statements.UserOther
-            db.Model(&statements.UserOther{}).Select("now").Where("user_id = ?",user.ID).First(&userOther)
-            userResp[i].Bg = userOther.Now
+			var userOther statements.UserOther
+			db.Model(&statements.UserOther{}).Select("now").Where("user_id = ?", user.ID).First(&userOther)
+			userResp[i].Bg = userOther.Now
 			i++
 		}
 	} else {
-        if result.Error != nil {
-		    searchResp.Err = result.Error.Error()
-        }
+		if result.Error != nil {
+			searchResp.Err = result.Error.Error()
+		}
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			searchResp.Err = ""
 		}

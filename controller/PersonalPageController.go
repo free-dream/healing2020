@@ -1,8 +1,6 @@
 package controller
 
 import (
-	"fmt"
-	"log"
 	"strconv"
 	"strings"
 
@@ -160,14 +158,12 @@ func ResponseOthersPerponalPage(c *gin.Context) {
 	userIDInt, err := strconv.Atoi(id)
 	var userID uint = uint(userIDInt)
 	if err != nil {
-		fmt.Println("字符串转换成整数失败")
 		c.JSON(403, e.ErrMsgResponse{Message: "获取qs参数错误"})
 		return
 	}
 	//查询id对应用户信息
 	user, err := models.ResponseUser(userID)
 	if err != nil {
-		fmt.Println(err)
 		c.JSON(500, e.ErrMsgResponse{Message: err.Error()})
 		return
 	}
@@ -192,7 +188,6 @@ func HideName(c *gin.Context) {
 	userID := tools.GetUser(c).ID
 	userOther, err := models.ResponseUserOther(userID)
 	if err != nil {
-		log.Println(err)
 		c.JSON(500, e.ErrMsgResponse{Message: err.Error()})
 		return
 	}
@@ -203,7 +198,6 @@ func HideName(c *gin.Context) {
 
 	err = models.HideName(jsonInf.VodID, userID)
 	if err != nil {
-		log.Println(err)
 		c.JSON(500, e.ErrMsgResponse{Message: err.Error()})
 		return
 	}

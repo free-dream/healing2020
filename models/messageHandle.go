@@ -3,7 +3,6 @@ package models
 import (
 	"healing2020/models/statements"
 	"healing2020/pkg/setting"
-	"log"
 
 	"github.com/jinzhu/gorm"
 )
@@ -12,28 +11,22 @@ import (
 func SaveMessage(msg statements.Message) error {
 	db := setting.MysqlConn()
 
-	tx := db.Begin()
-	err := tx.Model(&statements.Message{}).Create(&msg).Error
+	err := db.Model(&statements.Message{}).Create(&msg).Error
 	if err != nil {
-		tx.Rollback()
-		log.Println(err)
 		return err
 	}
-	return tx.Commit().Error
+	return nil
 }
 
 //删除用户聊天消息
 func DeleteMessage(msg statements.Message) error {
 	db := setting.MysqlConn()
 
-	tx := db.Begin()
-	err := tx.Model(&statements.Message{}).Where("msg_id=?", msg.MsgID).Delete(&statements.Message{}).Error
+	err := db.Model(&statements.Message{}).Where("msg_id=?", msg.MsgID).Delete(&statements.Message{}).Error
 	if err != nil {
-		tx.Rollback()
-		log.Println(err)
 		return err
 	}
-	return tx.Commit().Error
+	return nil
 }
 
 //获取message里的所有信息
