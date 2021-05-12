@@ -218,8 +218,8 @@ func WsHandle(c *gin.Context) {
 	}
 
 	go wsConn.heartbeat()
-	go wsConn.readWs(c)
-	go wsConn.writeWs(c)
+	go wsConn.readWs(user.ID)
+	go wsConn.writeWs(user.ID)
 	go wsConn.MsgMysql()
 }
 
@@ -245,8 +245,7 @@ func (wsConn *WsConnection) heartbeat() {
 }
 
 //向客户端发送用户消息
-func (wsConn *WsConnection) writeWs(c *gin.Context) {
-	userID := tools.GetUser(c).ID
+func (wsConn *WsConnection) writeWs(userID uint) {
 	createUserMsgChan(userID)
 	timeoutNum := 0
 	for {
@@ -298,8 +297,7 @@ func (wsConn *WsConnection) writeWs(c *gin.Context) {
 }
 
 //接收客户端发送的消息和ack
-func (wsConn *WsConnection) readWs(c *gin.Context) {
-	userID := tools.GetUser(c).ID
+func (wsConn *WsConnection) readWs(userID uint) {
 	for {
 
 		select {
