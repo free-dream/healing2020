@@ -70,11 +70,15 @@ func GetRecord(id string, myID uint) ResultResp {
 
 	userId := vod.UserId
 	var user statements.User
-	db.Model(&statements.User{}).Select("id, sex, avatar,nick_name").Where("id =?", userId).First(&user)
+	db.Model(&statements.User{}).Select("id, sex, avatar,nick_name, setting1").Where("id =?", userId).First(&user)
 
 	resultResp.VodUserId = user.ID
 	resultResp.VodUser = user.NickName
 	resultResp.VodAvatar = user.Avatar
+
+    if user.Setting1 == 0 {
+        resultResp.VodAvatar = tools.GetAvatarUrl(user.Sex)
+    }
 
 	if vod.HideName == 1 {
 		resultResp.VodUser = "匿名用户"
@@ -102,10 +106,14 @@ func GetRecord(id string, myID uint) ResultResp {
 		recordResp[i].Source = songRows.Source
 
 		var userRows statements.User
-		db.Model(&statements.User{}).Select("id, avatar,nick_name").Where("id = ?", songRows.UserId).First(&userRows)
+		db.Model(&statements.User{}).Select("id, setting1, avatar, sex, nick_name").Where("id = ?", songRows.UserId).First(&userRows)
 		recordResp[i].SingerId = userRows.ID
 		recordResp[i].User = userRows.NickName
 		recordResp[i].SongAvatar = userRows.Avatar
+
+        if userRows.Setting1 == 0 {
+            recordResp[i].SongAvatar = tools.GetAvatarUrl(userRows.Sex) 
+        }
 
 		recordResp[i].IsPraise, _ = HasPraise(2, myID, songRows.ID)
 		i++
