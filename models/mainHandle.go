@@ -412,7 +412,7 @@ func GetSearchResult(search string) SearchResp {
 	}
 
 	var vodCount int = 0
-	result = db.Model(&statements.Vod{}).Where("name = ?", search).Select("id,created_at,user_id").Count(&vodCount)
+	result = db.Model(&statements.Vod{}).Where("name = ?", search).Select("id, more, created_at, user_id, hide_name").Count(&vodCount)
 
 	if vodCount != 0 && result.Error == nil {
 		rows, _ := result.Rows()
@@ -443,7 +443,6 @@ func GetSearchResult(search string) SearchResp {
 			if vod.HideName == 1 {
 				vodResp[i].VodUser = "匿名用户"
 				vodResp[i].Avatar = tools.GetAvatarUrl(user.Sex)
-                vodResp[i].VodUserId = 0
 			}
 
 			i++
