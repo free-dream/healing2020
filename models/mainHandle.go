@@ -121,11 +121,15 @@ func LoadSongMsg(sort string, key string, userTags string) []SongMsg {
 		songList[i].Id = vodId
 
 		var user statements.User
-		db.Model(&statements.User{}).Select("nick_name,sex,avatar").Where("id=?", userId).Find(&user)
+		db.Model(&statements.User{}).Select("setting1,nick_name,sex,avatar").Where("id=?", userId).Find(&user)
 		songList[i].User = user.NickName
 		songList[i].Sex = user.Sex
 		songList[i].Avatar = user.Avatar
 		songList[i].UserId = userId
+
+        if user.Setting1 == 0 {
+            songList[i].Avatar = tools.GetAvatarUrl(user.Sex)
+        }
 
 		var vod statements.Vod
 		db.Model(&statements.Vod{}).Select("more").Where("id=?", vodId).Find(&vod)
@@ -186,10 +190,14 @@ func LoadVodMsg(sort string, key string, userTags string) []SongMsg {
 		userid := vod.UserId
 
 		var user statements.User
-		db.Model(&statements.User{}).Select("nick_name,sex,avatar").Where("id=?", userid).Find(&user)
+		db.Model(&statements.User{}).Select("nick_name,sex,avatar,setting1").Where("id=?", userid).Find(&user)
 		vodList[i].User = user.NickName
 		vodList[i].Sex = user.Sex
 		vodList[i].Avatar = user.Avatar
+
+        if user.Setting1 == 0 {
+            vodList[i].Avatar = tools.GetAvatarUrl(user.Sex)
+        }
 
 		if vod.HideName == 1 {
 			vodList[i].UserId = 0
@@ -460,6 +468,10 @@ func GetSearchResult(search string) SearchResp {
 			userResp[i].More = user.More
 			userResp[i].Avatar = user.Avatar
 			userResp[i].UserName = user.NickName
+
+            if user.Setting1 == 0 {
+                userResp[i].Avatar = tools.GetAvatarUrl(user.Sex)
+            }
 
 			var userOther statements.UserOther
 			db.Model(&statements.UserOther{}).Select("now").Where("user_id = ?", user.ID).First(&userOther)

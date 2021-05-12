@@ -3,6 +3,7 @@ package models
 import (
 	"healing2020/models/statements"
 	"healing2020/pkg/setting"
+    "healing2020/pkg/tools"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
@@ -114,6 +115,10 @@ func SendDeliverRank() error {
 		}
 		rank[i].User = user.NickName
 		rank[i].Avatar = user.Avatar
+
+        if user.Setting1 == 0 {
+            rank[i].Avatar = tools.GetAvatarUrl(user.Sex)
+        }
 	}
 	jsonRank, _ := json.Marshal(rank)
 
@@ -204,6 +209,10 @@ func SendSongRank() error {
 		rank[i].User = user.NickName
 		rank[i].Avatar = user.Avatar
         rank[i].UserId = userid
+
+        if user.Setting1 == 0 {
+            rank[i].Avatar = tools.GetAvatarUrl(user.Sex)
+        }
 	}
 	jsonRank, _ := json.Marshal(rank)
 
@@ -280,6 +289,10 @@ func SendUserRank() error {
             rank[i].UserId = user[i].ID
 			rank[i].User = user[i].NickName
 			rank[i].Avatar = user[i].Avatar
+
+            if user[i].Setting1 == 0 {
+                rank[i].Avatar = tools.GetAvatarUrl(user[i].Sex)
+            }
 		}
 
 		allRank[i] = rank
