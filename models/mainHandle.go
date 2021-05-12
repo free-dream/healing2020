@@ -38,6 +38,7 @@ type SongMsg struct {
 	Source   string `json:"source"`
 	Singer   string `json:"singer"`
 	UserId   uint   `json:"userid"`
+    Phone    string `json:"phone"`
 	IsPraise bool   `json:"isPraise"`
 }
 
@@ -190,10 +191,11 @@ func LoadVodMsg(sort string, key string, userTags string) []SongMsg {
 		userid := vod.UserId
 
 		var user statements.User
-		db.Model(&statements.User{}).Select("nick_name,sex,avatar,setting1").Where("id=?", userid).Find(&user)
+		db.Model(&statements.User{}).Select("phone, nick_name,sex,avatar,setting1").Where("id=?", userid).Find(&user)
 		vodList[i].User = user.NickName
 		vodList[i].Sex = user.Sex
 		vodList[i].Avatar = user.Avatar
+        vodList[i].Phone = user.Phone
 
         if user.Setting1 == 0 {
             vodList[i].Avatar = tools.GetAvatarUrl(user.Sex)
@@ -362,6 +364,7 @@ type VodResp struct {
 	VodName string    `json:"name"`
 	VodUser string    `json:"user"`
     VodUserId uint    `json:"userid"`
+    Phone   string    `json:"phone"`
 	Avatar  string    `json:"avatar"`
 	More    string    `json:"more"`
 	Sex     int       `json:"sex"`
@@ -431,10 +434,11 @@ func GetSearchResult(search string) SearchResp {
             vodResp[i].VodUserId = vod.UserId
 
 			var user statements.User
-			db.Model(&statements.User{}).Select("setting1, sex, more, avatar, nick_name").Where("id = ?", vod.UserId).First(&user)
+			db.Model(&statements.User{}).Select("phone, setting1, sex, more, avatar, nick_name").Where("id = ?", vod.UserId).First(&user)
 			vodResp[i].VodUser = user.NickName
 			vodResp[i].Avatar = user.Avatar
 			vodResp[i].Sex = user.Sex
+            vodResp[i].Phone = user.Phone
 
             if user.Setting1 == 0 {
                 vodResp[i].Avatar = tools.GetAvatarUrl(user.Sex)
