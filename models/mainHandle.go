@@ -447,6 +447,7 @@ func GetSearchResult(search string) SearchResp {
 			if vod.HideName == 1 {
 				vodResp[i].VodUser = "匿名用户"
 				vodResp[i].Avatar = tools.GetAvatarUrl(user.Sex)
+                vodResp[i].VodUserId = 0
 			}
 
 			i++
