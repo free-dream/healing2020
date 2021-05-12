@@ -28,6 +28,7 @@ type MyPersonalPage struct {
 	RemainHideName int                   `json:"hide_number"`
 	TrueName       string                `json:"truename"`
 	Phone          string                `json:"phone"`
+	Postbox        string                `json:"postbox"`
 	Vod            []models.RequestSongs `json:"requestSongs"`
 	Songs          []models.Songs        `json:"Songs"`
 	Praise         []models.Admire       `json:"admire"`
@@ -70,6 +71,7 @@ func responsePage(c *gin.Context, user statements.User, my_others string) {
 		Setting2: user.Setting2,
 		Setting3: user.Setting3,
 		Avatar:   user.Avatar,
+		Postbox:  user.Postbox,
 		Phone:    user.Phone,
 		TrueName: user.TrueName,
 	}
