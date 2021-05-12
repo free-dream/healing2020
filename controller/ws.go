@@ -24,13 +24,13 @@ type ACK struct {
 }
 
 type Message struct {
-	ID         string `json:"id"`
-	Type       int    `json:"type"`
+	ID         string `json:"id"`   //md5(FromUserID+ToUserID+Time)截8位
+	Type       int    `json:"type"` //1为录音，2为文字
 	Time       string `json:"time"`
 	FromUserID uint   `json:"fromUserID"`
 	ToUserID   uint   `json:"toUserID" validate:"required"`
 	Content    string `json:"content" validate:"required"`
-	URL        string `json:"url"`
+	URL        string `json:"url"` //录音url
 }
 
 type WsConnection struct {
