@@ -35,6 +35,7 @@ type SongMsg struct {
 	SongId   uint   `json:"songId"`
 	Like     int    `json:"like"`
 	Style    string `json:"style"`
+    Language string `json:"language"`
 	Source   string `json:"source"`
 	Singer   string `json:"singer"`
 	UserId   uint   `json:"userid"`
@@ -116,6 +117,7 @@ func LoadSongMsg(sort string, key string, userTags string) []SongMsg {
 		songList[i].Source = song.Source
 		songList[i].Name = song.Name
 		songList[i].Style = song.Style
+        songList[i].Language = song.Language
 		songList[i].Time = song.CreatedAt
 		userId := song.UserId
 		vodId := song.VodId
@@ -187,6 +189,8 @@ func LoadVodMsg(sort string, key string, userTags string) []SongMsg {
 		vodList[i].Time = vod.CreatedAt
 		vodList[i].Singer = vod.Singer
 		vodList[i].UserId = vod.UserId
+        vodList[i].Style = vod.Style
+        vodList[i].Language = vod.Language
 
 		userid := vod.UserId
 
@@ -216,20 +220,59 @@ func LoadVodMsg(sort string, key string, userTags string) []SongMsg {
 func GetMainMsg(pageStr string, sort string, key string, tags string, userid uint) (MainMsg, error) {
 	page, _ := strconv.Atoi(pageStr)
 	var result MainMsg
-	//推荐部分先发
+	client := setting.RedisConn()
+
+    // 推荐部分先处理
 	if tags != "" {
-		listen := LoadSongMsg(sort, "推荐", tags)
-		sing := LoadVodMsg(sort, "推荐", tags)
-		resultSing, resultListen, err := Paging(page, sing, listen)
+		// listen := LoadSongMsg(sort, "推荐", tags)
+		// sing := LoadVodMsg(sort, "推荐", tags)
+		// resultSing, resultListen, err := Paging(page, sing, listen)
 
-		if err != nil {
-			return result, errors.New("page out of range")
-		}
+		// if err != nil {
+		// 	return result, errors.New("page out of range")
+		// }
 
-		//塞进是否点赞
+        // 从redis拿'全部'的数据
+        data1, err1 := client.Get("healing2020:Main:" + "" + "SingMsg" + sort).Bytes()
+        if data1 == nil {
+            return MainMsg{}, nil
+        }
+        if err1 != nil {
+            return MainMsg{}, err1
+        }
+        data2, err2 := client.Get("healing2020:Main:" + "" + "ListenMsg" + sort).Bytes()
+        if data2 == nil {
+            return MainMsg{}, nil
+        }
+        if err2 != nil {
+            return MainMsg{}, err2
+        }
+
+        var sing []SongMsg
+        var listen []SongMsg
+        json.Unmarshal(data1, &sing)
+        json.Unmarshal(data2, &listen)
+        resultSing, resultListen, err := Paging(page, sing, listen)
+
+        if err != nil {
+            return result, errors.New("page out of range")
+        }
+
+		//塞进是否点赞,排除用户不喜欢的项
 		for i := 0; i < len(resultListen); i++ {
+            if !recommendFilter(resultListen[i].Style,resultListen[i].Language,tags) {
+                resultListen[i].Id = 0
+                continue
+            }
 			resultListen[i].IsPraise, _ = HasPraise(2, userid, resultListen[i].SongId)
 			resultListen[i].Like = GetPraiseCount("song", resultListen[i].SongId)
+		}
+
+		for i := 0; i < len(resultSing); i++ {
+            if !recommendFilter(resultSing[i].Style,resultSing[i].Language,tags) {
+                resultSing[i].Id = 0
+                continue
+            }
 		}
 
 		result.Sing = resultSing
@@ -238,7 +281,6 @@ func GetMainMsg(pageStr string, sort string, key string, tags string, userid uin
 		return result, nil
 	}
 
-	client := setting.RedisConn()
 	data1, err1 := client.Get("healing2020:Main:" + key + "SingMsg" + sort).Bytes()
 	if data1 == nil {
 		return MainMsg{}, nil
