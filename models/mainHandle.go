@@ -431,14 +431,19 @@ func GetSearchResult(search string) SearchResp {
             vodResp[i].VodUserId = vod.UserId
 
 			var user statements.User
-			db.Model(&statements.User{}).Select("sex,more,avatar,nick_name").Where("id = ?", vod.UserId).First(&user)
+			db.Model(&statements.User{}).Select("setting1, sex, more, avatar, nick_name").Where("id = ?", vod.UserId).First(&user)
 			vodResp[i].VodUser = user.NickName
 			vodResp[i].Avatar = user.Avatar
 			vodResp[i].Sex = user.Sex
 
+            if user.Setting1 == 0 {
+                vodResp[i].Avatar = tools.GetAvatarUrl(user.Sex)
+            }
+
 			if vod.HideName == 1 {
 				vodResp[i].VodUser = "匿名用户"
 				vodResp[i].Avatar = tools.GetAvatarUrl(user.Sex)
+                vodResp[i].VodUserId = 0
 			}
 
 			i++

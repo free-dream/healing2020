@@ -82,6 +82,7 @@ func GetRecord(id string, myID uint) ResultResp {
 
 	if vod.HideName == 1 {
 		resultResp.VodUser = "匿名用户"
+        resultResp.VodUserId = 0
 		resultResp.VodAvatar = tools.GetAvatarUrl(user.Sex)
 	}
 
