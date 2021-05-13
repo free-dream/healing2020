@@ -40,6 +40,7 @@ type WsConnection struct {
 	closeChan chan byte
 	mutex     sync.Mutex
 	isClosed  bool
+	textQueue chan string
 }
 
 var upGrader = websocket.Upgrader{
@@ -227,9 +228,9 @@ func WsHandle(c *gin.Context) {
 		userID:    user.ID,
 		closeChan: make(chan byte),
 		isClosed:  false,
+		textQueue: make(chan string, 1024),
 	}
 
-	go wsConn.heartbeat()
 	go wsConn.readWs(user.ID)
 	go wsConn.writeWs(user.ID)
 	go wsConn.MsgMysql()
@@ -245,15 +246,8 @@ func (wsConn *WsConnection) close() {
 	}
 }
 
-//心跳
-func (wsConn *WsConnection) heartbeat() {
-	for {
-		time.Sleep(2 * time.Second)
-		if err := wsConn.ws.WriteMessage(websocket.TextMessage, []byte("hb")); err != nil {
-			wsConn.close()
-			return
-		}
-	}
+func (wsConn *WsConnection) enqueueWrite(data []byte) {
+	wsConn.textQueue <- string(data)
 }
 
 //向客户端发送用户消息
@@ -262,12 +256,24 @@ func (wsConn *WsConnection) writeWs(userID uint) {
 	timeoutNum := 0
 	for {
 		select {
+		// heartbeat
+		case <-time.After(2 * time.Second):
+			if err := wsConn.ws.WriteMessage(websocket.TextMessage, []byte("hb")); err != nil {
+				wsConn.close()
+				return
+			}
+		// string message from read handler, typically ACK msg
+		case data := <-wsConn.textQueue:
+			if err := wsConn.ws.WriteMessage(websocket.TextMessage, []byte(data)); err != nil {
+				log.Println("write websocket failed: ", userID, ", ", err.Error())
+				wsConn.close()
+				return
+			}
+		// normal message from msg queue
 		case msg := <-MessageQueue[int(wsConn.userID)]:
 			if wsConn.userID != userID {
 				continue
 			}
-			//wait 0.5s to response ack to front-end
-			time.Sleep(time.Duration(500) * time.Millisecond)
 			//send message
 			responseMsg, _ := json.Marshal(msg)
 			if err := wsConn.ws.WriteMessage(websocket.TextMessage, []byte(responseMsg)); err != nil {
@@ -334,14 +340,14 @@ func (wsConn *WsConnection) readWs(userID uint) {
 		if receiveACK != (ACK{}) { //receive ack
 			if _, ok := ACKchan[receiveACK.ACKID]; !ok {
 				log.Println("from:" + strconv.Itoa(int(userID)) + "未知的ack报文")
-				wsConn.ws.WriteMessage(websocket.TextMessage, []byte("未知的ack报文"))
+				wsConn.enqueueWrite([]byte("未知的ack报文"))
 				continue
 			}
 			ACKchan[receiveACK.ACKID] <- &receiveACK
 		} else if data != (Message{}) && data.Type == 2 { //receive msg data
 			//judge data FromUserID
 			if userID != data.FromUserID {
-				wsConn.ws.WriteMessage(websocket.TextMessage, []byte("FromUserID和用户id不同"))
+				wsConn.enqueueWrite([]byte("FromUserID和用户id不同"))
 				log.Println("FromUserID " + strconv.Itoa(int(data.FromUserID)) + "is not same as userID " + strconv.Itoa(int(userID)))
 				data.FromUserID = userID
 			}
@@ -349,13 +355,13 @@ func (wsConn *WsConnection) readWs(userID uint) {
 			MysqlCreate <- &data
 			//if get message, response ack
 			responseACK, _ := json.Marshal(ACK{ACKID: data.ID})
-			wsConn.ws.WriteMessage(websocket.TextMessage, []byte(responseACK))
+			wsConn.enqueueWrite([]byte(responseACK))
 			//ready to response msg
 			createUserMsgChan(data.ToUserID)
 			MessageQueue[int(data.ToUserID)] <- &data
 		} else { //not ack or msg
 			log.Println("ws json.unmarshal failed")
-			wsConn.ws.WriteMessage(websocket.TextMessage, []byte("json.unmarshal failed"))
+			wsConn.enqueueWrite([]byte("json.unmarshal failed"))
 			log.Println("rawData: " + string(rawData))
 			continue
 		}
