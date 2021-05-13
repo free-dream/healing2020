@@ -106,8 +106,6 @@ func MysqltoChan() {
 			Time:           value.Time,
 			IsToFromUserID: value.IsToFromUserID,
 		}
-		createUserMsgChan(msg.ToUserID)
-		MessageQueue[int(msg.ToUserID)] <- &msg
 		//判断录音消息是发给ToUserID还是FromUserID的
 		if msg.Type == 1 {
 			switch value.IsToFromUserID {
@@ -118,7 +116,9 @@ func MysqltoChan() {
 				createUserMsgChan(msg.ToUserID)
 				MessageQueue[int(msg.ToUserID)] <- &msg
 			}
-
+		} else if msg.Type == 2 {
+			createUserMsgChan(msg.ToUserID)
+			MessageQueue[int(msg.ToUserID)] <- &msg
 		}
 	}
 }
