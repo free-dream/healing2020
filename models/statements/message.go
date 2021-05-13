@@ -10,13 +10,14 @@ import (
 
 type Message struct {
 	gorm.Model
-	MsgID   string `gorm:"default: ''"`
-	Send    uint   `gorm:"default: 0"`
-	Receive uint   `gorm:"default: 0"`
-	Type    int    `gorm:"default: 0"`
-	Content string `gorm:"default: ''"`
-	Url     string `gorm:"default: ''"`
-	Time    string `gorm:"default: ''"`
+	MsgID          string `gorm:"default: ''"`
+	Send           uint   `gorm:"default: 0"`
+	Receive        uint   `gorm:"default: 0"`
+	Type           int    `gorm:"default: 0"`
+	Content        string `gorm:"default: ''"`
+	Url            string `gorm:"default: ''"`
+	Time           string `gorm:"default: ''"`
+	IsToFromUserID int    `gorm:"default: 0"` //type=1的录音消息此字段有意义，此字段为1时表示此条消息发向FromUserID
 }
 
 func MessageInit() {

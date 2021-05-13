@@ -189,9 +189,14 @@ func RecordHeal(c *gin.Context) {
 	msg.Content = songName
 	md5ID := tools.Md5String(strconv.Itoa(int(userID)) + strconv.Itoa(int(toUserID)) + msg.Time)
 	msg.ID = md5ID
+
+	msg.IsToFromUserID = 1
 	MysqlCreate <- &msg
 	createUserMsgChan(msg.FromUserID)
 	MessageQueue[int(msg.FromUserID)] <- &msg
+
+	msg.IsToFromUserID = 0
+	MysqlCreate <- &msg
 	createUserMsgChan(msg.ToUserID)
 	MessageQueue[int(msg.ToUserID)] <- &msg
 

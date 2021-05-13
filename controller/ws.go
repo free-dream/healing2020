@@ -24,13 +24,14 @@ type ACK struct {
 }
 
 type Message struct {
-	ID         string `json:"id"`   //md5(FromUserID+ToUserID+Time)截8位
-	Type       int    `json:"type"` //1为录音，2为文字
-	Time       string `json:"time"`
-	FromUserID uint   `json:"fromUserID"`
-	ToUserID   uint   `json:"toUserID" validate:"required"`
-	Content    string `json:"content" validate:"required"`
-	URL        string `json:"url"` //录音url
+	ID             string `json:"id"`   //md5(FromUserID+ToUserID+Time)截8位
+	Type           int    `json:"type"` //1为录音，2为文字
+	Time           string `json:"time"`
+	FromUserID     uint   `json:"fromUserID"`
+	ToUserID       uint   `json:"toUserID" validate:"required"`
+	Content        string `json:"content" validate:"required"`
+	URL            string `json:"url"` //录音url
+	IsToFromUserID int    //用于判断此条录音消息是否发给点歌者，1表示是
 }
 
 type WsConnection struct {
@@ -56,13 +57,14 @@ var MysqlDelete = make(chan *Message, 1000)
 //turn Message to statements.Message
 func msgToSMessage(msg *Message) statements.Message {
 	message := statements.Message{
-		MsgID:   msg.ID,
-		Send:    msg.FromUserID,
-		Receive: msg.ToUserID,
-		Type:    msg.Type,
-		Content: msg.Content,
-		Url:     msg.URL,
-		Time:    msg.Time,
+		MsgID:          msg.ID,
+		Send:           msg.FromUserID,
+		Receive:        msg.ToUserID,
+		Type:           msg.Type,
+		Content:        msg.Content,
+		Url:            msg.URL,
+		Time:           msg.Time,
+		IsToFromUserID: msg.IsToFromUserID,
 	}
 	return message
 }
@@ -95,19 +97,28 @@ func MysqltoChan() {
 	}
 	for _, value := range allMessage {
 		msg := Message{
-			ID:         value.MsgID,
-			FromUserID: value.Send,
-			ToUserID:   value.Receive,
-			Type:       value.Type,
-			Content:    value.Content,
-			URL:        value.Url,
-			Time:       value.Time,
+			ID:             value.MsgID,
+			FromUserID:     value.Send,
+			ToUserID:       value.Receive,
+			Type:           value.Type,
+			Content:        value.Content,
+			URL:            value.Url,
+			Time:           value.Time,
+			IsToFromUserID: value.IsToFromUserID,
 		}
 		createUserMsgChan(msg.ToUserID)
 		MessageQueue[int(msg.ToUserID)] <- &msg
+		//判断录音消息是发给ToUserID还是FromUserID的
 		if msg.Type == 1 {
-			createUserMsgChan(msg.FromUserID)
-			MessageQueue[int(msg.FromUserID)] <- &msg
+			switch value.IsToFromUserID {
+			case 1:
+				createUserMsgChan(msg.FromUserID)
+				MessageQueue[int(msg.FromUserID)] <- &msg
+			default:
+				createUserMsgChan(msg.ToUserID)
+				MessageQueue[int(msg.ToUserID)] <- &msg
+			}
+
 		}
 	}
 }
