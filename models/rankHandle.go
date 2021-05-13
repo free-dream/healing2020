@@ -150,6 +150,7 @@ func GetDeliverRank(userid uint) ([]AllRank, string) {
 		if err != nil {
             result[j].Data = rank
             result[j].Time = dateStr
+            i = i + 0.01
             continue
 			// return nil, err.Error()
 		}
