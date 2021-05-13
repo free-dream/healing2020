@@ -4,6 +4,7 @@ import (
 	"errors"
 	"healing2020/models/statements"
 	"healing2020/pkg/setting"
+	"healing2020/pkg/tools"
 	"strconv"
 	"time"
 
@@ -65,22 +66,35 @@ func SingHome(belong string, pageStr string, pageStr2 string, subjectID uint, Us
 		//获取热门用户信息
 		HotElse := make([]statements.User, len(Hot))
 		for i := 0; i < len(Hot); i++ {
-			err = db.Table("user").Select("nick_name, avatar").Where("id = ?", Hot[i].UserID).Scan(&HotElse[i]).Error
+			err = db.Table("user").Select("nick_name, avatar, setting1, sex").Where("id = ?", Hot[i].UserID).Scan(&HotElse[i]).Error
 		}
 		responseHot = make([]UserMessage, len(Hot))
 		for i := 0; i < len(Hot); i++ {
 			if Hot[i].Praise >= 5 {
 				count2 = 1
 				count2 = count2 + 1
-				responseHot[i] = UserMessage{
-					Nickname:  HotElse[i].NickName,
-					Avatar:    HotElse[i].Avatar,
-					UserID:    Hot[i].UserID,
-					Id:        Hot[i].Id,
-					CreatedAt: Hot[i].CreatedAt,
-					Praise:    Hot[i].Praise,
-					Song:      Hot[i].Song,
-					Record:    Hot[i].Record,
+				if HotElse[i].Setting1 == 0 {
+					responseHot[i] = UserMessage{
+						Nickname:  HotElse[i].NickName,
+						Avatar:    tools.GetAvatarUrl(HotElse[i].Sex),
+						UserID:    Hot[i].UserID,
+						Id:        Hot[i].Id,
+						CreatedAt: Hot[i].CreatedAt,
+						Praise:    Hot[i].Praise,
+						Song:      Hot[i].Song,
+						Record:    Hot[i].Record,
+					}
+				} else {
+					responseHot[i] = UserMessage{
+						Nickname:  HotElse[i].NickName,
+						Avatar:    HotElse[i].Avatar,
+						UserID:    Hot[i].UserID,
+						Id:        Hot[i].Id,
+						CreatedAt: Hot[i].CreatedAt,
+						Praise:    Hot[i].Praise,
+						Song:      Hot[i].Song,
+						Record:    Hot[i].Record,
+					}
 				}
 				responseHot[i].IsPraise, _ = HasPraise(3, Hot[i].UserID, uint(Hot[i].Id))
 			}
@@ -94,19 +108,32 @@ func SingHome(belong string, pageStr string, pageStr2 string, subjectID uint, Us
 		//获取个人用户信息
 		HotElse := make([]statements.User, len(Hot))
 		for i := 0; i < len(Hot); i++ {
-			err = db.Table("user").Select("nick_name, avatar").Where("id = ?", UserID).Scan(&HotElse[i]).Error
+			err = db.Table("user").Select("nick_name, avatar, setting1, sex").Where("id = ?", UserID).Scan(&HotElse[i]).Error
 		}
 		responseHot = make([]UserMessage, len(Hot))
 		for i := 0; i < len(Hot); i++ {
-			responseHot[i] = UserMessage{
-				Nickname:  HotElse[i].NickName,
-				Avatar:    HotElse[i].Avatar,
-				UserID:    Hot[i].UserID,
-				Id:        Hot[i].Id,
-				CreatedAt: Hot[i].CreatedAt,
-				Praise:    Hot[i].Praise,
-				Song:      Hot[i].Song,
-				Record:    Hot[i].Record,
+			if HotElse[i].Setting1 == 0 {
+				responseHot[i] = UserMessage{
+					Nickname:  HotElse[i].NickName,
+					Avatar:    tools.GetAvatarUrl(HotElse[i].Sex),
+					UserID:    Hot[i].UserID,
+					Id:        Hot[i].Id,
+					CreatedAt: Hot[i].CreatedAt,
+					Praise:    Hot[i].Praise,
+					Song:      Hot[i].Song,
+					Record:    Hot[i].Record,
+				}
+			} else {
+				responseHot[i] = UserMessage{
+					Nickname:  HotElse[i].NickName,
+					Avatar:    HotElse[i].Avatar,
+					UserID:    Hot[i].UserID,
+					Id:        Hot[i].Id,
+					CreatedAt: Hot[i].CreatedAt,
+					Praise:    Hot[i].Praise,
+					Song:      Hot[i].Song,
+					Record:    Hot[i].Record,
+				}
 			}
 			responseHot[i].IsPraise, _ = HasPraise(3, Hot[i].UserID, uint(Hot[i].Id))
 		}
@@ -118,19 +145,32 @@ func SingHome(belong string, pageStr string, pageStr2 string, subjectID uint, Us
 	//获取列表用户信息
 	UserElse := make([]statements.User, len(SingHome))
 	for i := 0; i < len(SingHome); i++ {
-		err = db.Table("user").Select("nick_name, avatar").Where("id = ?", SingHome[i].UserID).Scan(&UserElse[i]).Error
+		err = db.Table("user").Select("nick_name, avatar, setting1, sex").Where("id = ?", SingHome[i].UserID).Scan(&UserElse[i]).Error
 	}
 	responseSing := make([]UserMessage, len(SingHome))
 	for i := 0; i < len(SingHome); i++ {
-		responseSing[i] = UserMessage{
-			Nickname:  UserElse[i].NickName,
-			Avatar:    UserElse[i].Avatar,
-			UserID:    SingHome[i].UserID,
-			Id:        SingHome[i].Id,
-			CreatedAt: SingHome[i].CreatedAt,
-			Praise:    SingHome[i].Praise,
-			Song:      SingHome[i].Song,
-			Record:    SingHome[i].Record,
+		if UserElse[i].Setting1 == 0 {
+			responseSing[i] = UserMessage{
+				Nickname:  UserElse[i].NickName,
+				Avatar:    tools.GetAvatarUrl(UserElse[i].Sex),
+				UserID:    SingHome[i].UserID,
+				Id:        SingHome[i].Id,
+				CreatedAt: SingHome[i].CreatedAt,
+				Praise:    SingHome[i].Praise,
+				Song:      SingHome[i].Song,
+				Record:    SingHome[i].Record,
+			}
+		} else {
+			responseSing[i] = UserMessage{
+				Nickname:  UserElse[i].NickName,
+				Avatar:    UserElse[i].Avatar,
+				UserID:    SingHome[i].UserID,
+				Id:        SingHome[i].Id,
+				CreatedAt: SingHome[i].CreatedAt,
+				Praise:    SingHome[i].Praise,
+				Song:      SingHome[i].Song,
+				Record:    SingHome[i].Record,
+			}
 		}
 		responseSing[i].IsPraise, _ = HasPraise(3, SingHome[i].UserID, uint(SingHome[i].Id))
 	}
