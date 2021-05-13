@@ -10,7 +10,7 @@ import (
 
 	"encoding/json"
 	"errors"
-	"fmt"
+	//"fmt"
 	"strconv"
 	"time"
 )
@@ -148,8 +148,7 @@ func GetDeliverRank(userid uint) ([]AllRank, string) {
 		keyname := "healing2020:Deliver." + dateStr
 		data, err := client.Get(keyname).Bytes()
 		if err != nil {
-			fmt.Println(err)
-			return nil, "Unexpected data"
+			return nil, err.Error()
 		}
 		json.Unmarshal(data, &rank)
         // 把是否点赞的项拼上
