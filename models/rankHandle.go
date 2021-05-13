@@ -3,13 +3,14 @@ package models
 import (
 	"healing2020/models/statements"
 	"healing2020/pkg/setting"
-    "healing2020/pkg/tools"
+	"healing2020/pkg/tools"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 
 	"encoding/json"
 	"errors"
+
 	//"fmt"
 	"strconv"
 	"time"
@@ -25,12 +26,12 @@ type Rank struct {
 	Text   string `json:"text"`
 	Source string `json:"source"`
 
-	Time   string `json:"time"`
-	Praise int    `json:"praise"`
-	Name   string `json:"name"`
-    VodId  uint   `json:"vodid"`
-    UserId uint   `json:"userid"`
-    IsPraise bool `json:"isPraise"`
+	Time     string `json:"time"`
+	Praise   int    `json:"praise"`
+	Name     string `json:"name"`
+	VodId    uint   `json:"vodid"`
+	UserId   uint   `json:"userid"`
+	IsPraise bool   `json:"isPraise"`
 }
 
 type AllRank struct {
@@ -104,7 +105,7 @@ func SendDeliverRank() error {
 		rank[i].Text = deliver[i].TextField
 		rank[i].Photo = deliver[i].Photo
 		rank[i].Source = deliver[i].Record
-        rank[i].UserId = deliver[i].UserId
+		rank[i].UserId = deliver[i].UserId
 
 		userid := deliver[i].UserId
 		var user statements.User
@@ -116,9 +117,9 @@ func SendDeliverRank() error {
 		rank[i].User = user.NickName
 		rank[i].Avatar = user.Avatar
 
-        if user.Setting1 == 0 {
-            rank[i].Avatar = tools.GetAvatarUrl(user.Sex)
-        }
+		if user.Setting1 == 0 {
+			rank[i].Avatar = tools.GetAvatarUrl(user.Sex)
+		}
 	}
 	jsonRank, _ := json.Marshal(rank)
 
@@ -148,18 +149,18 @@ func GetDeliverRank(userid uint) ([]AllRank, string) {
 		keyname := "healing2020:Deliver." + dateStr
 		data, err := client.Get(keyname).Bytes()
 		if err != nil {
-            result[j].Data = rank
-            result[j].Time = dateStr
-            i = i + 0.01
-            continue
+			result[j].Data = rank
+			result[j].Time = dateStr
+			i = i + 0.01
+			continue
 			// return nil, err.Error()
 		}
 		json.Unmarshal(data, &rank)
-        // 把是否点赞的项拼上
-        for k:=0;k<len(rank);k++ {
-            rank[k].IsPraise,_ = HasPraise(1,userid,rank[k].ID)
-            rank[k].Praise = GetPraiseCount("deliver",rank[k].ID)
-        }
+		// 把是否点赞的项拼上
+		for k := 0; k < len(rank); k++ {
+			rank[k].IsPraise, _ = HasPraise(1, userid, rank[k].ID)
+			rank[k].Praise = GetPraiseCount("deliver", rank[k].ID)
+		}
 		i = i + 0.01
 
 		result[j].Data = rank
@@ -197,9 +198,9 @@ func SendSongRank() error {
 	for i := 0; i < min(int(rows), 10); i++ {
 		rank[i].ID = song[i].ID
 		rank[i].Name = song[i].Name
-		rank[i].Praise = GetPraiseCount("song",song[i].ID)
+		rank[i].Praise = GetPraiseCount("song", song[i].ID)
 		rank[i].Time = date
-        rank[i].VodId = song[i].VodId
+		rank[i].VodId = song[i].VodId
 		rank[i].Source = song[i].Source
 
 		userid := song[i].UserId
@@ -211,11 +212,11 @@ func SendSongRank() error {
 		}
 		rank[i].User = user.NickName
 		rank[i].Avatar = user.Avatar
-        rank[i].UserId = userid
+		rank[i].UserId = userid
 
-        if user.Setting1 == 0 {
-            rank[i].Avatar = tools.GetAvatarUrl(user.Sex)
-        }
+		if user.Setting1 == 0 {
+			rank[i].Avatar = tools.GetAvatarUrl(user.Sex)
+		}
 	}
 	jsonRank, _ := json.Marshal(rank)
 
@@ -247,11 +248,11 @@ func GetSongRank(userid uint) ([]AllRank, string) {
 		}
 		json.Unmarshal(data, &rank)
 
-        // 把是否点赞的项拼上
-        for k:=0;k<len(rank);k++ {
-            rank[k].IsPraise,_ = HasPraise(2,userid,rank[k].ID)
-            rank[k].Praise = GetPraiseCount("song",rank[k].ID)
-        }
+		// 把是否点赞的项拼上
+		for k := 0; k < len(rank); k++ {
+			rank[k].IsPraise, _ = HasPraise(2, userid, rank[k].ID)
+			rank[k].Praise = GetPraiseCount("song", rank[k].ID)
+		}
 		i = i + 0.01
 
 		result[j].Data = rank
@@ -271,7 +272,7 @@ func SendUserRank() error {
 	var user []statements.User
 	var allRank [][]Rank = make([][]Rank, 5)
 	for i := 0; i < 5; i++ {
-	    var rank []Rank = make([]Rank, 10)
+		var rank []Rank = make([]Rank, 10)
 		pattern := []string{"", "华工", "广警", "华东政法", "山东大学"}
 		var result *gorm.DB
 		if i == 0 {
@@ -281,21 +282,21 @@ func SendUserRank() error {
 		}
 		rows := result.RowsAffected
 		if rows == 0 {
-            allRank[i] = rank
-            continue
+			allRank[i] = rank
+			continue
 		}
 		if result.Error != nil {
 			return result.Error
 		}
 		for i := 0; i < min(int(rows), 10); i++ {
 			rank[i].ID = user[i].ID
-            rank[i].UserId = user[i].ID
+			rank[i].UserId = user[i].ID
 			rank[i].User = user[i].NickName
 			rank[i].Avatar = user[i].Avatar
 
-            if user[i].Setting1 == 0 {
-                rank[i].Avatar = tools.GetAvatarUrl(user[i].Sex)
-            }
+			if user[i].Setting1 == 0 {
+				rank[i].Avatar = tools.GetAvatarUrl(user[i].Sex)
+			}
 		}
 
 		allRank[i] = rank
@@ -304,7 +305,7 @@ func SendUserRank() error {
 
 	//set in redis
 	client := setting.RedisConn()
-	keyName := "healing2020:User" 
+	keyName := "healing2020:User"
 	client.Set(keyName, jsonRank, 0)
 
 	return nil
@@ -315,18 +316,18 @@ type AllUserRank struct {
 }
 
 func GetAllUserRank() (AllUserRank, string) {
-	var result AllUserRank 
-    var rank [][]Rank
+	var result AllUserRank
+	var rank [][]Rank
 	client := setting.RedisConn()
 
 	keyname := "healing2020:User"
 	data, err := client.Get(keyname).Bytes()
-    if err != nil {
-        return AllUserRank{}, "Unexpected data"
-    }
-    json.Unmarshal(data, &rank)
+	if err != nil {
+		return AllUserRank{}, "Unexpected data"
+	}
+	json.Unmarshal(data, &rank)
 
-    result.Data = rank
+	result.Data = rank
 	return result, ""
 }
 
@@ -344,6 +345,7 @@ func GetUserRank(id string) (UserRank, error) {
 	if err != nil {
 		return UserRank{}, err
 	}
+	defer rows.Close()
 	for rows.Next() {
 		var user statements.User
 		db.ScanRows(rows, &user)
