@@ -30,8 +30,8 @@ type Message struct {
 	FromUserID     uint   `json:"fromUserID"`
 	ToUserID       uint   `json:"toUserID" validate:"required"`
 	Content        string `json:"content" validate:"required"`
-	URL            string `json:"url"` //录音url
-	IsToFromUserID int    //用于判断此条录音消息是否发给点歌者，1表示是
+	URL            string `json:"url"`            //录音url
+	IsToFromUserID int    `json:"isTofromuserID"` //用于判断此条录音消息是否发给点歌者，1表示是
 }
 
 type WsConnection struct {
@@ -175,8 +175,9 @@ type BroadcastReq struct {
 //@Failure 403 {object} e.ErrMsgResponse
 func Broadcast(c *gin.Context) {
 	msg := Message{
-		Time:       time.Now().Format("2006-01-02 15:04:05"),
-		FromUserID: 0,
+		Time:           time.Now().Format("2006-01-02 15:04:05"),
+		FromUserID:     0,
+		IsToFromUserID: 0,
 	}
 
 	// 鉴权
@@ -344,6 +345,7 @@ func (wsConn *WsConnection) readWs(userID uint) {
 				log.Println("FromUserID " + strconv.Itoa(int(data.FromUserID)) + "is not same as userID " + strconv.Itoa(int(userID)))
 				data.FromUserID = userID
 			}
+			data.IsToFromUserID = 0
 			MysqlCreate <- &data
 			//if get message, response ack
 			responseACK, _ := json.Marshal(ACK{ACKID: data.ID})

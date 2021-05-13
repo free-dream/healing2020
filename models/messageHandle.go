@@ -22,7 +22,7 @@ func SaveMessage(msg statements.Message) error {
 func DeleteMessage(msg statements.Message) error {
 	db := setting.MysqlConn()
 
-	err := db.Model(&statements.Message{}).Where("msg_id=?", msg.MsgID).Delete(&statements.Message{}).Error
+	err := db.Model(&statements.Message{}).Where("msg_id=? AND is_to_from_user_id=?", msg.MsgID, msg.IsToFromUserID).Delete(&statements.Message{}).Error
 	if err != nil {
 		return err
 	}

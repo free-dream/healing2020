@@ -117,12 +117,13 @@ func SendPraiseMsg(myID uint, targetID uint, myName string, types string, mainMs
 	}
 	content := myName + "点赞了您的" + types + mainMsg
 	msg := Message{
-		Type:       2,
-		Time:       "",
-		FromUserID: 0,
-		ToUserID:   targetID,
-		Content:    content,
-		URL:        "",
+		Type:           2,
+		Time:           "",
+		FromUserID:     0,
+		ToUserID:       targetID,
+		Content:        content,
+		URL:            "",
+		IsToFromUserID: 0,
 	}
 	msgID := tools.Md5String(strconv.Itoa(int(myID)) + strconv.Itoa(int(targetID)) + time.Now().Format("2006-01-02 15:04:05"))
 	msg.ID = msgID
