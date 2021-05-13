@@ -84,10 +84,6 @@ func SendDeliverRank() error {
 	date := strconv.Itoa(year) + "_" + monthTransfer(mon.String()) + "_" + dayTransfer(strconv.Itoa(day)) + "%"
 	//fmt.Println(date)
 	result := db.Model(&statements.Deliver{}).Where("created_at LIKE ?", date).Order("praise, created_at desc").Find(&deliver)
-	err1 := result.Error
-	if err1 != nil {
-		return err1
-	}
 	rows := result.RowsAffected
 	if rows == 0 {
 		client := setting.RedisConn()
@@ -96,6 +92,10 @@ func SendDeliverRank() error {
 		keyName := "healing2020:Deliver." + strconv.FormatFloat(count/100+5.10, 'f', 2, 64)
 		client.Set(keyName, "", 0)
 		return errors.New("no data")
+	}
+	err1 := result.Error
+	if err1 != nil {
+		return err1
 	}
 	var rank []Rank = make([]Rank, 10)
 	for i := 0; i < min(int(rows), 10); i++ {
@@ -148,7 +148,10 @@ func GetDeliverRank(userid uint) ([]AllRank, string) {
 		keyname := "healing2020:Deliver." + dateStr
 		data, err := client.Get(keyname).Bytes()
 		if err != nil {
-			return nil, err.Error()
+            result[j].Data = rank
+            result[j].Time = dateStr
+            continue
+			// return nil, err.Error()
 		}
 		json.Unmarshal(data, &rank)
         // 把是否点赞的项拼上
@@ -176,10 +179,6 @@ func SendSongRank() error {
 	year, mon, day := time.Now().Date()
 	date := strconv.Itoa(year) + "_" + monthTransfer(mon.String()) + "_" + dayTransfer(strconv.Itoa(day))
 	result := db.Model(&statements.Song{}).Where("is_hide = 0 and created_at LIKE ?", date+"%").Order("praise, created_at desc").Find(&song)
-	err1 := result.Error
-	if err1 != nil {
-		return err1
-	}
 	rows := result.RowsAffected
 	if rows == 0 {
 		client := setting.RedisConn()
@@ -188,6 +187,10 @@ func SendSongRank() error {
 		keyName := "healing2020:Song." + strconv.FormatFloat(count/100+5.10, 'f', 2, 64)
 		client.Set(keyName, "", 0)
 		return errors.New("no data")
+	}
+	err1 := result.Error
+	if err1 != nil {
+		return err1
 	}
 	var rank []Rank = make([]Rank, 10)
 	for i := 0; i < min(int(rows), 10); i++ {
