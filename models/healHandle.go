@@ -282,10 +282,20 @@ func CreateVod(uid uint, singer string, style string, language string, name stri
 	db := setting.MysqlConn()
 
 	var userOther statements.UserOther
-	db.Select("remain_sing").Where("user_id = ?", uid).First(&userOther)
+	db.Select("id, remain_sing").Where("user_id = ?", uid).First(&userOther)
 	if userOther.RemainSing <= 0 {
 		return errors.New("已无点歌次数！")
 	}
+    tx := db.Begin()
+    if err := tx.Set("gorm:query_option","FOR UPDATE").First(&statements.UserOther{},userOther.ID).Error; err != nil {
+        tx.Rollback()
+        return err
+    }
+    tx.Model(&statements.UserOther{}).Update("remain_sing",userOther.RemainSing-1)
+    if err := tx.Commit().Error; err != nil {
+        tx.Rollback()
+        return err
+    }
 	var vod statements.Vod
 	vod.UserId = uid
 	vod.More = more
