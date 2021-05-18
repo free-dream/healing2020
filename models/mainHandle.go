@@ -47,7 +47,7 @@ func SendMainMsg() {
 	client := setting.RedisConn()
 
 	var sortArr = []string{"0", "1"}
-	var keyArr = []string{"", "ACG", "流行", "古风", "民谣", "摇滚", "抖音热歌", "其他", "国语", "英语", "日语", "粤语"}
+	var keyArr = []string{"", "rap", "韩语","ACG", "流行", "古风", "民谣", "摇滚", "抖音热歌", "其他", "国语", "英语", "日语", "粤语"}
 	//var sortArr = []string{"0"}
 	//var keyArr = []string{""}
 	for _, sort := range sortArr {
