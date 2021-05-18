@@ -141,6 +141,9 @@ func InitRouter() *gin.Engine {
 	api.POST("/record2", controller.ConvertMediaIdArrToUrl)
 	api.POST("/vod", controller.VodPost)
 
+    //finish
+    api.GET("/final/msg",controller.FinishData)
+
 	//swagger
 	api.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
