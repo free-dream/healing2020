@@ -15,6 +15,7 @@ type FinishData struct {
 
     HotTags []string `json:"hotTags"`
     HotSong string `json:"hotSong"`
+    HotSongUser string `json:"hotSongUser"`
     HotUser string `json:"hotUser"`
 
     MyVod int `json:"myVod"`
@@ -26,7 +27,7 @@ type FinishData struct {
 func GetFinish(userid uint) FinishData{
     var result FinishData
     result.Days = 14
-    result.HotTags = []string{""}
+    result.HotTags = []string{"粤语","英语","日语"}
     db := setting.MysqlConn()
     count := 0
     db.Model(&statements.User{}).Count(&count)
@@ -40,9 +41,11 @@ func GetFinish(userid uint) FinishData{
     var vod statements.Vod
     db.Raw("select name from vod group by name order by count(*) desc").Limit(1).Scan(&vod)
     result.MostVod = vod.Name
-    db.Model(&statements.Song{}).Select("name").Order("praise desc").First(&song)
+    db.Model(&statements.Song{}).Select("name,user_id").Order("praise desc").First(&song)
     result.HotSong = song.Name 
     var user statements.User
+    db.Model(&statements.User{}).Select("nick_name").Where("id = ?",song.UserId).First(&user)
+    result.HotSongUser = user.NickName
     db.Model(&statements.User{}).Select("nick_name").Order("money desc").First(&user)
     result.HotUser = user.NickName
 
